@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BLADE.TCPFORTRESS.CoreClass", "BLADE.TCPFORTREASS.CoreClass\BLADE.TCPFORTRESS.CoreClass.csproj", "{35E4E238-0637-46DC-B59D-BC7E83BC8D78}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BLADE.TCPFORTRESS.SetApp", "BLADE.TCPFORTRESS.SetApp\BLADE.TCPFORTRESS.SetApp.csproj", "{9A83E34E-F9B3-409D-9658-8B54C1F07833}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BLADE.TCPFORTRESS.TFSERVICE", "BLADE.TCPFORTRESS.TFSERVICE\BLADE.TCPFORTRESS.TFSERVICE.csproj", "{B648D887-346F-4C57-B715-3E666B4488F6}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TFS", "TFS\TFS.vbproj", "{CA1274A3-85F6-42FD-9364-441674E34684}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{35E4E238-0637-46DC-B59D-BC7E83BC8D78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35E4E238-0637-46DC-B59D-BC7E83BC8D78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35E4E238-0637-46DC-B59D-BC7E83BC8D78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35E4E238-0637-46DC-B59D-BC7E83BC8D78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A83E34E-F9B3-409D-9658-8B54C1F07833}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A83E34E-F9B3-409D-9658-8B54C1F07833}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A83E34E-F9B3-409D-9658-8B54C1F07833}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A83E34E-F9B3-409D-9658-8B54C1F07833}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B648D887-346F-4C57-B715-3E666B4488F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B648D887-346F-4C57-B715-3E666B4488F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B648D887-346F-4C57-B715-3E666B4488F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B648D887-346F-4C57-B715-3E666B4488F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA1274A3-85F6-42FD-9364-441674E34684}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA1274A3-85F6-42FD-9364-441674E34684}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA1274A3-85F6-42FD-9364-441674E34684}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA1274A3-85F6-42FD-9364-441674E34684}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D7A46295-1CB5-49CD-91E4-A6DCF23AFC14}
+	EndGlobalSection
+EndGlobal
