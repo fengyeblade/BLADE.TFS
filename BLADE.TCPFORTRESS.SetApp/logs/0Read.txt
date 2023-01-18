@@ -1,0 +1,15 @@
+﻿
+================================
+此服务依赖 微软 .Net Framework 4.8 运行时。
+网络安装包已包含： ndp48-web.exe
+完整下载安装地址： https://dotnet.microsoft.com/zh-cn/download/dotnet-framework/net48  
+
+
+
+================================
+安装服务：  右键点击 01.InstallService.bat 选择“以管理员身份运行”
+
+桌面上右键点击  “此计算机” - “管理” 打开计算机管理。
+选择服务  启动服务  “Tcp Fortress Service” 
+
+卸载服务： 右键点击 02.UnInstallService.bat 选择 “以管理员身份运行”
