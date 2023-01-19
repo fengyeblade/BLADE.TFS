@@ -127,10 +127,14 @@ namespace BLADE.TCPFORTRESS.SetApp
                 }
             }
             graynum.Text = T.Length.ToString();
-            if(rw < dataGridView1.Rows.Count)
+            try
             {
-                dataGridView1.FirstDisplayedScrollingRowIndex= rw;
+                if (rw < dataGridView1.Rows.Count)
+                {
+                    dataGridView1.FirstDisplayedScrollingRowIndex = rw;
+                }
             }
+            catch { }
 
 
         }
@@ -172,10 +176,14 @@ namespace BLADE.TCPFORTRESS.SetApp
                 }
             }
             whitenum.Text = T.Length.ToString();
-            if (rw < dataGridView3.Rows.Count)
+            try
             {
-                dataGridView3.FirstDisplayedScrollingRowIndex = rw;
+                if (rw < dataGridView3.Rows.Count)
+                {
+                    dataGridView3.FirstDisplayedScrollingRowIndex = rw;
+                }
             }
+            catch { }
         }
 
         protected CoreClass.DB.TFS_Address_DBT[] LoadAddress(int wbg)
@@ -219,11 +227,15 @@ namespace BLADE.TCPFORTRESS.SetApp
                     { m = 90; }
                 }
             }
-            blacknum.Text = T.Length.ToString();
-            if (rw < dataGridView2.Rows.Count)
+            blacknum.Text = T.Length.ToString(); 
+            try
             {
-                dataGridView2.FirstDisplayedScrollingRowIndex = rw;
+                if (rw < dataGridView2.Rows.Count)
+                {
+                    dataGridView2.FirstDisplayedScrollingRowIndex = rw;
+                }
             }
+            catch { }
         }
         private void butLOADWHITE_Click(object sender, EventArgs e)
         {

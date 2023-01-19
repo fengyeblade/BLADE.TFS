@@ -302,6 +302,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
             }
           
             DB.Configs.SetDbConStr(RunSet.DBStr);
+            DB.Configs.DefConStr = RunSet.DBStr;
             string logp = RunSet.LogFilePath;
             if (logp.StartsWith("\\") || logp.StartsWith("/"))
             {
