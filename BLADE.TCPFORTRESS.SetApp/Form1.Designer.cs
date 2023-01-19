@@ -172,7 +172,7 @@
             this.textDBstr.Name = "textDBstr";
             this.textDBstr.Size = new System.Drawing.Size(548, 23);
             this.textDBstr.TabIndex = 9;
-            this.textDBstr.Text = "Data Source=127.0.0.1,22233;  Initial Catalog=TFS;User ID=TFS;Password =tfs2023;";
+            this.textDBstr.Text = "Data Source=127.0.0.1,22233; Initial Catalog=TFS;User ID=TFS;Password =pass;";
             // 
             // checkLonglock
             // 

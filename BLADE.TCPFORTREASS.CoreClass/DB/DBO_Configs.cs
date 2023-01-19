@@ -10,7 +10,7 @@ namespace BLADE.TCPFORTRESS.CoreClass.DB
 {
     public class Configs
     {
-        public static string DefConStr = "Data Source=110.42.182.248,22233;  Initial Catalog=TFS;User ID=TFS;Password =tfs2023;";
+        public static string DefConStr = "Data Source=127.0.0.1,22233;  Initial Catalog=TFS;User ID=TFS;Password =pAsSwOrD;";
         protected static bool Inited = false;
         public static void LoadDbConStr()
         {

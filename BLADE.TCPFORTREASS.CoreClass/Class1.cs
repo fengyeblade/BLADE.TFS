@@ -27,7 +27,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
         /// <summary>
         /// 数据库连接字符串
         /// </summary>
-        public string DBStr = "Data Source=127.0.0.1,22233;  Initial Catalog=TFS;User ID=TFS;Password =tfs2023;";
+        public string DBStr = "Data Source=127.0.0.1,22233;  Initial Catalog=TFS;User ID=TFS;Password =pard;";
         public string DBName = "TFS";
         /// <summary>
         /// 运行名单模式   0=使用白名单    2=使用黑名单模式    1=灰名单运行模式，不判定白名单或黑名单，只是根据重连次数判定灰名单进行临时性限制。
@@ -71,12 +71,12 @@ namespace BLADE.TCPFORTRESS.CoreClass
         /// </summary>
         public string LogFilePath = "\\logs";
         /// <summary>
-        /// 日志文件名
+        /// 暂时弃用
         /// </summary>
         public string LogFileName = "TFL_SN_.log";
 
         /// <summary>
-        /// 端口转发映射管道
+        /// 端口转发映射管道  需要至少有一个！ 服务的生命周期需要
         /// </summary>
         public TunSet[] Tuns= new TunSet[1];
     }
