@@ -92,6 +92,7 @@ namespace BLADE.TCPFORTRESS.SetApp
 
         protected void ShowGray()
         {
+            int rw = dataGridView1.FirstDisplayedScrollingRowIndex;
             dataGridView1.Rows.Clear();
             CoreClass.DB.TFS_Address_DBT[] T = LoadAddress(1);
             int m = 85;
@@ -126,12 +127,16 @@ namespace BLADE.TCPFORTRESS.SetApp
                 }
             }
             graynum.Text = T.Length.ToString();
-
+            if(rw < dataGridView1.Rows.Count)
+            {
+                dataGridView1.FirstDisplayedScrollingRowIndex= rw;
+            }
 
 
         }
         protected void ShowWhite()
         {
+            int rw = dataGridView3.FirstDisplayedScrollingRowIndex;
             dataGridView3.Rows.Clear();
             CoreClass.DB.TFS_Address_DBT[] T = LoadAddress(0);
             int m = 90;
@@ -167,6 +172,10 @@ namespace BLADE.TCPFORTRESS.SetApp
                 }
             }
             whitenum.Text = T.Length.ToString();
+            if (rw < dataGridView3.Rows.Count)
+            {
+                dataGridView3.FirstDisplayedScrollingRowIndex = rw;
+            }
         }
 
         protected CoreClass.DB.TFS_Address_DBT[] LoadAddress(int wbg)
@@ -177,6 +186,7 @@ namespace BLADE.TCPFORTRESS.SetApp
         }
         protected void ShowBlack()
         {
+            int rw = dataGridView2.FirstDisplayedScrollingRowIndex;
             dataGridView2.Rows.Clear();
             CoreClass.DB.TFS_Address_DBT[] T = LoadAddress(2);
             int m = 90;
@@ -210,6 +220,10 @@ namespace BLADE.TCPFORTRESS.SetApp
                 }
             }
             blacknum.Text = T.Length.ToString();
+            if (rw < dataGridView2.Rows.Count)
+            {
+                dataGridView2.FirstDisplayedScrollingRowIndex = rw;
+            }
         }
         private void butLOADWHITE_Click(object sender, EventArgs e)
         {

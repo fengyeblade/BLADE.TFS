@@ -305,7 +305,7 @@ namespace BLADE.TCPFORTRESS.CoreClass.TransPart
                     ServiceRunCenter.LOG.AddLog(false, 119, "transfer UP "+_tunset.TunName+"  EX: " + zee.ToString());
                 }
             }
-            ServiceRunCenter.LOG.AddLog( "=       NetCount  " + this._tunset.TunName +"   "+ UpDownCount);
+            ServiceRunCenter.LOG.AddLogDebug(119, "=       NetCount  " + this._tunset.TunName +"   "+ UpDownCount);
         }
         /// <summary>
         /// 转发接管 子线程方法  下行   
@@ -581,7 +581,7 @@ namespace BLADE.TCPFORTRESS.CoreClass.TransPart
                             {
                                 ts.StopClose();
                                 TransList.Remove(sssnn);
-                                ServiceRunCenter.LOG.AddLog(false, 105, "Remove Tcp Trans: " + sssnn);
+                                ServiceRunCenter.LOG.AddLogDebug(  105, "Remove Tcp Trans: " + sssnn);
                                 break;
                             }
                         }
