@@ -61,9 +61,7 @@
     <Content Include="pic1.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="TFS_center_v0120.rar">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="TFS_center_20230201.zip" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>
