@@ -142,11 +142,11 @@
             this.X,
             this.SELECT});
             this.dataGridView1.GridColor = System.Drawing.Color.Black;
-            this.dataGridView1.Location = new System.Drawing.Point(334, 50);
+            this.dataGridView1.Location = new System.Drawing.Point(334, 41);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowTemplate.Height = 23;
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView1.Size = new System.Drawing.Size(764, 384);
+            this.dataGridView1.Size = new System.Drawing.Size(764, 380);
             this.dataGridView1.TabIndex = 0;
             // 
             // ID
