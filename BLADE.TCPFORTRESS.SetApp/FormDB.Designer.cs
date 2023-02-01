@@ -110,6 +110,8 @@
             this.textPardon = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.label11 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.button3 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.BlackPage.SuspendLayout();
@@ -140,7 +142,7 @@
             this.X,
             this.SELECT});
             this.dataGridView1.GridColor = System.Drawing.Color.Black;
-            this.dataGridView1.Location = new System.Drawing.Point(334, 41);
+            this.dataGridView1.Location = new System.Drawing.Point(334, 50);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowTemplate.Height = 23;
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
@@ -913,7 +915,7 @@
             this.dataGridView4.Name = "dataGridView4";
             this.dataGridView4.RowTemplate.Height = 23;
             this.dataGridView4.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView4.Size = new System.Drawing.Size(316, 300);
+            this.dataGridView4.Size = new System.Drawing.Size(316, 297);
             this.dataGridView4.TabIndex = 33;
             // 
             // PID
@@ -941,7 +943,7 @@
             this.buttDelPardon.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttDelPardon.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.buttDelPardon.ForeColor = System.Drawing.Color.Red;
-            this.buttDelPardon.Location = new System.Drawing.Point(190, 359);
+            this.buttDelPardon.Location = new System.Drawing.Point(190, 12);
             this.buttDelPardon.Name = "buttDelPardon";
             this.buttDelPardon.Size = new System.Drawing.Size(138, 23);
             this.buttDelPardon.TabIndex = 34;
@@ -955,7 +957,7 @@
             this.textPardon.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textPardon.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.textPardon.ForeColor = System.Drawing.Color.Lime;
-            this.textPardon.Location = new System.Drawing.Point(12, 399);
+            this.textPardon.Location = new System.Drawing.Point(12, 355);
             this.textPardon.Name = "textPardon";
             this.textPardon.Size = new System.Drawing.Size(154, 23);
             this.textPardon.TabIndex = 35;
@@ -967,7 +969,7 @@
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button2.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            this.button2.Location = new System.Drawing.Point(190, 399);
+            this.button2.Location = new System.Drawing.Point(190, 355);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(138, 23);
             this.button2.TabIndex = 36;
@@ -986,12 +988,40 @@
             this.label11.TabIndex = 37;
             this.label11.Text = "0";
             // 
+            // textBox1
+            // 
+            this.textBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
+            this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBox1.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.textBox1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
+            this.textBox1.Location = new System.Drawing.Point(12, 400);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(154, 23);
+            this.textBox1.TabIndex = 38;
+            this.textBox1.Text = "www.baidu.com";
+            this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // button3
+            // 
+            this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button3.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(128)))), ((int)(((byte)(64)))));
+            this.button3.Location = new System.Drawing.Point(190, 398);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(138, 23);
+            this.button3.TabIndex = 39;
+            this.button3.Text = "DNS Host Show";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
             // FormDB
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(0)))), ((int)(((byte)(50)))));
             this.ClientSize = new System.Drawing.Size(1110, 807);
+            this.Controls.Add(this.button3);
+            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.textPardon);
@@ -1135,5 +1165,7 @@
         private System.Windows.Forms.TextBox textPardon;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button button3;
     }
 }

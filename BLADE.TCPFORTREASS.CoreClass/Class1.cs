@@ -481,20 +481,67 @@ namespace BLADE.TCPFORTRESS.CoreClass
             try
             {
                 TFS_Address[] ts = await GetPardonList();
-                lock (TmpList)
+
+                for (int z = 0; z < ts.Length; z++)
                 {
-                    for (int z = 0; z < ts.Length; z++)
+                    if (ts[z].X == -9)
                     {
+                        try
+                        {
+                            string host = ts[z].TFS_AddressStr;
+                            IPHostEntry IPinfo = Task.Run(()=> Dns.GetHostEntry(host)).Result;
+                            foreach (IPAddress IP in IPinfo.AddressList)
+                            {
+                                await LOG.AddLogDebug(233, host + " GetPardonIP: " + IP.ToString());
+                                TFS_Address ttss = new TFS_Address();
+                                ttss.TFS_AddressStr = IP.ToString();
+                                ttss.TFS_WhiteOrBlack = -99;
+                                string[] nnn = ttss.TFS_AddressStr.Split(new string[] { ":", ".", "/" }, StringSplitOptions.RemoveEmptyEntries);
+                                if (nnn.Length > 0)
+                                {
+                                    ttss.TFS_K1 = nnn[0];
+                                    
+                                }
+                                if (nnn.Length > 1)
+                                {
+                                    ttss.TFS_K2 = nnn[1];
+                                  
+                                }
+                                if (nnn.Length > 2)
+                                {
+                                    ttss.TFS_K3 = nnn[2];
+                                    
+                                }
+                                ttss.fenX();
+
+                                AddressListItem tai = new AddressListItem();
+                                tai.SetUp(ttss);
+                                lock (TmpList)
+                                {
+                                    a = a + TmpList.DelAddr(tai).Result;
+                                }
+                            }
+                        }
+                        catch(Exception za) {
+                             LOG.AddLog(22, 234, "DnsHostError:" + ts[z].TFS_AddressStr+"  "+ za.ToString());
+                        }
+                    }
+                    else
+                    {
+
                         AddressListItem tai = new AddressListItem();
                         tai.SetUp(ts[z]);
-                        a = a + TmpList.DelAddr(tai).Result;
-
-
+                        lock (TmpList)
+                        {
+                            a = a + TmpList.DelAddr(tai).Result;
+                        }
                     }
+
                 }
-            }catch(Exception zxz)
+            }
+            catch (Exception zxz)
             {
-                LOG.AddLog("PardonGray() EX : "+zxz.ToString());
+                LOG.AddLog("PardonGray() EX : " + zxz.ToString());
             }
             return a;
         }

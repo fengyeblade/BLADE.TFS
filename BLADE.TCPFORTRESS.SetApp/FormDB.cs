@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -84,9 +85,10 @@ namespace BLADE.TCPFORTRESS.SetApp
             try
             {
                 ShowGray();
-            }catch(Exception zez)
+            }
+            catch (Exception zez)
             {
-                MessageBox.Show("ShowGray() EX: " + zez.ToString()+" \r\n\r\nPlease try it later.");
+                MessageBox.Show("ShowGray() EX: " + zez.ToString() + " \r\n\r\nPlease try it later.");
             }
         }
 
@@ -227,7 +229,7 @@ namespace BLADE.TCPFORTRESS.SetApp
                     { m = 90; }
                 }
             }
-            blacknum.Text = T.Length.ToString(); 
+            blacknum.Text = T.Length.ToString();
             try
             {
                 if (rw < dataGridView2.Rows.Count)
@@ -239,8 +241,9 @@ namespace BLADE.TCPFORTRESS.SetApp
         }
         private void butLOADWHITE_Click(object sender, EventArgs e)
         {
-            try { 
-            ShowWhite();
+            try
+            {
+                ShowWhite();
             }
             catch (Exception zez)
             {
@@ -502,18 +505,19 @@ namespace BLADE.TCPFORTRESS.SetApp
 
         private void butMERGEBLACK_Click(object sender, EventArgs e)
         {
-            try { 
-            CoreClass.DB.DBV.TFS_Address AA = ChangeTo(2);
+            try
+            {
+                CoreClass.DB.DBV.TFS_Address AA = ChangeTo(2);
 
-            string jk = "Clear " + OPDB.DeleteList(zhuanyongIDS).ToString() + " Items.";
-            OPDB.SavetoWOB(AA);
-            jk = jk + " Make a new BLACK " + AA.TFS_AID.ToString();
-            ;
-            Thread.Sleep(100);
-            ShowGray();
-            Thread.Sleep(100);
-            ShowBlack();
-            MessageBox.Show(jk);
+                string jk = "Clear " + OPDB.DeleteList(zhuanyongIDS).ToString() + " Items.";
+                OPDB.SavetoWOB(AA);
+                jk = jk + " Make a new BLACK " + AA.TFS_AID.ToString();
+                ;
+                Thread.Sleep(100);
+                ShowGray();
+                Thread.Sleep(100);
+                ShowBlack();
+                MessageBox.Show(jk);
             }
             catch (Exception zez)
             {
@@ -615,14 +619,20 @@ namespace BLADE.TCPFORTRESS.SetApp
                 if (nnn.Length > 0)
                 {
                     tt.TFS_K1 = nnn[0];
+                    if (tt.TFS_K1.Length > 15)
+                    { tt.TFS_K1 = tt.TFS_K1.Substring(0, 15); }
                 }
                 if (nnn.Length > 1)
                 {
                     tt.TFS_K2 = nnn[1];
+                    if (tt.TFS_K2.Length > 15)
+                    { tt.TFS_K2 = tt.TFS_K2.Substring(0, 15); }
                 }
                 if (nnn.Length > 2)
                 {
                     tt.TFS_K3 = nnn[2];
+                    if (tt.TFS_K3.Length > 15)
+                    { tt.TFS_K3 = tt.TFS_K3.Substring(0, 15); }
                 }
                 tt.fenX();
 
@@ -739,6 +749,29 @@ namespace BLADE.TCPFORTRESS.SetApp
             else { textK4.Text = "0"; }
 
 
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            string jieguo = "";
+            try
+            {
+                IPHostEntry IPinfo = Dns.GetHostEntry(textBox1.Text.Trim());
+                foreach (IPAddress iIP in IPinfo.AddressList)
+                {
+                    jieguo = jieguo + "IP:" + iIP.ToString() + "\r\n";
+                }
+                jieguo = jieguo + "\r\n";
+                foreach (string alias in IPinfo.Aliases)
+                {
+                    jieguo
+                        = jieguo + "A:" + alias + "\r\n";
+                }
+                jieguo = IPinfo.HostName + "\r\n" + jieguo;
+            }
+            catch(Exception ex) { jieguo = "EX:" + ex.ToString(); }
+           
+            MessageBox.Show(jieguo);
         }
     }
 

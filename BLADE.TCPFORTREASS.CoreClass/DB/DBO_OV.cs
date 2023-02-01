@@ -59,9 +59,12 @@ namespace BLADE.TCPFORTRESS.CoreClass.DB.DBV
             try
             {
                 z = int.Parse(TFS_K2.Substring(0, 1));
+                X = z;
             }
-            catch { }
-            X = z;
+            catch {
+                X = -9;
+            }
+          
 
         }
 
