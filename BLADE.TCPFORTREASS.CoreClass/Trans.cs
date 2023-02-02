@@ -19,7 +19,13 @@ namespace BLADE.TCPFORTRESS.CoreClass.TransPart
     public class Tao
     {
        
+        /// <summary>
+        /// 流入端
+        /// </summary>
         public TcpClient TcpIn;
+        /// <summary>
+        /// 流出端
+        /// </summary>
         public TcpClient TcpOut;
         /// <summary>
         /// true = UP   false = Down
@@ -35,7 +41,13 @@ namespace BLADE.TCPFORTRESS.CoreClass.TransPart
     public class Trans
     {
         public DateTime LastTran = DateTime.Now;
+        /// <summary>
+        /// 接入端
+        /// </summary>
         public TcpClient inClient = null;
+        /// <summary>
+        /// 转接端
+        /// </summary>
         public TcpClient outClient = null;
         protected TunSet _tunset = null;
         public string Road { get { return _tunset.Road; } }
@@ -127,11 +139,23 @@ namespace BLADE.TCPFORTRESS.CoreClass.TransPart
            
         }
         protected int looptim = 0;
+        /// <summary>
+        /// 上行计数
+        /// </summary>
         protected long UpCount = 0;
+        /// <summary>
+        /// 下行计数
+        /// </summary>
         protected long DownCount = 0;
 
 
+        /// <summary>
+        /// 流量计速
+        /// </summary>
         protected long _CurSpeedUP = 0;
+        /// <summary>
+        /// 流量计速
+        /// </summary>
         protected long _CurSpeedDOWN = 0;
         public string CurSpeed {
             get {
@@ -315,7 +339,7 @@ namespace BLADE.TCPFORTRESS.CoreClass.TransPart
         {
 
              
-            #region 原理 与上行 transfer 相同，原本是一个方法，为了精准控速 分为两个方法。
+            #region 原理 与上行 transfer 相同，原本是一个方法，为了区分控制 分为两个方法。
 
             long stepcount = 1;
 

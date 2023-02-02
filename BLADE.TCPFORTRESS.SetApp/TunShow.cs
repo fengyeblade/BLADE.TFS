@@ -130,5 +130,100 @@ namespace BLADE.TCPFORTRESS.SetApp
             { sk = 1024; }
             textSpeed.Text = sk.ToString();
         }
+
+        private void textLockCount_Leave(object sender, EventArgs e)
+        {
+            int a = 9;
+            try
+            {
+                a = int.Parse(textLockCount.Text.Trim());
+                if (a < 2)
+                { a = 2; }
+                else
+                {
+                    if (a > 60000)
+                    {
+                        a = 60000;
+                    }
+                }
+            }
+            catch { textLockCount.Text = a.ToString(); }
+        }
+
+        private void textSpeed_Leave(object sender, EventArgs e)
+        {
+            int a = 512;
+            try
+            {
+                a = int.Parse(textSpeed.Text.Trim());
+                if (a < 20)
+                { a = 20; }
+                else
+                {
+                    if (a > 102400)
+                    {
+                        a = 102400;
+                    }
+                }
+            }
+            catch { textSpeed.Text = a.ToString(); }
+        }
+
+        private void textMTU_Leave(object sender, EventArgs e)
+        {
+            int a = 1450;
+            try
+            {
+                a = int.Parse(textMTU.Text.Trim());
+                if (a < 512)
+                { a = 512; }
+                else
+                {
+                    if (a > 2048)
+                    {
+                        a = 2048;
+                    }
+                }
+            }
+            catch { textMTU.Text = a.ToString(); }
+        }
+
+        private void textInport_Leave(object sender, EventArgs e)
+        {
+            int a = 2000;
+            try
+            {
+                a = int.Parse(textInport.Text.Trim());
+                if (a < 1)
+                { a = 1; }
+                else
+                {
+                    if (a > 65535)
+                    {
+                        a = 65535;
+                    }
+                }
+            }
+            catch { textInport.Text = a.ToString(); }
+        }
+
+        private void textOutport_Leave(object sender, EventArgs e)
+        {
+            int a = 2000;
+            try
+            {
+                a = int.Parse(textOutport.Text.Trim());
+                if (a < 1)
+                { a = 1; }
+                else
+                {
+                    if (a > 65535)
+                    {
+                        a = 65535;
+                    }
+                }
+            }
+            catch { textOutport.Text = a.ToString(); }
+        }
     }
 }

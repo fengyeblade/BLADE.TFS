@@ -91,6 +91,7 @@
             this.textMTU.TabIndex = 3;
             this.textMTU.Text = "1400";
             this.textMTU.TextChanged += new System.EventHandler(this.textMTU_TextChanged);
+            this.textMTU.Leave += new System.EventHandler(this.textMTU_Leave);
             // 
             // label3
             // 
@@ -157,6 +158,7 @@
             this.textInport.TabIndex = 9;
             this.textInport.Text = "2000";
             this.textInport.TextChanged += new System.EventHandler(this.textInport_TextChanged);
+            this.textInport.Leave += new System.EventHandler(this.textInport_Leave);
             // 
             // label6
             // 
@@ -198,17 +200,18 @@
             this.textOutport.TabIndex = 13;
             this.textOutport.Text = "2222";
             this.textOutport.TextChanged += new System.EventHandler(this.textOutport_TextChanged);
+            this.textOutport.Leave += new System.EventHandler(this.textOutport_Leave);
             // 
             // butdelete
             // 
             this.butdelete.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(32)))), ((int)(((byte)(64)))));
             this.butdelete.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.butdelete.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
-            this.butdelete.Location = new System.Drawing.Point(453, 9);
+            this.butdelete.Location = new System.Drawing.Point(413, 9);
             this.butdelete.Name = "butdelete";
-            this.butdelete.Size = new System.Drawing.Size(105, 23);
+            this.butdelete.Size = new System.Drawing.Size(145, 23);
             this.butdelete.TabIndex = 15;
-            this.butdelete.Text = "Delete";
+            this.butdelete.Text = "Delete This";
             this.butdelete.UseVisualStyleBackColor = false;
             this.butdelete.Click += new System.EventHandler(this.butdelete_Click);
             // 
@@ -243,6 +246,7 @@
             this.textSpeed.TabIndex = 18;
             this.textSpeed.Text = "1024";
             this.textSpeed.TextChanged += new System.EventHandler(this.textSpeed_TextChanged);
+            this.textSpeed.Leave += new System.EventHandler(this.textSpeed_Leave);
             // 
             // label10
             // 
@@ -264,6 +268,7 @@
             this.textLockCount.TabIndex = 20;
             this.textLockCount.Text = "9";
             this.textLockCount.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.textLockCount.Leave += new System.EventHandler(this.textLockCount_Leave);
             // 
             // TunShow
             // 
