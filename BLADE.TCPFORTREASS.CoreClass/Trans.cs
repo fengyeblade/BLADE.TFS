@@ -236,7 +236,7 @@ namespace BLADE.TCPFORTRESS.CoreClass.TransPart
 
             //速度 再次控制开关
             bool jxsleep = false;
-            
+            double cpssU = 0;
             while (_running)
             {
                 try
@@ -246,13 +246,13 @@ namespace BLADE.TCPFORTRESS.CoreClass.TransPart
                     if(jxsleep)
                     {
                         jxsleep = false;
-                        Thread.Sleep(400);
+                        Thread.Sleep(300);
                     }
 
                     step++;
 
                     //速度计步
-                    if(step>100)
+                    if(step>80)
                     {
                         jst = (int)((DateTime.Now - timestep).TotalMilliseconds);  
                         //计速 时间差大于1秒
@@ -260,18 +260,64 @@ namespace BLADE.TCPFORTRESS.CoreClass.TransPart
                         {
                             step = 0;
                             timestep = DateTime.Now;
-                           
-                            if ((_tunset.SpeedMax * 2) < (int)(stepcount / 1024))
+                            cpssU = (stepcount / 1024) * 1000 / jst;
+                            cpssU = cpssU / (_tunset.SpeedMax+1);
+                            if(cpssU > 1)
+                            {
+                                //判断超限
+
+                                //控速 0.2秒
+                                Thread.Sleep(200);
+                                if (cpssU < 1.3)
+                                {
+                                    //不增加限速
+                                   
+                                }
+                                else
+                                {
+                                    //超过 1.3倍 增加限速
+                                    if (cpssU < 1.7)
+                                    {
+                                        //控速 +0.2秒
+                                        Thread.Sleep(200);
+
+                                    }
+                                    else
+                                    {
+                                        // 超过 1.7倍  控速 +0.2秒  打开再控
+                                        Thread.Sleep(200);
+                                        //再次控速开关 开
+                                        jxsleep = true;
+                                    }
+                                }
+                                 
+                            }
+                            else
+                            {
+                                //未超速
+
+                                if (cpssU < 0.8)
+                                {
+                                    //全速
+                                }
+                                else
+                                {
+                                    //预警轻控速 0.08秒
+                                    Thread.Sleep(80);
+                                }
+                            }
+
+                            if ((_tunset.SpeedMax * 2) < cpssU)
                             {   //再次控速开关 开
                                 jxsleep = true; }
 
 
-                            if (  _tunset.SpeedMax <  (int)(stepcount/1024))
+                            if (  _tunset.SpeedMax <  cpssU)
                             {   //控速 0.4秒
-                                Thread.Sleep(400);
+                                Thread.Sleep(300);
                             }
                             _CurSpeedUP = stepcount + 1;
-                            stepcount = 0;
+                            stepcount = 1;
                         }
                     }
 
