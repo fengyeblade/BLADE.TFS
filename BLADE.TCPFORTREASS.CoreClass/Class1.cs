@@ -59,7 +59,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
                     dnameItem td = new dnameItem(nnn);
                     td.IP = dnsIP(nnn);
                     td.dnstime = DateTime.Now;
-                    ii = COL[nnn].IP;
+                    ii = td.IP;
                     COL.Add(nnn, td);
 
                 }
@@ -1219,7 +1219,9 @@ namespace BLADE.TCPFORTRESS.CoreClass
         {
             get
             {
-                return InAddress + ":" + InPort.ToString() + " TO " + OutAddress + ":" + OutPort.ToString() + " R_" + UseRule.ToString();
+                string oo = OutAddress;
+                if (DName != "") { oo = DName; }
+                return InAddress + ":" + InPort.ToString() + " TO " + oo + ":" + OutPort.ToString() + " R_" + UseRule.ToString();
             }
         }
     }

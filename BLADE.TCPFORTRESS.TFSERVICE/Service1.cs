@@ -97,7 +97,7 @@ namespace BLADE.TCPFORTRESS.TFSERVICE
 
             }
 
-
+            await ServiceRunCenter.LOG.SaveLogs(true);
 
             return a;
         }
