@@ -139,15 +139,15 @@ namespace BLADE.TCPFORTRESS.SetApp
             try
             {
                 a = int.Parse(textLockCount.Text.Trim());
-                if (a < 2)
-                { a = 2; }
-                else
-                {
+                if (a < -1992)
+                { a = -2; }
+                
+       
                     if (a > 60000)
                     {
                         a = 60000;
                     }
-                }
+                
             }
             catch { textLockCount.Text = a.ToString(); }
         }
