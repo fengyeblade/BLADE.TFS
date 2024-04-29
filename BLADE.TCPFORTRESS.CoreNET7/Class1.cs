@@ -12,60 +12,64 @@ using System.Net;
 
 namespace BLADE.TCPFORTRESS.CoreNET7
 {
+
     public class dnameItem
     {
         public string dname = "";
         public DateTime dnstime = DateTime.Now;
         public string IP = "";
 
-        public dnameItem(string inDNAME) {
+        public dnameItem(string inDNAME)
+        {
             dname = inDNAME.ToLower().Trim();
             dnstime = DateTime.Now.AddHours(-5);
             IP = "127.0.0.1";
         }
     }
     public class DNameCatch
-    { 
-    protected static SortedList<string,dnameItem> COL=new SortedList<string, dnameItem>(StringComparer.OrdinalIgnoreCase);
+    {
+        protected static SortedList<string, dnameItem> COL = new SortedList<string, dnameItem>(StringComparer.OrdinalIgnoreCase);
 
         public static string GetIP(string indname)
         {
             string nnn = indname.ToLower().Trim();
             string ii = "127.0.0.1";
-          
-                lock(COL)
+
+            lock (COL)
+            {
+
+                if (COL.ContainsKey(nnn))
                 {
-                   
-                    if(COL.ContainsKey(nnn))
+                    if ((DateTime.Now - COL[nnn].dnstime).TotalMinutes < 20)
                     {
-                        if ((DateTime.Now - COL[nnn].dnstime).TotalMinutes < 20)
-                        {
-                            ii = COL[nnn].IP;
-                        }
-                        else
-                        {
-                            COL[nnn].IP = dnsIP(nnn);
-                            COL[nnn].dnstime = DateTime.Now;
-                            ii = COL[nnn].IP;
-                        }
+                        ii = COL[nnn].IP;
                     }
                     else
                     {
-                        dnameItem td = new dnameItem(nnn);
-                        td.IP = dnsIP(nnn);
-                        td.dnstime = DateTime.Now;
+                        COL[nnn].IP = dnsIP(nnn);
+                        COL[nnn].dnstime = DateTime.Now;
                         ii = COL[nnn].IP;
-                        COL.Add(nnn, td);
-
                     }
                 }
-           
+                else
+                {
+                    dnameItem td = new dnameItem(nnn);
+                    td.IP = dnsIP(nnn);
+                    td.dnstime = DateTime.Now;
+                    ii = COL[nnn].IP;
+                    COL.Add(nnn, td);
+
+                }
+            }
+
 
             return ii;
         }
-        public static string dnsIP(string indname) {
+        public static string dnsIP(string indname)
+        {
             string ii = "127.0.0.1";
-            try {
+            try
+            {
                 IPHostEntry IPinfo = Dns.GetHostEntry(indname.Trim());
 
                 if (IPinfo.AddressList.Length > 0)
@@ -73,11 +77,13 @@ namespace BLADE.TCPFORTRESS.CoreNET7
                     ii = IPinfo.AddressList[0].ToString();
                 }
 
-            } catch { }
+            }
+            catch { }
 
             return ii;
         }
     }
+
 
     [Serializable]
     /// <summary>
