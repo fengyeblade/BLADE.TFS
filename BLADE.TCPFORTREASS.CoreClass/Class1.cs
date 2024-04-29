@@ -511,41 +511,42 @@ namespace BLADE.TCPFORTRESS.CoreClass
         public static async Task<bool> CheckInIP(string inIp, TunSet inSet)
         {
             bool cc = false;
-
-            // 对传入的地址分段
-            string[] nnn = inIp.Split(new string[] { ":", ",", ".", "/" }, StringSplitOptions.RemoveEmptyEntries);
-            DB.DBV.TFS_Address ta = new DB.DBV.TFS_Address();
-            ta.TFS_AddressStr = inIp;
-            ta.TFS_ALastTime = DateTime.Now;
-            if (nnn.Length > 0) { ta.TFS_K1 = nnn[0]; } else { ta.TFS_K1 = "0"; }
-            if (nnn.Length > 1) { ta.TFS_K2 = nnn[1]; } else { ta.TFS_K2 = "0"; }
-            if (nnn.Length > 2) { ta.TFS_K3 = nnn[2]; } else { ta.TFS_K3 = "0"; }
-            ta.fenX();
-
-            //暂时没写判断地址类型的代码，暂时不需要
-            ta.TFS_IpV6 = false;
-            ta.TFS_CIDR = false;
-
-            //设置为灰名单
-            ta.TFS_WhiteOrBlack = 1;
-           
-            try
+            if (inSet.UseRule)
             {
-                if (inSet.UseRule)
+                // 对传入的地址分段
+                string[] nnn = inIp.Split(new string[] { ":", ",", ".", "/" }, StringSplitOptions.RemoveEmptyEntries);
+                DB.DBV.TFS_Address ta = new DB.DBV.TFS_Address();
+                ta.TFS_AddressStr = inIp;
+                ta.TFS_ALastTime = DateTime.Now;
+                if (nnn.Length > 0) { ta.TFS_K1 = nnn[0]; } else { ta.TFS_K1 = "0"; }
+                if (nnn.Length > 1) { ta.TFS_K2 = nnn[1]; } else { ta.TFS_K2 = "0"; }
+                if (nnn.Length > 2) { ta.TFS_K3 = nnn[2]; } else { ta.TFS_K3 = "0"; }
+                ta.fenX();
+
+                //暂时没写判断地址类型的代码，暂时不需要
+                ta.TFS_IpV6 = false;
+                ta.TFS_CIDR = false;
+
+                //设置为灰名单
+                ta.TFS_WhiteOrBlack = 1;
+
+                try
                 {
-                    //规则启用  判定黑白名单
-                    cc = await PAN.CheckPass(ta,inSet.LockCount);
+                   
+                        //规则启用  判定黑白名单
+                        cc = await PAN.CheckPass(ta, inSet.LockCount);
+                    
+                   
                 }
-                else
+                catch (Exception zz)
                 {
-                    cc = true;
+                    await LOG.AddLog(false, 123, "PAN  " + inIp + "  " + inSet.TunName + "  EX: " + zz.ToString());
                 }
             }
-            catch (Exception zz)
+            else
             {
-                await LOG.AddLog(false, 123, "PAN  " + inIp + "  " + inSet.TunName + "  EX: " + zz.ToString());
+                cc = true;
             }
-
 
             return cc;
         }
