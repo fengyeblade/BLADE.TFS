@@ -12,6 +12,73 @@ using System.Net;
 
 namespace BLADE.TCPFORTRESS.CoreNET7
 {
+    public class dnameItem
+    {
+        public string dname = "";
+        public DateTime dnstime = DateTime.Now;
+        public string IP = "";
+
+        public dnameItem(string inDNAME) {
+            dname = inDNAME.ToLower().Trim();
+            dnstime = DateTime.Now.AddHours(-5);
+            IP = "127.0.0.1";
+        }
+    }
+    public class DNameCatch
+    { 
+    protected static SortedList<string,dnameItem> COL=new SortedList<string, dnameItem>(StringComparer.OrdinalIgnoreCase);
+
+        public static string GetIP(string indname)
+        {
+            string nnn = indname.ToLower().Trim();
+            string ii = "127.0.0.1";
+          
+                lock(COL)
+                {
+                   
+                    if(COL.ContainsKey(nnn))
+                    {
+                        if ((DateTime.Now - COL[nnn].dnstime).TotalMinutes < 20)
+                        {
+                            ii = COL[nnn].IP;
+                        }
+                        else
+                        {
+                            COL[nnn].IP = dnsIP(nnn);
+                            COL[nnn].dnstime = DateTime.Now;
+                            ii = COL[nnn].IP;
+                        }
+                    }
+                    else
+                    {
+                        dnameItem td = new dnameItem(nnn);
+                        td.IP = dnsIP(nnn);
+                        td.dnstime = DateTime.Now;
+                        ii = COL[nnn].IP;
+                        COL.Add(nnn, td);
+
+                    }
+                }
+           
+
+            return ii;
+        }
+        public static string dnsIP(string indname) {
+            string ii = "127.0.0.1";
+            try {
+                IPHostEntry IPinfo = Dns.GetHostEntry(indname.Trim());
+
+                if (IPinfo.AddressList.Length > 0)
+                {
+                    ii = IPinfo.AddressList[0].ToString();
+                }
+
+            } catch { }
+
+            return ii;
+        }
+    }
+
     [Serializable]
     /// <summary>
     ///  基础设置信息类，用于序列化XML文件保存。
@@ -1136,6 +1203,10 @@ namespace BLADE.TCPFORTRESS.CoreNET7
         /// 连接限制  每个通道单独配置 除白名单模式外  超过限制则封锁到灰名单
         /// </summary>
         public int LockCount = 9;
+        /// <summary>
+        /// 域名  不为空，会触发DNS解析到 OutAddress
+        /// </summary>
+        public string DName = "";
         /// <summary>
         /// 转发说明
         /// </summary>

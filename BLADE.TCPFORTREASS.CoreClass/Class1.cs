@@ -1134,6 +1134,10 @@ namespace BLADE.TCPFORTRESS.CoreClass
         /// </summary>
         public int LockCount = 9;
         /// <summary>
+        /// 域名  不为空，会触发DNS解析到 OutAddress
+        /// </summary>
+        public string DName = "";
+        /// <summary>
         /// 转发说明
         /// </summary>
         public string Road

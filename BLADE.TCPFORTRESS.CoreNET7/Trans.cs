@@ -596,6 +596,9 @@ namespace BLADE.TCPFORTRESS.CoreNET7.TransPart
                         //获取传入连接
                         TcpClient getNTCP = Listener.AcceptTcpClient();
                         string nip = ((IPEndPoint)getNTCP.Client.RemoteEndPoint).Address.ToString().ToUpper().Trim();
+                        if (_tunSet.DName != "")
+                        {  _tunSet.OutAddress = DNameCatch.GetIP(_tunSet.DName); }
+
                         await ServiceRunCenter.LOG.AddLog(true,"Income", _tunSet.InPort.ToString() + " Get Tcp In. From : " + getNTCP.Client.RemoteEndPoint.ToString());
 
                         //判断IP是否允许通过

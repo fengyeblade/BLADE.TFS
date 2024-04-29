@@ -44,6 +44,7 @@ namespace BLADE.TCPFORTRESS.SetApp
             textOutport.Text = S.OutPort.ToString();
             textSpeed.Text = S.SpeedMax.ToString();
             textLockCount.Text = S.LockCount.ToString();
+            textBox1.Text=S.DName;
         }
         public void SetLockCount(int p)
         {
@@ -61,6 +62,7 @@ namespace BLADE.TCPFORTRESS.SetApp
             S.MTUSize = int.Parse(textMTU.Text.Trim());
             S.SpeedMax = int.Parse(textSpeed.Text);
             S.LockCount = int.Parse(textLockCount.Text);
+            S.DName = textBox1.Text;
             return S;
         }
 
@@ -224,6 +226,12 @@ namespace BLADE.TCPFORTRESS.SetApp
                 }
             }
             catch { textOutport.Text = a.ToString(); }
+        }
+
+        private void textBox1_Leave(object sender, EventArgs e)
+        {
+            string a = textBox1.Text.Trim().ToLower();
+            textBox1.Text = a;
         }
     }
 }

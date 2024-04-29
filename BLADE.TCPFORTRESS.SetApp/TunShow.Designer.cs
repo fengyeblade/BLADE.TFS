@@ -48,6 +48,8 @@
             this.textSpeed = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.textLockCount = new System.Windows.Forms.TextBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -122,7 +124,7 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label4.Location = new System.Drawing.Point(44, 86);
+            this.label4.Location = new System.Drawing.Point(44, 76);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(95, 14);
             this.label4.TabIndex = 6;
@@ -132,7 +134,7 @@
             // 
             this.textInAddr.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.textInAddr.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            this.textInAddr.Location = new System.Drawing.Point(160, 83);
+            this.textInAddr.Location = new System.Drawing.Point(160, 73);
             this.textInAddr.Name = "textInAddr";
             this.textInAddr.Size = new System.Drawing.Size(120, 21);
             this.textInAddr.TabIndex = 7;
@@ -142,7 +144,7 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label5.Location = new System.Drawing.Point(410, 86);
+            this.label5.Location = new System.Drawing.Point(410, 76);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(71, 14);
             this.label5.TabIndex = 8;
@@ -152,7 +154,7 @@
             // 
             this.textInport.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.textInport.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            this.textInport.Location = new System.Drawing.Point(501, 83);
+            this.textInport.Location = new System.Drawing.Point(501, 73);
             this.textInport.Name = "textInport";
             this.textInport.Size = new System.Drawing.Size(57, 21);
             this.textInport.TabIndex = 9;
@@ -164,7 +166,7 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label6.Location = new System.Drawing.Point(44, 125);
+            this.label6.Location = new System.Drawing.Point(44, 104);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(103, 14);
             this.label6.TabIndex = 10;
@@ -174,7 +176,7 @@
             // 
             this.textOutAddr.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.textOutAddr.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            this.textOutAddr.Location = new System.Drawing.Point(160, 122);
+            this.textOutAddr.Location = new System.Drawing.Point(160, 101);
             this.textOutAddr.Name = "textOutAddr";
             this.textOutAddr.Size = new System.Drawing.Size(120, 21);
             this.textOutAddr.TabIndex = 11;
@@ -184,7 +186,7 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label7.Location = new System.Drawing.Point(410, 125);
+            this.label7.Location = new System.Drawing.Point(410, 104);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(79, 14);
             this.label7.TabIndex = 12;
@@ -194,7 +196,7 @@
             // 
             this.textOutport.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.textOutport.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            this.textOutport.Location = new System.Drawing.Point(501, 122);
+            this.textOutport.Location = new System.Drawing.Point(501, 101);
             this.textOutport.Name = "textOutport";
             this.textOutport.Size = new System.Drawing.Size(57, 21);
             this.textOutport.TabIndex = 13;
@@ -230,7 +232,7 @@
             // 
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label9.Location = new System.Drawing.Point(410, 162);
+            this.label9.Location = new System.Drawing.Point(410, 131);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(79, 14);
             this.label9.TabIndex = 17;
@@ -240,7 +242,7 @@
             // 
             this.textSpeed.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.textSpeed.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            this.textSpeed.Location = new System.Drawing.Point(501, 159);
+            this.textSpeed.Location = new System.Drawing.Point(501, 128);
             this.textSpeed.Name = "textSpeed";
             this.textSpeed.Size = new System.Drawing.Size(57, 21);
             this.textSpeed.TabIndex = 18;
@@ -252,7 +254,7 @@
             // 
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label10.Location = new System.Drawing.Point(44, 162);
+            this.label10.Location = new System.Drawing.Point(411, 159);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(87, 14);
             this.label10.TabIndex = 19;
@@ -262,18 +264,40 @@
             // 
             this.textLockCount.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.textLockCount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            this.textLockCount.Location = new System.Drawing.Point(160, 159);
+            this.textLockCount.Location = new System.Drawing.Point(500, 156);
             this.textLockCount.Name = "textLockCount";
-            this.textLockCount.Size = new System.Drawing.Size(120, 21);
+            this.textLockCount.Size = new System.Drawing.Size(58, 21);
             this.textLockCount.TabIndex = 20;
             this.textLockCount.Text = "9";
             this.textLockCount.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.textLockCount.Leave += new System.EventHandler(this.textLockCount_Leave);
             // 
+            // textBox1
+            // 
+            this.textBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.textBox1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            this.textBox1.Location = new System.Drawing.Point(160, 156);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(120, 21);
+            this.textBox1.TabIndex = 22;
+            this.textBox1.Leave += new System.EventHandler(this.textBox1_Leave);
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label11.Location = new System.Drawing.Point(44, 159);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(55, 14);
+            this.label11.TabIndex = 21;
+            this.label11.Text = "DName:";
+            // 
             // TunShow
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(8)))), ((int)(((byte)(32)))), ((int)(((byte)(64)))));
+            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.label11);
             this.Controls.Add(this.textLockCount);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.textSpeed);
@@ -326,5 +350,7 @@
         private System.Windows.Forms.TextBox textSpeed;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox textLockCount;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label11;
     }
 }
