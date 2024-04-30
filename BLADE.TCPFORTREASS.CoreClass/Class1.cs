@@ -864,78 +864,78 @@ namespace BLADE.TCPFORTRESS.CoreClass
                         }
                         else
                         {
+
                             // 此地址的连接计数增加
                             aaa.Address.TFS_ReactCount++;
                             if (aaa.Address.TFS_ReactCount > (tunLockCount + 150))
                             { aaa.Address.TFS_ReactCount = (tunLockCount + 80); }
 
 
-                            if (tunLockCount == 0)
+                            if (tunLockCount > 0)
                             {
-                                //限数 =0   只计数 不处罚灰名单动作 允许通过   可能触发其他端口规则
-                                return true;
+
+                                // 计数判断
+                                if (aaa.Address.TFS_ReactCount > tunLockCount)
+                                {
+                                    //计数超出限制
+
+                                    //锁定LOCK时间判断   如果最后一次连接时间差已经超过了锁定时间设置，判断 RunSet.LongLockGray 决定继续长久封锁  或 恢复连接计数到0 .
+                                    if ((DateTime.Now - aaa.Address.TFS_ALastTime).TotalSeconds > ServiceRunCenter.RunSet.TimeLockSecond)
+                                    {
+                                        await ServiceRunCenter.LOG.AddLogDebug(307, "Check TMPLISTed : " + inA.Address.TFS_AddressStr);
+                                        //时间过了锁定LOCK时间
+                                        if (ServiceRunCenter.RunSet.LongLockGray)
+                                        {
+                                            return false;
+                                        }
+                                        else
+                                        {
+                                            // 归零计数器
+                                            aaa.Address.TFS_ReactCount = 0;
+                                            aaa.Address.TFS_ALastTime = DateTime.Now;
+                                            return true;
+                                        }
+
+                                    }
+
+
+
+                                    aaa.Address.TFS_ALastTime = DateTime.Now;
+                                    //如果没存，存入数据库
+                                    if (!aaa.DB_saved)
+                                    {
+                                        //保存数据库
+                                        if (ServiceRunCenter.RunSet.RecordAutoAddBlackList)
+                                        {
+                                            aaa.Address.TFS_WhiteOrBlack = 2;
+                                        }
+                                        else { aaa.Address.TFS_WhiteOrBlack = 1; }
+                                        DB.TFS_Address_DBT AA = new DB.TFS_Address_DBT();
+
+                                        AA.V = aaa.Address;
+                                        try
+                                        {
+                                            await (Task.Run(() => AA.SaveByInsert()));
+                                            aaa.DB_saved = true;
+                                        }
+                                        catch (Exception zez)
+                                        {
+                                            ServiceRunCenter.LOG.AddLog("L1.TLockIP() SaveAD to DB EX : " + zez.ToString());
+
+                                        }
+                                        await ServiceRunCenter.LOG.AddLog(false, 308, "= =       MaxCount:" + tunLockCount.ToString() + "  Save TMPLIST to DB : " + aaa.Address.TFS_AddressStr);
+                                    }
+
+                                    // 返回封禁
+                                    return false;
+                                }
                             }
 
-
-                            // 计数判断
-                            if (aaa.Address.TFS_ReactCount > tunLockCount)
-                            {
-                                //计数超出限制
-
-                                //锁定LOCK时间判断   如果最后一次连接时间差已经超过了锁定时间设置，判断 RunSet.LongLockGray 决定继续长久封锁  或 恢复连接计数到0 .
-                                if ((DateTime.Now - aaa.Address.TFS_ALastTime).TotalSeconds > ServiceRunCenter.RunSet.TimeLockSecond)
-                                {
-                                    await ServiceRunCenter.LOG.AddLogDebug(307, "Check TMPLISTed : " + inA.Address.TFS_AddressStr);
-                                    //时间过了锁定LOCK时间
-                                    if (ServiceRunCenter.RunSet.LongLockGray)
-                                    {
-                                        return false;
-                                    }
-                                    else
-                                    {
-                                        // 归零计数器
-                                        aaa.Address.TFS_ReactCount = 0;
-                                        aaa.Address.TFS_ALastTime = DateTime.Now;
-                                        return true;
-                                    }
-
-                                }
-
-
-
-                                aaa.Address.TFS_ALastTime = DateTime.Now;
-                                //如果没存，存入数据库
-                                if (!aaa.DB_saved)
-                                {
-                                    //保存数据库
-                                    if (ServiceRunCenter.RunSet.RecordAutoAddBlackList)
-                                    {
-                                        aaa.Address.TFS_WhiteOrBlack = 2;
-                                    }
-                                    else { aaa.Address.TFS_WhiteOrBlack = 1; }
-                                    DB.TFS_Address_DBT AA = new DB.TFS_Address_DBT();
-
-                                    AA.V = aaa.Address;
-                                    try
-                                    {
-                                        await (Task.Run(() => AA.SaveByInsert()));
-                                        aaa.DB_saved = true;
-                                    }
-                                    catch (Exception zez)
-                                    {
-                                        ServiceRunCenter.LOG.AddLog("L1.TLockIP() SaveAD to DB EX : " + zez.ToString());
-
-                                    }
-                                    await ServiceRunCenter.LOG.AddLog(false, 308, "= =       MaxCount:" + tunLockCount.ToString() + "  Save TMPLIST to DB : " + aaa.Address.TFS_AddressStr);
-                                }
-
-                                // 返回封禁
-                                return false;
-                            }
                         }
 
 
-                        //计数未超出限制，判断时间间隔
+                        //计数未超出限制 或 tunlockcount=0，
+                        //判断时间间隔
 
                         if ((DateTime.Now - aaa.Address.TFS_ALastTime).TotalSeconds > ServiceRunCenter.RunSet.TimeSecond)
                         {

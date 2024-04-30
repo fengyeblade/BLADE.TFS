@@ -13,6 +13,7 @@ using System.Net;
 namespace BLADE.TCPFORTRESS.CoreNET7
 {
 
+
     public class dnameItem
     {
         public string dname = "";
@@ -56,7 +57,7 @@ namespace BLADE.TCPFORTRESS.CoreNET7
                     dnameItem td = new dnameItem(nnn);
                     td.IP = dnsIP(nnn);
                     td.dnstime = DateTime.Now;
-                    ii = COL[nnn].IP;
+                    ii = td.IP;
                     COL.Add(nnn, td);
 
                 }
@@ -83,7 +84,6 @@ namespace BLADE.TCPFORTRESS.CoreNET7
             return ii;
         }
     }
-
 
     [Serializable]
     /// <summary>
@@ -151,6 +151,8 @@ namespace BLADE.TCPFORTRESS.CoreNET7
         /// </summary>
         public TunSet[] Tuns = new TunSet[1];
     }
+
+
 
 
     #region PAN 判定程序
@@ -339,10 +341,10 @@ namespace BLADE.TCPFORTRESS.CoreNET7
         public static async Task<int> Init(string inroot)
         {
             // int a = 0;
-            RunRoot = inroot;
+            RunRoot = inroot.Replace(":\\","::-::").Replace("\\","/").Replace("::-::",":\\");
 
 
-            string setFile = RunRoot + "\\Settings.cfg";
+            string setFile = RunRoot + "/Settings.cfg";
             try
             {
                 if (File.Exists(setFile))
@@ -440,8 +442,8 @@ namespace BLADE.TCPFORTRESS.CoreNET7
 
         public static async Task<DB.DBV.TFS_Address[]> GetPardonList()
         {
-           DB.TFS_Address_DBT[] pd = await (Task.Run(() => (DB.TFS_Address_DBT.SelectByWhere(500, "TFS_WhiteOrBlack = -99  ORDER BY TFS_AID DESC", null))));
-           DB.DBV.TFS_Address[] pa = new TFS_Address[pd.Length];
+            DB.TFS_Address_DBT[] pd = await (Task.Run(() => (DB.TFS_Address_DBT.SelectByWhere(500, "TFS_WhiteOrBlack = -99  ORDER BY TFS_AID DESC", null))));
+            DB.DBV.TFS_Address[] pa = new TFS_Address[pd.Length];
             for (int z = 0; z < pd.Length; z++)
             {
                 pa[z] = pd[z].VO;
@@ -509,41 +511,42 @@ namespace BLADE.TCPFORTRESS.CoreNET7
         public static async Task<bool> CheckInIP(string inIp, TunSet inSet)
         {
             bool cc = false;
-
-            // 对传入的地址分段
-            string[] nnn = inIp.Split(new string[] { ":", ",", ".", "/" }, StringSplitOptions.RemoveEmptyEntries);
-            DB.DBV.TFS_Address ta = new DB.DBV.TFS_Address();
-            ta.TFS_AddressStr = inIp;
-            ta.TFS_ALastTime = DateTime.Now;
-            if (nnn.Length > 0) { ta.TFS_K1 = nnn[0]; } else { ta.TFS_K1 = "0"; }
-            if (nnn.Length > 1) { ta.TFS_K2 = nnn[1]; } else { ta.TFS_K2 = "0"; }
-            if (nnn.Length > 2) { ta.TFS_K3 = nnn[2]; } else { ta.TFS_K3 = "0"; }
-            ta.fenX();
-
-            //暂时没写判断地址类型的代码，暂时不需要
-            ta.TFS_IpV6 = false;
-            ta.TFS_CIDR = false;
-
-            //设置为灰名单
-            ta.TFS_WhiteOrBlack = 1;
-
-            try
+            if (inSet.UseRule)
             {
-                if (inSet.UseRule)
+                // 对传入的地址分段
+                string[] nnn = inIp.Split(new string[] { ":", ",", ".", "/" }, StringSplitOptions.RemoveEmptyEntries);
+                DB.DBV.TFS_Address ta = new DB.DBV.TFS_Address();
+                ta.TFS_AddressStr = inIp;
+                ta.TFS_ALastTime = DateTime.Now;
+                if (nnn.Length > 0) { ta.TFS_K1 = nnn[0]; } else { ta.TFS_K1 = "0"; }
+                if (nnn.Length > 1) { ta.TFS_K2 = nnn[1]; } else { ta.TFS_K2 = "0"; }
+                if (nnn.Length > 2) { ta.TFS_K3 = nnn[2]; } else { ta.TFS_K3 = "0"; }
+                ta.fenX();
+
+                //暂时没写判断地址类型的代码，暂时不需要
+                ta.TFS_IpV6 = false;
+                ta.TFS_CIDR = false;
+
+                //设置为灰名单
+                ta.TFS_WhiteOrBlack = 1;
+
+                try
                 {
+
                     //规则启用  判定黑白名单
                     cc = await PAN.CheckPass(ta, inSet.LockCount);
-                }
-                else
-                {
-                    cc = true;
-                }
-            }
-            catch (Exception zz)
-            {
-                await LOG.AddLog(false, 123, "PAN  " + inIp + "  " + inSet.TunName + "  EX: " + zz.ToString());
-            }
 
+
+                }
+                catch (Exception zz)
+                {
+                    await LOG.AddLog(false, 123, "PAN  " + inIp + "  " + inSet.TunName + "  EX: " + zz.ToString());
+                }
+            }
+            else
+            {
+                cc = true;
+            }
 
             return cc;
         }
@@ -856,74 +859,86 @@ namespace BLADE.TCPFORTRESS.CoreNET7
                     }
                     else
                     {
-                        // 此地址的连接计数增加
-                        aaa.Address.TFS_ReactCount++;
-                        if (aaa.Address.TFS_ReactCount > (tunLockCount + 150))
-                        { aaa.Address.TFS_ReactCount = (tunLockCount + 80); }
-
-
-
-
-
-                        // 计数判断
-                        if (aaa.Address.TFS_ReactCount > tunLockCount)
+                        if (tunLockCount < 0)
                         {
-                            //计数超出限制
+                            //限数小于0 不计数，不触发灰名单    允许通过
+                            return true;
+                        }
+                        else
+                        {
+                            // 此地址的连接计数增加
+                            aaa.Address.TFS_ReactCount++;
+                            if (aaa.Address.TFS_ReactCount > (tunLockCount + 150))
+                            { aaa.Address.TFS_ReactCount = (tunLockCount + 80); }
 
-                            //锁定LOCK时间判断   如果最后一次连接时间差已经超过了锁定时间设置，判断 RunSet.LongLockGray 决定继续长久封锁  或 恢复连接计数到0 .
-                            if ((DateTime.Now - aaa.Address.TFS_ALastTime).TotalSeconds > ServiceRunCenter.RunSet.TimeLockSecond)
+
+                            if (tunLockCount > 0)
                             {
-                                await ServiceRunCenter.LOG.AddLogDebug(307, "Check TMPLISTed : " + inA.Address.TFS_AddressStr);
-                                //时间过了锁定LOCK时间
-                                if (ServiceRunCenter.RunSet.LongLockGray)
+
+
+
+                                // 计数判断
+                                if (aaa.Address.TFS_ReactCount > tunLockCount)
                                 {
+                                    //计数超出限制
+
+                                    //锁定LOCK时间判断   如果最后一次连接时间差已经超过了锁定时间设置，判断 RunSet.LongLockGray 决定继续长久封锁  或 恢复连接计数到0 .
+                                    if ((DateTime.Now - aaa.Address.TFS_ALastTime).TotalSeconds > ServiceRunCenter.RunSet.TimeLockSecond)
+                                    {
+                                        await ServiceRunCenter.LOG.AddLogDebug(307, "Check TMPLISTed : " + inA.Address.TFS_AddressStr);
+                                        //时间过了锁定LOCK时间
+                                        if (ServiceRunCenter.RunSet.LongLockGray)
+                                        {
+                                            return false;
+                                        }
+                                        else
+                                        {
+                                            // 归零计数器
+                                            aaa.Address.TFS_ReactCount = 0;
+                                            aaa.Address.TFS_ALastTime = DateTime.Now;
+                                            return true;
+                                        }
+
+                                    }
+
+
+
+                                    aaa.Address.TFS_ALastTime = DateTime.Now;
+                                    //如果没存，存入数据库
+                                    if (!aaa.DB_saved)
+                                    {
+                                        //保存数据库
+                                        if (ServiceRunCenter.RunSet.RecordAutoAddBlackList)
+                                        {
+                                            aaa.Address.TFS_WhiteOrBlack = 2;
+                                        }
+                                        else { aaa.Address.TFS_WhiteOrBlack = 1; }
+                                        DB.TFS_Address_DBT AA = new DB.TFS_Address_DBT();
+
+                                        AA.V = aaa.Address;
+                                        try
+                                        {
+                                            await (Task.Run(() => AA.SaveByInsert()));
+                                            aaa.DB_saved = true;
+                                        }
+                                        catch (Exception zez)
+                                        {
+                                            ServiceRunCenter.LOG.AddLog("L1.TLockIP() SaveAD to DB EX : " + zez.ToString());
+
+                                        }
+                                        await ServiceRunCenter.LOG.AddLog(false, 308, "= =       MaxCount:" + tunLockCount.ToString() + "  Save TMPLIST to DB : " + aaa.Address.TFS_AddressStr);
+                                    }
+
+                                    // 返回封禁
                                     return false;
                                 }
-                                else
-                                {
-                                    // 归零计数器
-                                    aaa.Address.TFS_ReactCount = 0;
-                                    aaa.Address.TFS_ALastTime = DateTime.Now;
-                                    return true;
-                                }
-
                             }
-
-
-
-                            aaa.Address.TFS_ALastTime = DateTime.Now;
-                            //如果没存，存入数据库
-                            if (!aaa.DB_saved)
-                            {
-                                //保存数据库
-                                if (ServiceRunCenter.RunSet.RecordAutoAddBlackList)
-                                {
-                                    aaa.Address.TFS_WhiteOrBlack = 2;
-                                }
-                                else { aaa.Address.TFS_WhiteOrBlack = 1; }
-                                DB.TFS_Address_DBT AA = new DB.TFS_Address_DBT();
-
-                                AA.V = aaa.Address;
-                                try
-                                {
-                                    await (Task.Run(() => AA.SaveByInsert()));
-                                    aaa.DB_saved = true;
-                                }
-                                catch (Exception zez)
-                                {
-                                    ServiceRunCenter.LOG.AddLog("L1.TLockIP() SaveAD to DB EX : " + zez.ToString());
-
-                                }
-                                await ServiceRunCenter.LOG.AddLog(false, 308, "= =       MaxCount:" + tunLockCount.ToString() + "  Save TMPLIST to DB : " + aaa.Address.TFS_AddressStr);
-                            }
-
-                            // 返回封禁
-                            return false;
+                          
                         }
 
 
-
-                        //计数未超出限制，判断时间间隔
+                        //  计数未超出限制  或 tunlockcount=0 不触发灰名单机制，
+                        //  判断时间间隔
 
                         if ((DateTime.Now - aaa.Address.TFS_ALastTime).TotalSeconds > ServiceRunCenter.RunSet.TimeSecond)
                         {
@@ -1220,7 +1235,9 @@ namespace BLADE.TCPFORTRESS.CoreNET7
         {
             get
             {
-                return InAddress + ":" + InPort.ToString() + " TO " + OutAddress + ":" + OutPort.ToString() + " R_" + UseRule.ToString();
+                string oo = OutAddress;
+                if (DName != "") { oo = DName; }
+                return InAddress + ":" + InPort.ToString() + " TO " + oo + ":" + OutPort.ToString() + " R_" + UseRule.ToString();
             }
         }
     }

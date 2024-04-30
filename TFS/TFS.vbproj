@@ -61,7 +61,7 @@
     <Content Include="pic1.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="TFS_center_20230201.zip" />
+    <None Include="TFS_v1.0.4_20240431_net48.zip" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

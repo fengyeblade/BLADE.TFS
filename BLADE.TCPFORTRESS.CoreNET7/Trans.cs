@@ -537,7 +537,7 @@ namespace BLADE.TCPFORTRESS.CoreNET7.TransPart
             // 初始化侦听器
             Listener = new TcpListener(System.Net.IPAddress.Parse(inTunSet.InAddress), inTunSet.InPort);
 
-            await ServiceRunCenter.LOG.AddLogDebug("StartListener", "Open Listen: " + _tunSet.InAddress + ":" + _tunSet.InPort.ToString());
+            await ServiceRunCenter.LOG.AddLogDebug(220, "Open Listen: " + _tunSet.InAddress + ":" + _tunSet.InPort.ToString());
 
             // 开始侦听 
             await (Task.Run(() => Listener.Start()));
@@ -558,7 +558,7 @@ namespace BLADE.TCPFORTRESS.CoreNET7.TransPart
             }
             selfThread = new Thread(new ThreadStart(RunLoop));
             selfThread.Start();
-            ServiceRunCenter.LOG.AddLogDebug("StartLoopThread", "Open LoopThread: " + selfThread.ManagedThreadId.ToString());
+            ServiceRunCenter.LOG.AddLogDebug(220, "Open LoopThread: " + selfThread.ManagedThreadId.ToString());
         }
 
         protected int heartCount = 0;
@@ -597,9 +597,8 @@ namespace BLADE.TCPFORTRESS.CoreNET7.TransPart
                         TcpClient getNTCP = Listener.AcceptTcpClient();
                         string nip = ((IPEndPoint)getNTCP.Client.RemoteEndPoint).Address.ToString().ToUpper().Trim();
                         if (_tunSet.DName != "")
-                        {  _tunSet.OutAddress = DNameCatch.GetIP(_tunSet.DName); }
-
-                        await ServiceRunCenter.LOG.AddLog(true,"Income", _tunSet.InPort.ToString() + " Get Tcp In. From : " + getNTCP.Client.RemoteEndPoint.ToString());
+                        { _tunSet.OutAddress = DNameCatch.GetIP(_tunSet.DName); }
+                        await ServiceRunCenter.LOG.AddLog(true, 101, _tunSet.InPort.ToString() + " Get Tcp In. From : " + getNTCP.Client.RemoteEndPoint.ToString());
 
                         //判断IP是否允许通过
                         if (await ServiceRunCenter.CheckInIP(nip, _tunSet))
@@ -608,7 +607,7 @@ namespace BLADE.TCPFORTRESS.CoreNET7.TransPart
                             Trans ttt = new Trans();
                             ttt.inClient = getNTCP;
 
-                            TransList.Add(BLADE.BASETOOL.NET7.GetSn.GetStringSn() + "_" + nip, ttt);
+                            TransList.Add(BASETOOL.NET7.GetSn.GetStringSn() + "_" + nip, ttt);
                             //启动转发子线程
                             ttt.StartTrans(_tunSet);
 
@@ -619,13 +618,13 @@ namespace BLADE.TCPFORTRESS.CoreNET7.TransPart
                             getNTCP.Close();
                             getNTCP.Dispose();
                             getNTCP = null;
-                            await ServiceRunCenter.LOG.AddLog(true, "KillTcp", " Kill TcpClient From: " + nip);
+                            await ServiceRunCenter.LOG.AddLog(true, 114, " Kill TcpClient From: " + nip);
 
                         }
                     }
                     catch (Exception zee)
                     {
-                        await ServiceRunCenter.LOG.AddLog(false, "LoopEx", _tunSet.TunName + " RunLoop() EX: " + zee.ToString());
+                        await ServiceRunCenter.LOG.AddLog(false, 301, _tunSet.TunName + " RunLoop() EX: " + zee.ToString());
                     }
 
                     kp = true;
@@ -656,7 +655,7 @@ namespace BLADE.TCPFORTRESS.CoreNET7.TransPart
                             {
                                 ts.StopClose();
                                 TransList.Remove(sssnn);
-                                ServiceRunCenter.LOG.AddLogDebug("CloseTcp", "Remove Tcp Trans: " + sssnn);
+                                ServiceRunCenter.LOG.AddLogDebug(105, "Remove Tcp Trans: " + sssnn);
                                 break;
                             }
                         }
@@ -677,7 +676,7 @@ namespace BLADE.TCPFORTRESS.CoreNET7.TransPart
                             { continue; }
                         }
                         this.ShowAlives = DateTime.Now;
-                        await ServiceRunCenter.LOG.AddLog(false, "TransList", comm);
+                        await ServiceRunCenter.LOG.AddLog(false, 12, comm);
                     }
 
                     if (this.ReloadListAct && (DateTime.Now - ServiceRunCenter.loadlistTime).TotalMinutes > 60)
@@ -686,7 +685,7 @@ namespace BLADE.TCPFORTRESS.CoreNET7.TransPart
                         //  所有侦听器中的第一个  每一个小时 整理全局的 灰名单，重载黑白名单，处理赦免清单
                         ServiceRunCenter.loadlistTime = DateTime.Now;
                         string[] grayarry = ServiceRunCenter.TmpList.ShowAllIPaddress();
-                        await ServiceRunCenter.LOG.AddLog(false, "GrayList", "RunningGrayIPCount:       " + grayarry.Length.ToString());
+                        await ServiceRunCenter.LOG.AddLog(false, 11, "RunningGrayIPCount:       " + grayarry.Length.ToString());
                         string xiaoshi = "";
 
                         for (int s = 0; s < grayarry.Length; s = s + 10)
@@ -698,11 +697,11 @@ namespace BLADE.TCPFORTRESS.CoreNET7.TransPart
                                     xiaoshi = xiaoshi + "\r\n" + grayarry[s + t];
                                 }
                             }
-                            await ServiceRunCenter.LOG.AddLog(false, "GrayList", "CurGrayList: " + xiaoshi);
+                            await ServiceRunCenter.LOG.AddLog(false, 11, "CurGrayList: " + xiaoshi);
                             xiaoshi = "";
                         }
-                        await ServiceRunCenter.LOG.AddLog(false, "WOBlist", " ReLoad List " + ServiceRunCenter.PAN.WoB + " " + (await ServiceRunCenter.PAN.Load_AllList()).ToString());
-                        await ServiceRunCenter.LOG.AddLog(false, "Pardon", " Make Pardon ips : " + (await ServiceRunCenter.PardonGray()).ToString());
+                        await ServiceRunCenter.LOG.AddLog(false, 277, " ReLoad List " + ServiceRunCenter.PAN.WoB + " " + (await ServiceRunCenter.PAN.Load_AllList()).ToString());
+                        await ServiceRunCenter.LOG.AddLog(false, 99, " Make Pardon ips : " + (await ServiceRunCenter.PardonGray()).ToString());
 
                         await ServiceRunCenter.LOG.SaveLogs(true);
                         try { GC.Collect(); } catch { }
@@ -712,7 +711,7 @@ namespace BLADE.TCPFORTRESS.CoreNET7.TransPart
 
 
             //循环跳出  停止侦听和关闭连接
-            await ServiceRunCenter.LOG.AddLog(false, "StopListener", "Stop Listener Loop " + this._tunSet.TunName);
+            await ServiceRunCenter.LOG.AddLog(false, 201, "Stop Listener Loop " + this._tunSet.TunName);
             try
             {
                 await SetStop();
@@ -728,7 +727,7 @@ namespace BLADE.TCPFORTRESS.CoreNET7.TransPart
         {
 
             _listening = false;
-            await ServiceRunCenter.LOG.AddLogDebug("StopListener", "SetAutoStop: " + _tunSet.TunName);
+            await ServiceRunCenter.LOG.AddLogDebug(220, "SetAutoStop: " + _tunSet.TunName);
         }
 
         /// <summary>
@@ -754,7 +753,7 @@ namespace BLADE.TCPFORTRESS.CoreNET7.TransPart
             catch { }
             selfThread = null;
 
-            await ServiceRunCenter.LOG.AddLog(false, "StopListener", "SetStop: " + _tunSet.TunName);
+            await ServiceRunCenter.LOG.AddLog(false, 220, "SetStop: " + _tunSet.TunName);
 
             return _listening;
         }
