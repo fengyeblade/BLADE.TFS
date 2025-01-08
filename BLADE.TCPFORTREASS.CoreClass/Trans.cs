@@ -581,7 +581,11 @@ namespace BLADE.TCPFORTRESS.CoreClass.TransPart
                     if (heartCount > 3999)
                     {
                         heartCount = 0;
-                        await ServiceRunCenter.LOG.AddLog(false, 555, "HEART Log");
+                      
+                        // await ServiceRunCenter.LOG.AddLog(false, 555, "HEART Log");
+                        string pdnips = "error pardon";
+                        try { pdnips = (await ServiceRunCenter.PardonGray()).ToString(); } catch (Exception ppe) { pdnips = ppe.Message; }
+                        await ServiceRunCenter.LOG.AddLog(false, 99, "Heart and Make Pardon ips : " + pdnips);
 
                     }
                 }
@@ -699,7 +703,7 @@ namespace BLADE.TCPFORTRESS.CoreClass.TransPart
                             xiaoshi = "";
                         }
                         await ServiceRunCenter.LOG.AddLog(false, 277, " ReLoad List " + ServiceRunCenter.PAN.WoB + " " + (await ServiceRunCenter.PAN.Load_AllList()).ToString());
-                        await ServiceRunCenter.LOG.AddLog(false, 99, " Make Pardon ips : " + (await ServiceRunCenter.PardonGray()).ToString());
+                     //   await ServiceRunCenter.LOG.AddLog(false, 99, " Make Pardon ips : " + (await ServiceRunCenter.PardonGray()).ToString());
                         
                         await ServiceRunCenter.LOG.SaveLogs(true);
                         try { GC.Collect(); } catch { }
