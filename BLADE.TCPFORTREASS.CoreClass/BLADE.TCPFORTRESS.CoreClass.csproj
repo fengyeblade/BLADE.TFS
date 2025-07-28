@@ -43,6 +43,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\BLADE.BASETOOL.VNET4.dll</HintPath>
     </Reference>
+    <Reference Include="BLADE.MSGCORE.N48">
+      <HintPath>..\..\BLADE.MSGCORE\BLADE.MSGCORE.N48\bin\Release\BLADE.MSGCORE.N48.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\BLADE.MSGCORE\BLADE.MSGCORE.N48\bin\Release\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />

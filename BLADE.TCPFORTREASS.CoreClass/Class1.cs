@@ -43,7 +43,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
 
                 if (COL.ContainsKey(nnn))
                 {
-                    if ((DateTime.Now - COL[nnn].dnstime).TotalMinutes < 20)
+                    if ((DateTime.Now - COL[nnn].dnstime).TotalMinutes < 6)
                     {
                         ii = COL[nnn].IP;
                     }
@@ -71,13 +71,28 @@ namespace BLADE.TCPFORTRESS.CoreClass
         public static string dnsIP(string indname)
         {
             string ii = "127.0.0.1";
+            string la = indname.ToLower().Trim();
+            string nnn = la.Replace("mkv:", "").Trim();
+            if (la.StartsWith("mkv:"))
+            {
+               BLADE.MSGCORE.N48.DLL.PostMkvItem pmi =  BLADE.MSGCORE.N48.ClientWork.QueryMKV(nnn).Result;
+                if (pmi != null && pmi.KEYNAME.ToLower().Trim() == nnn)
+                {
+                    if (pmi.ENDUTCTIME.AddHours(20) > DateTime.UtcNow)
+                    {
+                        ServiceRunCenter.LOG.AddLog(false, 888, "mkv: "+nnn+ " = " + pmi.KEYVALUE);
+                        return pmi.KEYVALUE.Trim();
+                    }
+                }
+            }
             try
             {
-                IPHostEntry IPinfo = Dns.GetHostEntry(indname.Trim());
+                IPHostEntry IPinfo = Dns.GetHostEntry(nnn);
 
                 if (IPinfo.AddressList.Length > 0)
                 {
                     ii = IPinfo.AddressList[0].ToString();
+                    ServiceRunCenter.LOG.AddLog(false, 888, "dns: " + nnn + " = " + ii);
                 }
 
             }
@@ -346,6 +361,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
 
 
             string setFile = RunRoot + "\\Settings.cfg";
+            string n48set = RunRoot + "\\n48mkv.cfg";
             try
             {
                 if (File.Exists(setFile))
@@ -375,7 +391,42 @@ namespace BLADE.TCPFORTRESS.CoreClass
                 Error = "Init Error " + zeee.ToString();
                 return 999;
             }
-          
+            // 读取n48mkv设置文件
+            try {
+                BLADE.MSGCORE.N48.N48MkvSettings nms = new MSGCORE.N48.N48MkvSettings();
+                if (File.Exists(n48set))
+                { 
+                  
+                    XmlSerializer xs = new XmlSerializer(typeof(BLADE.MSGCORE.N48.N48MkvSettings));
+                    StreamReader sr = File.OpenText(setFile);
+                    nms = (BLADE.MSGCORE.N48.N48MkvSettings)xs.Deserialize(sr);
+                    sr.Close();
+                    sr.Dispose();
+                }
+                else {
+                    
+                    XmlSerializer xs = new XmlSerializer(typeof(BLADE.MSGCORE.N48.N48MkvSettings));
+                    StreamWriter sw = File.CreateText(n48set);
+                    xs.Serialize(sw, nms);
+                    sw.Close();
+                    sw.Dispose();
+                }
+                BLADE.MSGCORE.N48.ClientWork.CheckCertificate = nms.CheckCertificate;
+                BLADE.MSGCORE.N48.ClientWork.SerPass = nms.serpassText;
+                BLADE.MSGCORE.N48.ClientWork.MaxWorkLine = nms.maxLine;
+                BLADE.MSGCORE.N48.ClientWork.ServerSubMKVREAD = nms.ServerSubMKVREAD;
+                BLADE.MSGCORE.N48.ClientWork.ServerSubMKVPORT = nms.ServerSubMKVPORT;
+                BLADE.MSGCORE.N48.ClientWork.SerAccount = nms.SerAccount;
+                BLADE.MSGCORE.N48.ClientWork.ServerAddressHttp= nms.ServerAddressHttp;
+                BLADE.MSGCORE.N48.ClientWork.ServerAddressHttps= nms.ServerAddressHttps;
+                BLADE.MSGCORE.N48.ClientWork.UseHttps = nms.UseHttps;
+                
+            }
+            catch (Exception zez)
+            {
+                Error = "Init n48 Error " + zez.ToString();
+            }
+
             DB.Configs.SetDbConStr(RunSet.DBStr);
             DB.Configs.DefConStr = RunSet.DBStr;
             string logp = RunSet.LogFilePath;
