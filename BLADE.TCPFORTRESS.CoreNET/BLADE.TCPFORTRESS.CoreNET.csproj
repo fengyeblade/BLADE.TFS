@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyVersion>2.0.0.1</AssemblyVersion>
+    <FileVersion>2.0.0.1</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="DB\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BLADE.TOOLS.BASE">
+      <HintPath>..\..\..\BLADE.TOOLS\BLADE.TOOLS.NET\bin\Release\net9.0\BLADE.TOOLS.BASE.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.DBO.DBCODER">
+      <HintPath>..\..\..\BLADE.TOOLS\BLADE.TOOLS.DBO.DBCODER\bin\Release\net9.0\publish\win64\BLADE.TOOLS.DBO.DBCODER.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.DBO.DBCODER.DBOP">
+      <HintPath>..\..\..\BLADE.TOOLS\BLADE.TOOLS.DBO.DBCODER.DBOP\bin\Release\net9.0\publish\win64\BLADE.TOOLS.DBO.DBCODER.DBOP.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.LOG">
+      <HintPath>..\..\..\BLADE.TOOLS\BLADE.TOOLS.LOG\bin\Release\net9.0\BLADE.TOOLS.LOG.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.NET">
+      <HintPath>..\..\..\BLADE.TOOLS\BLADE.TOOLS.NET\bin\Release\net9.0\BLADE.TOOLS.NET.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
