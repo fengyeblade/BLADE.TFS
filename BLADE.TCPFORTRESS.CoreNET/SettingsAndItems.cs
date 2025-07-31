@@ -71,9 +71,9 @@ namespace BLADE.TCPFORTRESS.CoreNET
         public static string dnsIP(string indname)
         {
             string ii = "127.0.0.1";
-            string la = indname.ToLower().Trim();
-            string nnn = la.Replace("mkv:", "").Trim();
-            if (la.StartsWith("mkv:"))
+           // string la = indname.ToLower().Trim();
+            string nnn = indname.Replace("mkv:", "").Trim();
+            if (indname.StartsWith("mkv:"))
             {
                 BLADE.MSGCORE.DLL.JsonMods.PostMkvItem pmi = BLADE.MSGCORE.DLL.ClientWork.QueryMKV(nnn).Result;
                 if (pmi != null && pmi.KEYNAME.ToLower().Trim() == nnn)
