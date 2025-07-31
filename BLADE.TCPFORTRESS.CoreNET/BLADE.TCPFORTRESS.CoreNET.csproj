@@ -13,6 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="BLADE.MSGCORE.DLL">
+      <HintPath>..\..\BLADE.MSGCORE\BLADE.MSGCORE.DLL\bin\Release\net9.0\BLADE.MSGCORE.DLL.dll</HintPath>
+    </Reference>
     <Reference Include="BLADE.TOOLS.BASE">
       <HintPath>..\..\..\BLADE.TOOLS\BLADE.TOOLS.NET\bin\Release\net9.0\BLADE.TOOLS.BASE.dll</HintPath>
     </Reference>

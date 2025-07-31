@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using System.Runtime.InteropServices;
-using BLADE.TCPFORTRESS.CoreClass.DB.DBV;
 using System.Net;
-using System.Globalization;
-using System.Runtime.CompilerServices;
+using BLADE.TOOLS.BASE;
+using BLADE.TOOLS.LOG;
+using BLADE.TOOLS.DBO.DBCODER;
+using BLADE.TOOLS.DBO.DBCODER.DBOP;
+using BLADE.TOOLS.DBO.DBCODER.DBOP.VO;
+using BLADE.TCPFORTRESS.CoreNET.DB.DBV;
 
-namespace BLADE.TCPFORTRESS.CoreClass
+namespace BLADE.TCPFORTRESS.CoreNET
 {
 
 
@@ -75,12 +75,12 @@ namespace BLADE.TCPFORTRESS.CoreClass
             string nnn = la.Replace("mkv:", "").Trim();
             if (la.StartsWith("mkv:"))
             {
-               BLADE.MSGCORE.N48.DLL.PostMkvItem pmi =  BLADE.MSGCORE.N48.ClientWork.QueryMKV(nnn).Result;
+                BLADE.MSGCORE.DLL.JsonMods.PostMkvItem pmi = BLADE.MSGCORE.DLL.ClientWork.QueryMKV(nnn).Result;
                 if (pmi != null && pmi.KEYNAME.ToLower().Trim() == nnn)
                 {
                     if (pmi.ENDUTCTIME.AddHours(20) > DateTime.UtcNow)
                     {
-                        ServiceRunCenter.LOG.AddLog(false, 888, "mkv: "+nnn+ " = " + pmi.KEYVALUE);
+                        ServiceRunCenter.LOG.AddLog(false, 888, "mkv: " + nnn + " = " + pmi.KEYVALUE);
                         return pmi.KEYVALUE.Trim();
                     }
                 }
@@ -166,7 +166,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
         /// <summary>
         /// 端口转发映射管道  需要至少有一个！ 服务的生命周期需要
         /// </summary>
-        public TunSet[] Tuns= new TunSet[1];
+        public TunSet[] Tuns = new TunSet[1];
     }
 
 
@@ -192,19 +192,19 @@ namespace BLADE.TCPFORTRESS.CoreClass
         /// <returns> true = 允许通过   false = 禁止通过 </returns>
         public async Task<bool> CheckPass(TFS_Address inAddress, int tunLockCount)
         {
-              
+
             if (ServiceRunCenter.AllList.ContainIP(inAddress.TFS_AddressStr, inAddress.TFS_K3, inAddress.TFS_K2, inAddress.TFS_K1))
             {
 
                 // 检查地址在黑名单 禁止通过
-               await ServiceRunCenter.LOG.AddLogDebug(302, "Check Blacked : " + inAddress.TFS_AddressStr);
+                await ServiceRunCenter.LOG.AddLogDebug(302, "Check Blacked : " + inAddress.TFS_AddressStr);
                 return false;
             }
             //检查地址 不存在于黑名单  
             AddressListItem AA = new AddressListItem();
             AA.SetUp(inAddress);
             //继续判断是否在运行时灰名单内
-            return await ServiceRunCenter.TmpList.TLockIP(AA,   tunLockCount);
+            return await ServiceRunCenter.TmpList.TLockIP(AA, tunLockCount);
 
         }
         /// <summary>
@@ -236,7 +236,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
         {
             AddressListItem AA = new AddressListItem();
             AA.SetUp(inAddress);
-            return await ServiceRunCenter.TmpList.TLockIP(AA,   tunLockCount);
+            return await ServiceRunCenter.TmpList.TLockIP(AA, tunLockCount);
         }
         public async Task<int> Load_AllList()
         {
@@ -260,17 +260,18 @@ namespace BLADE.TCPFORTRESS.CoreClass
 
         public async Task<bool> CheckPass(TFS_Address inAddress, int tunLockCount)
         {
-            
-             
-            if(ServiceRunCenter.AllList.ContainIP(inAddress.TFS_AddressStr, inAddress.TFS_K3, inAddress.TFS_K2, inAddress.TFS_K1))
+
+
+            if (ServiceRunCenter.AllList.ContainIP(inAddress.TFS_AddressStr, inAddress.TFS_K3, inAddress.TFS_K2, inAddress.TFS_K1))
             {
                 await ServiceRunCenter.LOG.AddLogDebug(300, "Check WHITE : " + inAddress.TFS_AddressStr);
-                return true; }
+                return true;
+            }
             else
             {
                 AddressListItem AA = new AddressListItem();
                 AA.SetUp(inAddress);
-                 await ServiceRunCenter.TmpList.TLockIP(AA,   tunLockCount);
+                await ServiceRunCenter.TmpList.TLockIP(AA, tunLockCount);
             }
             return false;
         }
@@ -296,7 +297,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
         /// </summary>
         /// <param name="inAddress">传入的地址对象</param>
         /// <returns> 检查IP的结果  true 表示允许通过，并不表示IP是否存在于黑白名单。false表示禁止通过。同样不表示是否存于黑白名单内。</returns>
-       Task< bool> CheckPass(DB.DBV.TFS_Address inAddress  ,int tunLockCount );
+        Task<bool> CheckPass(DB.DBV.TFS_Address inAddress, int tunLockCount);
         /// <summary>
         /// 获取实体类的说明信息，黑白名单和规则说明
         /// </summary>
@@ -306,7 +307,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
         /// 根据PAN 判定程序的需要 从数据库加载AllList
         /// </summary>
         /// <returns> 读取的List数量 </returns>
-          Task<int> Load_AllList();
+        Task<int> Load_AllList();
     }
     #endregion
 
@@ -330,15 +331,15 @@ namespace BLADE.TCPFORTRESS.CoreClass
         /// <summary>
         /// 设置类对象
         /// </summary>
-        public static Settings RunSet= new Settings();
+        public static Settings RunSet = new Settings();
         /// <summary>
         /// LOG日志组件
         /// </summary>
-        public static BLADE.BASETOOL.VNET4.Loger LOG;
+        public static BLADE.TOOLS.LOG.Loger LOG;
         /// <summary>
         /// 黑白名单列表对象。黑白由Settings控制
         /// </summary>
-        public static AddressList_L1 AllList= new AddressList_L1();
+        public static AddressList_L1 AllList = new AddressList_L1();
 
         /// <summary>
         /// 初始化标志   init 方法完成后 为 true
@@ -356,7 +357,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
         /// <returns>1=正常    999=出现异常，请检查Error变量</returns>
         public static async Task<int> Init(string inroot)
         {
-           // int a = 0;
+            // int a = 0;
             RunRoot = inroot;
 
 
@@ -392,34 +393,28 @@ namespace BLADE.TCPFORTRESS.CoreClass
                 return 999;
             }
             // 读取n48mkv设置文件
-            try {
-                BLADE.MSGCORE.N48.N48MkvSettings nms = new MSGCORE.N48.N48MkvSettings();
+            try
+            {
+                BLADE.MSGCORE.DLL.MCSettings nms = new MSGCORE.DLL.MCSettings();
                 if (File.Exists(n48set))
-                { 
-                  
-                    XmlSerializer xs = new XmlSerializer(typeof(BLADE.MSGCORE.N48.N48MkvSettings));
+                {
+
+                    XmlSerializer xs = new XmlSerializer(typeof(BLADE.MSGCORE.DLL.MCSettings));
                     StreamReader sr = File.OpenText(n48set);
-                    nms = (BLADE.MSGCORE.N48.N48MkvSettings)xs.Deserialize(sr);
+                    nms = (BLADE.MSGCORE.DLL.MCSettings)xs.Deserialize(sr);
                     sr.Close();
                     sr.Dispose();
                 }
-                else {
-                    
-                    XmlSerializer xs = new XmlSerializer(typeof(BLADE.MSGCORE.N48.N48MkvSettings));
+                else
+                {
+
+                    XmlSerializer xs = new XmlSerializer(typeof(BLADE.MSGCORE.DLL.MCSettings));
                     StreamWriter sw = File.CreateText(n48set);
                     xs.Serialize(sw, nms);
                     sw.Close();
                     sw.Dispose();
                 }
-                BLADE.MSGCORE.N48.ClientWork.CheckCertificate = nms.CheckCertificate;
-                BLADE.MSGCORE.N48.ClientWork.SerPass = nms.serpassText;
-                BLADE.MSGCORE.N48.ClientWork.MaxWorkLine = nms.maxLine;
-                BLADE.MSGCORE.N48.ClientWork.ServerSubMKVREAD = nms.ServerSubMKVREAD;
-                BLADE.MSGCORE.N48.ClientWork.ServerSubMKVPORT = nms.ServerSubMKVPORT;
-                BLADE.MSGCORE.N48.ClientWork.SerAccount = nms.SerAccount;
-                BLADE.MSGCORE.N48.ClientWork.ServerAddressHttp= nms.ServerAddressHttp;
-                BLADE.MSGCORE.N48.ClientWork.ServerAddressHttps= nms.ServerAddressHttps;
-                BLADE.MSGCORE.N48.ClientWork.UseHttps = nms.UseHttps;
+                BLADE.MSGCORE.DLL.ClientWork.FlushSettings(nms);
                 
             }
             catch (Exception zez)
@@ -436,7 +431,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
             }
 
             //初始化LOG对象
-            LOG = new BASETOOL.VNET4.Loger(logp, RunName, false, RunSet.LogItemCount, RunSet.LogTimeSecond, "log");
+            LOG = new  Loger(logp, RunName, false, RunSet.LogItemCount, RunSet.LogTimeSecond, "log");
             // 设置LOG组件启用debug模式   否则不记录debug日志条目
             LOG.Debug = RunSet.Debug;
 
@@ -455,11 +450,11 @@ namespace BLADE.TCPFORTRESS.CoreClass
         public static async Task<int> LoadList(int wob)
         {
             int a = 0;
-            
+
 
             AddressList_L1 curAL = new AddressList_L1();
             DB.TFS_Address_DBT[] ll;
-            for(int z=0;z< 10;z++)
+            for (int z = 0; z < 10; z++)
             {
                 //  根据 X 字段分批加载数据库的 黑白名单   X 为地址的第二段首字符 0-9
                 try
@@ -478,7 +473,8 @@ namespace BLADE.TCPFORTRESS.CoreClass
 
                         curAL.AddItem(nn);
                     }
-                }catch(Exception zxz)
+                }
+                catch (Exception zxz)
                 {
                     LOG.AddLog(" LoadList(int wob)  EX: " + zxz.ToString());
                 }
@@ -491,10 +487,10 @@ namespace BLADE.TCPFORTRESS.CoreClass
             return a;
         }
 
-        public static async Task<CoreClass.DB.DBV.TFS_Address[]> GetPardonList()
+        public static async Task<DB.DBV.TFS_Address[]> GetPardonList()
         {
-            CoreClass.DB.TFS_Address_DBT[] pd = await (Task.Run(() => (CoreClass.DB.TFS_Address_DBT.SelectByWhere(500, "TFS_WhiteOrBlack = -99  ORDER BY TFS_AID DESC", null))));
-            CoreClass.DB.DBV.TFS_Address[] pa= new TFS_Address[pd.Length];
+            DB.TFS_Address_DBT[] pd = await (Task.Run(() => (DB.TFS_Address_DBT.SelectByWhere(500, "TFS_WhiteOrBlack = -99  ORDER BY TFS_AID DESC", null))));
+            DB.DBV.TFS_Address[] pa = new TFS_Address[pd.Length];
             for (int z = 0; z < pd.Length; z++)
             {
                 pa[z] = pd[z].VO;
@@ -509,7 +505,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
     {
         public static iPan PAN = null;
         public static DateTime loadlistTime = DateTime.Now;
-       
+
         /// <summary>
         /// 运行时 名单列表。  多次出现的接入请求会被存入数据库。
         /// </summary>
@@ -583,11 +579,11 @@ namespace BLADE.TCPFORTRESS.CoreClass
 
                 try
                 {
-                   
-                        //规则启用  判定黑白名单
-                        cc = await PAN.CheckPass(ta, inSet.LockCount);
-                    
-                   
+
+                    //规则启用  判定黑白名单
+                    cc = await PAN.CheckPass(ta, inSet.LockCount);
+
+
                 }
                 catch (Exception zz)
                 {
@@ -616,7 +612,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
                         try
                         {
                             string host = ts[z].TFS_AddressStr;
-                            IPHostEntry IPinfo = Task.Run(()=> Dns.GetHostEntry(host)).Result;
+                            IPHostEntry IPinfo = Task.Run(() => Dns.GetHostEntry(host)).Result;
                             foreach (IPAddress IP in IPinfo.AddressList)
                             {
                                 await LOG.AddLogDebug(233, host + " GetPardonIP: " + IP.ToString());
@@ -627,17 +623,17 @@ namespace BLADE.TCPFORTRESS.CoreClass
                                 if (nnn.Length > 0)
                                 {
                                     ttss.TFS_K1 = nnn[0];
-                                    
+
                                 }
                                 if (nnn.Length > 1)
                                 {
                                     ttss.TFS_K2 = nnn[1];
-                                  
+
                                 }
                                 if (nnn.Length > 2)
                                 {
                                     ttss.TFS_K3 = nnn[2];
-                                    
+
                                 }
                                 ttss.fenX();
 
@@ -649,8 +645,9 @@ namespace BLADE.TCPFORTRESS.CoreClass
                                 }
                             }
                         }
-                        catch(Exception za) {
-                             LOG.AddLog(22, 234, "DnsHostError:" + ts[z].TFS_AddressStr+"  "+ za.ToString());
+                        catch (Exception za)
+                        {
+                            LOG.AddLog(22, 234, "DnsHostError:" + ts[z].TFS_AddressStr + "  " + za.ToString());
                         }
                     }
                     else
@@ -672,7 +669,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
             }
             return a;
         }
-        
+
     }
 
 
@@ -681,7 +678,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
     /// <summary>
     /// 地址对象
     /// </summary>
-    public class AddressListItem  
+    public class AddressListItem
     {
         /// <summary>
         /// 数据库地址对象
@@ -690,12 +687,12 @@ namespace BLADE.TCPFORTRESS.CoreClass
         /// <summary>
         /// 地址判定程序
         /// </summary>
-        public BLADE.BASETOOL.VNET4.IPCD IC = null;
+        public BLADE.TOOLS.NET.IPCD IC = null;
         /// <summary>
         /// 是否已经存入数据库标记
         /// </summary>
         public bool DB_saved = false;
- 
+
 
         protected bool _Ready = false;
         public bool Ready { get { return _Ready; } }
@@ -707,12 +704,12 @@ namespace BLADE.TCPFORTRESS.CoreClass
         /// <returns></returns>
         public bool SetUp(DB.DBV.TFS_Address ina)
         {
-            
+
             ina.TFS_AddressStr = ina.TFS_AddressStr.Replace(" ", "").ToUpper().Trim();
             Address = ina;
-          
-            IC = new BASETOOL.VNET4.IPCD(Address.TFS_AddressStr);
-         
+
+            IC = new BLADE.TOOLS.NET.IPCD(Address.TFS_AddressStr);
+
             _Ready = true;
             return true;
         }
@@ -753,7 +750,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
         /// <param name="K2">地址K2</param>
         /// <param name="K1">地址K1</param>
         /// <returns></returns>
-        public int AddItemList(string K3, string K2,string K1)
+        public int AddItemList(string K3, string K2, string K1)
         {
             lock (AList)
             {
@@ -765,13 +762,13 @@ namespace BLADE.TCPFORTRESS.CoreClass
                 else { AList.Add(K1, new AddressList_L2()); }
             }
             //添加下级
-            AList[K1].AddItemList(K3,K2);
+            AList[K1].AddItemList(K3, K2);
             return AList.Count;
         }
         //添加地址项目
         public void AddItem(AddressListItem inA)
         {
-           
+
             //添加容器
             AddItemList(inA.Address.TFS_K3, inA.Address.TFS_K2, inA.Address.TFS_K1);
             //添加项目
@@ -818,7 +815,8 @@ namespace BLADE.TCPFORTRESS.CoreClass
                         }
                     }
                 }
-            }catch(Exception zez)
+            }
+            catch (Exception zez)
             {
                 ServiceRunCenter.LOG.AddLog("L1.ContainIP() EX : " + zez.ToString());
             }
@@ -840,13 +838,13 @@ namespace BLADE.TCPFORTRESS.CoreClass
                     if (AList[inA.Address.TFS_K1].AList[inA.Address.TFS_K2].AList.ContainsKey(inA.Address.TFS_K3))
                     {
                         SortedList<string, AddressListItem> ttt = AList[inA.Address.TFS_K1].AList[inA.Address.TFS_K2].AList[inA.Address.TFS_K3].AList;
-                       if( ttt.ContainsKey(inA.Address.TFS_AddressStr))
+                        if (ttt.ContainsKey(inA.Address.TFS_AddressStr))
                         {
                             ttt.Remove(inA.Address.TFS_AddressStr);
                             a++;
                         }
-                        
-                        
+
+
 
                     }
                 }
@@ -861,21 +859,21 @@ namespace BLADE.TCPFORTRESS.CoreClass
         /// <returns>查找到的地址对象</returns>
         public async Task<AddressListItem> FindA(AddressListItem inA)
         {
-            if(AList.ContainsKey(inA.Address.TFS_K1))
+            if (AList.ContainsKey(inA.Address.TFS_K1))
             {
                 if (AList[inA.Address.TFS_K1].AList.ContainsKey(inA.Address.TFS_K2))
                 {
                     if (AList[inA.Address.TFS_K1].AList[inA.Address.TFS_K2].AList.ContainsKey(inA.Address.TFS_K3))
                     {
                         SortedList<string, AddressListItem> ttt = AList[inA.Address.TFS_K1].AList[inA.Address.TFS_K2].AList[inA.Address.TFS_K3].AList;
-                        for(int z=0;z<ttt.Count; z++)
+                        for (int z = 0; z < ttt.Count; z++)
                         {
-                            if( await (Task.Run(()=> ttt.Values[z].IC.Contains(inA.Address.TFS_AddressStr))))
+                            if (await (Task.Run(() => ttt.Values[z].IC.Contains(inA.Address.TFS_AddressStr))))
                             {
                                 return ttt.Values[z];
                             }
                         }
-                       
+
                     }
                 }
             }
@@ -1009,14 +1007,14 @@ namespace BLADE.TCPFORTRESS.CoreClass
                 catch (Exception zez)
                 {
                     ServiceRunCenter.LOG.AddLog("L1.TLockIP() EX : " + zez.ToString());
-                   
+
                 }
                 return true;
             }
             else
             {
                 // 列表中未找到   填入列表中
-                await ServiceRunCenter.LOG.AddLog(false,333, "+ +     Add List Item by TLockIP : "+inA.Address.TFS_AddressStr);
+                await ServiceRunCenter.LOG.AddLog(false, 333, "+ +     Add List Item by TLockIP : " + inA.Address.TFS_AddressStr);
                 try
                 {
                     AddItem(inA);
@@ -1029,43 +1027,44 @@ namespace BLADE.TCPFORTRESS.CoreClass
             }
         }
 
-        
-        public    string[]  ShowAllIPaddress()
+
+        public string[] ShowAllIPaddress()
         {
-            
+
             List<string> mmm = new List<string>();
-            lock(AList)
+            lock (AList)
             {
-                for(int z=0;z<AList.Count;z++)
+                for (int z = 0; z < AList.Count; z++)
                 {
                     try
                     {
                         AddressList_L2 tl2 = AList.Values[z];
-                        for(int x=0;x<tl2.AList.Count;x++)
+                        for (int x = 0; x < tl2.AList.Count; x++)
                         {
                             AddressList_L3 tl3 = tl2.AList.Values[x];
-                            for(int y=0;y<tl3.AList.Count;y++)
+                            for (int y = 0; y < tl3.AList.Count; y++)
                             {
                                 AddressList tl4 = tl3.AList.Values[y];
-                                for(int p=0;p<tl4.AList.Count;p++)
+                                for (int p = 0; p < tl4.AList.Count; p++)
                                 {
-                                    
-                                    mmm.Add(  tl4.AList.Values[p].Address.TFS_AddressStr + " B:"
+
+                                    mmm.Add(tl4.AList.Values[p].Address.TFS_AddressStr + " B:"
                                         + tl4.AList.Values[p].Address.TFS_WhiteOrBlack.ToString() + "  T:" + tl4.AList.Values[p].Address.TFS_ALastTime.ToString("yyyyMMdd HHmmss")
-                                        + "  C:" + tl4.AList.Values[p].Address.TFS_ReactCount.ToString()+"  ");
+                                        + "  C:" + tl4.AList.Values[p].Address.TFS_ReactCount.ToString() + "  ");
 
                                 }
                             }
                         }
-                    }catch
+                    }
+                    catch
                     { continue; }
                 }
             }
-           
+
             return mmm.ToArray();
         }
     }
-    public class mess{ public int num = 0; public string Text = ""; }
+    public class mess { public int num = 0; public string Text = ""; }
     /// <summary>
     /// 地址 二级 容器
     /// </summary>
@@ -1074,9 +1073,9 @@ namespace BLADE.TCPFORTRESS.CoreClass
         public SortedList<string, AddressList_L3> AList = new SortedList<string, AddressList_L3>(StringComparer.OrdinalIgnoreCase);
         public void ClearList()
         {
-            lock(AList)
-                {
-                for(int z=0;z<AList.Count;z++)
+            lock (AList)
+            {
+                for (int z = 0; z < AList.Count; z++)
                 {
                     AList.Values[z].ClearList();
                 }
@@ -1088,11 +1087,11 @@ namespace BLADE.TCPFORTRESS.CoreClass
         public void AddItem(AddressListItem inA)
         {
 
-            AddItemList(inA.Address.TFS_K3,inA.Address.TFS_K2);
+            AddItemList(inA.Address.TFS_K3, inA.Address.TFS_K2);
             AList[inA.Address.TFS_K2].AddItem(inA);
 
         }
-        public int AddItemList(string K3,string K2)
+        public int AddItemList(string K3, string K2)
         {
             lock (AList)
             {
@@ -1105,12 +1104,12 @@ namespace BLADE.TCPFORTRESS.CoreClass
             AList[K2].AddItemList(K3);
             return AList.Count;
         }
-        public bool ContainIP(string checkIP, string K3,string K2)
+        public bool ContainIP(string checkIP, string K3, string K2)
         {
             bool rr = false;
             if (AList.ContainsKey(K2))
             {
-                rr = AList[K2].ContainIP(checkIP,K3);
+                rr = AList[K2].ContainIP(checkIP, K3);
             }
             return rr;
         }
@@ -1124,22 +1123,22 @@ namespace BLADE.TCPFORTRESS.CoreClass
         public SortedList<string, AddressList> AList = new SortedList<string, AddressList>(StringComparer.OrdinalIgnoreCase);
         public void ClearList()
         {
-            lock(AList)
+            lock (AList)
             {
-                for(int z=0;z<AList.Count;z++)
+                for (int z = 0; z < AList.Count; z++)
                 {
                     AList.Values[z].ClearList();
                 }
                 AList.Clear();
                 AList = null;
-                AList = new SortedList<string, AddressList> (StringComparer.OrdinalIgnoreCase);
+                AList = new SortedList<string, AddressList>(StringComparer.OrdinalIgnoreCase);
             }
         }
-        public int AddItemList(  string K3)
+        public int AddItemList(string K3)
         {
-            lock(AList)
+            lock (AList)
             {
-                if(AList.ContainsKey(K3))
+                if (AList.ContainsKey(K3))
                 {
 
                 }
@@ -1154,12 +1153,12 @@ namespace BLADE.TCPFORTRESS.CoreClass
 
         }
 
-        public bool ContainIP(string checkIP,string K3)
+        public bool ContainIP(string checkIP, string K3)
         {
             bool rr = false;
-            if(AList.ContainsKey(K3))
+            if (AList.ContainsKey(K3))
             {
-               rr=  AList[K3].ContainIP(checkIP);
+                rr = AList[K3].ContainIP(checkIP);
             }
             return rr;
         }
@@ -1173,7 +1172,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
         /// <summary>
         /// 以完整地址（段）作为KEY 的地址集合
         /// </summary>
-        public  SortedList<string,AddressListItem>  AList = new SortedList<string, AddressListItem>(StringComparer.OrdinalIgnoreCase);
+        public SortedList<string, AddressListItem> AList = new SortedList<string, AddressListItem>(StringComparer.OrdinalIgnoreCase);
         public void ClearList()
         {
             lock (AList)
@@ -1193,7 +1192,7 @@ namespace BLADE.TCPFORTRESS.CoreClass
         {
             lock (AList)
             {
-                if(AList.ContainsKey(inA.Address.TFS_AddressStr))
+                if (AList.ContainsKey(inA.Address.TFS_AddressStr))
                 { }
                 else
                 {
@@ -1211,14 +1210,14 @@ namespace BLADE.TCPFORTRESS.CoreClass
         public bool ContainIP(string checkIP)
         {
             bool rr = false;
-            for(int z=0;z< AList.Count;z++)
-            { 
+            for (int z = 0; z < AList.Count; z++)
+            {
                 //遍历每个地址段  判定检查地址是否等于 集合项目或在项目段之内
                 if (AList.Values[z].IC.Contains(checkIP.Trim().ToUpper()))
                 {
                     AList.Values[z].Address.TFS_ALastTime = DateTime.Now;
 
-                     rr= true;
+                    rr = true;
                     break;
                 }
             }
@@ -1288,6 +1287,5 @@ namespace BLADE.TCPFORTRESS.CoreClass
             }
         }
     }
-
 
 }

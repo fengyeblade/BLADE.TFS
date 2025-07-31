@@ -68,9 +68,6 @@ namespace BLADE.TCPFORTRESS.CoreClass.DB.DBV
 
         }
 
-
-
-
     }
     [Serializable]
     public class TFS_LOGS : BLADE.DBOP.BC.DBV.DBValue
