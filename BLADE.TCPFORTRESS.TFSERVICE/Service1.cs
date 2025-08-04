@@ -42,8 +42,6 @@ namespace BLADE.TCPFORTRESS.TFSERVICE
                 eventLog1.WriteEntry("TFS ONSTART()  EX: "+ze.Message,EventLogEntryType.Warning);
                 eventLog1.Close();
             }
-
-
         }
 
         protected override void OnStop()

@@ -17,14 +17,30 @@ namespace BLADE.TCPFORTRESS.CoreNET
     {
         protected SortedList<string, TunListener> TCPLS = new SortedList<string, TunListener>(StringComparer.OrdinalIgnoreCase);
         private bool _disposed = false;
-        private TunListener _listener;
-        public bool Running { get { return _listener.Listening; } set { _listener.Listening = value; } }
-
+         
+        private bool _running = false;
+        public bool Running { get { return _running; }  private set { _running = value;   } }
+        public string State
+        {
+            get   {   string kk = " Tuns Running: " + TCPLS.Count.ToString()+" \r\n\r\n";
+                try
+                {
+                    foreach (var tlt in TCPLS.Values)
+                    {
+                        kk = kk + "  --  " + tlt.State + "\r\n";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    kk = kk + "  --  Exception: " + ex.Message + "\r\n";
+                }
+                return kk;
+            }
+        }
         public TfsCORE()
         {
             // Initialize logging or other resources here if needed
-
-            _listener = new TunListener();
+ 
         }
         public  void Dispose()
         {
@@ -32,17 +48,16 @@ namespace BLADE.TCPFORTRESS.CoreNET
             if (!_disposed)
             {
                 _disposed = true;
+                ServiceRunCenter.LOG.SaveLogs(true);
             }
             // Clean up resources here if needed
             GC.SuppressFinalize(this);
-            ServiceRunCenter.LOG.SaveLogs(true);
-
+            
         }
         ~TfsCORE()
         {
             Dispose();
         }
-
 
 
         public async Task<string> StartWork()
@@ -84,7 +99,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
         public async Task<string> StopWork()
         {
             string r = "";
-            if (_listener == null)
+            if (TCPLS.Count  <1 )
             {
                 r = "Listener is not initialized.";
             }
@@ -99,7 +114,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                     }
                     catch { }
                 }
-                _listener.SetAutoStop();
+               
                 ServiceRunCenter.LOG.AddLog(false, 106, "Stoping Service... Stop Listener: " + ts.Length.ToString());
                 Thread.Sleep(130);
                 TCPLS.Clear();
@@ -601,6 +616,24 @@ namespace BLADE.TCPFORTRESS.CoreNET
         /// </summary>
         protected TunSet _tunSet = null;
 
+        public string TunName { get { return _tunSet.TunName; } }
+
+        public int TransCount { get { return TransList.Count ; } }
+
+        public string State
+        {
+            get
+            {
+                string k = _tunSet.TunName + " " + TransList.Count + " ::\r\n";
+
+                string[] ks = TransList.Keys.ToArray();
+                foreach (var i in ks)
+                {
+                    k = k + i + "\r\n";
+                }
+                return k;
+            }
+        }
         /// <summary>
         /// TCP 侦听器
         /// </summary>
