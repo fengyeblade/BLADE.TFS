@@ -1,7 +1,7 @@
 using BLADE.TCPFORTRESS.CoreNET;
 using BLADE.TOOLS.BASE;
 using BLADE.TOOLS.LOG;
-namespace BLADE.TCPFORTRESS.TFSERVICE_Win_NET
+namespace BLADE.TCPFORTRESS.TFSERVICE_Linux64_NET
 {
     public class TfsCoreWork : BackgroundService
     {
@@ -15,15 +15,16 @@ namespace BLADE.TCPFORTRESS.TFSERVICE_Win_NET
         private bool running = false;
         protected string AppStartPath = "";
         protected int js = 0;
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-            { 
-               _logger.LogWarning("TfsCoreWork starting at: {time}", DateTimeOffset.Now);
+            {
+                _logger.LogWarning("TfsCoreWork starting at: {time}", DateTimeOffset.Now);
             }
 
             AppStartPath = System.AppDomain.CurrentDomain.BaseDirectory;
-            
+
             if (await ServiceRunCenter.Init_2(AppStartPath) == 999)
             {
                 // Initialization failed, log the error
@@ -36,15 +37,14 @@ namespace BLADE.TCPFORTRESS.TFSERVICE_Win_NET
 
             CORE = new TfsCORE();
 
-            string sr = await  CORE.StartWork();
+            string sr = await CORE.StartWork();
             if (sr.Trim().Length > 0)
             {
                 if (_logger.IsEnabled(LogLevel.Information))
                 {
-                    _logger.LogInformation("CORE.StartWork():  " +sr);
+                    _logger.LogInformation("CORE.StartWork():  " + sr);
                 }
             }
-
             while (!stoppingToken.IsCancellationRequested)
             {
                 xjs++;
@@ -60,16 +60,15 @@ namespace BLADE.TCPFORTRESS.TFSERVICE_Win_NET
             }
             if (_logger.IsEnabled(LogLevel.Warning))
             {
-                _logger.LogWarning("Tfs Work Out ExecuteAsync(CancellationToken stoppingToken)" );
+                _logger.LogWarning("Tfs Work Out ExecuteAsync(CancellationToken stoppingToken)");
             }
         }
-
         private int xjs = 0;
-        public override async   Task StopAsync(CancellationToken cancellationToken)
+        public override async Task StopAsync(CancellationToken cancellationToken)
         {
             await ServiceRunCenter.LOG.AddLog(false, 86, "StopAsync  Service...");
             CORE.Dispose();
-            
+
             await base.StopAsync(cancellationToken);
         }
         public override async Task StartAsync(CancellationToken cancellationToken)
@@ -78,11 +77,13 @@ namespace BLADE.TCPFORTRESS.TFSERVICE_Win_NET
         }
 
         private bool _disposeded = false;
-        public override void Dispose() { 
+        public override void Dispose()
+        {
             running = false;
             if (_disposeded)
             { }
-            else {
+            else
+            {
                 _disposeded = true;
                 StopAsync(CancellationToken.None);
             }

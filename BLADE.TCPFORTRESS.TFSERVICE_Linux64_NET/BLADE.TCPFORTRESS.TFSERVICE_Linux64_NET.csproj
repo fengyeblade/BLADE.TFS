@@ -13,4 +13,17 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="9.0.7" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BLADE.TCPFORTRESS.CoreNET\BLADE.TCPFORTRESS.CoreNET.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BLADE.TOOLS.BASE">
+      <HintPath>..\BLADE.TCPFORTRESS.CoreNET\bin\Release\net9.0\publish\anycpu\BLADE.TOOLS.BASE.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.LOG">
+      <HintPath>..\BLADE.TCPFORTRESS.CoreNET\bin\Release\net9.0\publish\anycpu\BLADE.TOOLS.LOG.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
