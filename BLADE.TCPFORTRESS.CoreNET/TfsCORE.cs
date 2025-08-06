@@ -25,9 +25,17 @@ namespace BLADE.TCPFORTRESS.CoreNET
             get   {   string kk = " Tuns Running: " + TCPLS.Count.ToString()+" \r\n\r\n";
                 try
                 {
-                    foreach (var tlt in TCPLS.Values)
+                    TunListener[] tvs = TCPLS.Values.ToArray();
+                    foreach (var tlt in tvs)
                     {
-                        kk = kk + "  --  " + tlt.State + "\r\n";
+                        try
+                        {
+                            kk = kk + "  --  " + tlt.State + "\r\n";
+                        }
+                        catch (Exception zex)
+                        {
+                            kk = kk + "  --  item ex: " + zex.Message + "\r\n";
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -624,12 +632,12 @@ namespace BLADE.TCPFORTRESS.CoreNET
         {
             get
             {
-                string k = _tunSet.TunName + " " + TransList.Count + " ::\r\n";
+                string k = _tunSet.TunName + " " + TransList.Count + "  ##  ";
 
                 string[] ks = TransList.Keys.ToArray();
                 foreach (var i in ks)
                 {
-                    k = k + i + "\r\n";
+                    k = k +" [ "+ i + " ] ";
                 }
                 return k;
             }
