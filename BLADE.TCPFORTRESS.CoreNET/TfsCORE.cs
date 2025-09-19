@@ -679,7 +679,8 @@ namespace BLADE.TCPFORTRESS.CoreNET
             Listener = new TcpListener(System.Net.IPAddress.Parse(inTunSet.InAddress), inTunSet.InPort);
 
             await ServiceRunCenter.LOG.AddLogDebug(220, "Open Listen: " + _tunSet.InAddress + ":" + _tunSet.InPort.ToString());
-
+            Listener.Server.LingerState = new LingerOption(true, 1);
+            Listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             // 开始侦听 
             await (Task.Run(() => Listener.Start()));
             _listening = true;
