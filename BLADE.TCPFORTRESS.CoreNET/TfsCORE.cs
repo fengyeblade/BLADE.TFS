@@ -223,7 +223,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
             {
                 // new outClient
                 outClient = new TcpClient(_tunset.OutAddress, _tunset.OutPort);
-
+                outClient.LingerState = new LingerOption(true, 1);
                 inClient.ReceiveTimeout = 38000;
                 inClient.SendTimeout = 38000;
                 inClient.ReceiveBufferSize = _tunset.MTUSize * 8;
@@ -742,6 +742,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
 
                         //获取传入连接
                         TcpClient getNTCP = Listener.AcceptTcpClient();
+                        getNTCP.LingerState = new LingerOption(true, 1);
                         string nip = ((IPEndPoint)getNTCP.Client.RemoteEndPoint).Address.ToString().ToUpper().Trim();
                         if (_tunSet.DName != "")
                         { _tunSet.OutAddress = DNameCatch.GetIP(_tunSet.DName); }
