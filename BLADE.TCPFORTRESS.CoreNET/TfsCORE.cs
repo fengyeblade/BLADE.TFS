@@ -73,6 +73,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
             string r = "";
             // TODO:   start work with tfs listener
             bool setreloadTun = false;
+            TimeProvider.Global.TimeoutMicroseconds = 2560;
             for (int z = 0; z < ServiceRunCenter.RunSet.Tuns.Length; z++)
             {
                 //循环启动转发器
@@ -378,12 +379,12 @@ namespace BLADE.TCPFORTRESS.CoreNET
                     //速度计步
                     if (step > 80)
                     {
-                        jst = (int)((DateTime.Now - timestep).TotalMilliseconds);
+                        jst = (int)((TimeProvider.LocalNow - timestep).TotalMilliseconds);
                         //计速 时间差大于1秒
                         if (jst > 1000)
                         {
                             step = 0;
-                            timestep = DateTime.Now;
+                            timestep = TimeProvider.LocalNow;
                             cpssU = (stepcount / 1024) * 1000 / jst;
                             cpssU = cpssU / (_tunset.SpeedMax + 1);
                             if (cpssU > 1)
@@ -457,7 +458,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
 
                         // 上行流量计数
                         UpCount = UpCount + count;
-                        LastTran = DateTime.Now;
+                        LastTran = TimeProvider.LocalNow;
                         looptim = 0;
                     }
                     else
@@ -468,7 +469,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
 
                             //检查连接活性
                             looptim = 0;
-                            if ((DateTime.Now - LastTran).TotalSeconds > 30)
+                            if ((TimeProvider.LocalNow - LastTran).TotalSeconds > 30)
                             {
                                 //  30秒无通信  断开并清理
                                 ServiceRunCenter.LOG.AddLog(false, 117, "transfer UP TimeOut 30s. Closing Trans. " + _tunset.TunName + " : " + ttaa.TcpIn.Client.RemoteEndPoint.ToString());
@@ -537,11 +538,11 @@ namespace BLADE.TCPFORTRESS.CoreNET
                     step++;
                     if (step > 80)
                     {
-                        jst = (int)((DateTime.Now - timestep).TotalMilliseconds);
+                        jst = (int)((TimeProvider.LocalNow - timestep).TotalMilliseconds);
                         if (jst > 1000)
                         {
                             step = 0;
-                            timestep = DateTime.Now;
+                            timestep = TimeProvider.LocalNow;
                             if ((_tunset.SpeedMax * 2) < (int)(stepcount / 1024))
                             { jxsleep = true; }
                             if (_tunset.SpeedMax < (int)(stepcount / 1024))
@@ -558,7 +559,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                         ns2.Write(bt, 0, count);
                         stepcount = stepcount + count;
                         DownCount = DownCount + count;
-                        LastTran = DateTime.Now;
+                        LastTran = TimeProvider.LocalNow;
                         looptim = 0;
                     }
                     else
@@ -567,7 +568,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                         if (looptim > 12)
                         {
                             looptim = 0;
-                            if ((DateTime.Now - LastTran).TotalSeconds > 30)
+                            if ((TimeProvider.LocalNow - LastTran).TotalSeconds > 30)
                             {
                                 ServiceRunCenter.LOG.AddLog(false, 117, "transfer Down TimeOut 30s. Closing Trans. " + _tunset.TunName + " : " + ttaa.TcpOut.Client.RemoteEndPoint.ToString());
                                 _running = false;
