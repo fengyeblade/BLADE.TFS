@@ -95,13 +95,13 @@ namespace BLADE.TCPFORTRESS.CoreNET
                 }
                 else
                 {
-                    tl.SetStop();
+                    _= await tl.SetStop();
                     tl = null;
                 }
 
             }
 
-            await ServiceRunCenter.LOG.SaveLogs(true);
+            _= ServiceRunCenter.LOG.SaveLogs(true);
            
             return r;
         }
@@ -124,10 +124,10 @@ namespace BLADE.TCPFORTRESS.CoreNET
                     catch { }
                 }
                
-                ServiceRunCenter.LOG.AddLog(false, 106, "Stoping Service... Stop Listener: " + ts.Length.ToString());
-                Thread.Sleep(130);
+                _=ServiceRunCenter.LOG.AddLog(false, 106, "Stoping Service... Stop Listener: " + ts.Length.ToString());
+                await Task.Delay(130);
                 TCPLS.Clear();
-                Thread.Sleep(120);
+                await Task.Delay(120);
                
             }
             await ServiceRunCenter.LOG.AddLog(false, 88, "TFS CORE Stop Work ");
@@ -179,7 +179,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
         public async Task<bool> StopClose()
         {
             _running = false;
-            Thread.Sleep(30);
+            await Task.Delay(30);
             try
             {
                 if (inClient != null)
@@ -336,7 +336,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
         /// 转发接管 子线程方法  上行 
         /// </summary>
         /// <param name="obj">Tao 接管对象</param>
-        public void transfer(object obj)
+        public async void transfer(object obj)
         {
             //速度计数
             long stepcount = 1;
@@ -371,7 +371,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                     if (jxsleep)
                     {
                         jxsleep = false;
-                        Thread.Sleep(300);
+                        await Task.Delay(300);
                     }
 
                     step++;
@@ -392,7 +392,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                                 //判断超限
 
                                 //控速 0.2秒
-                                Thread.Sleep(200);
+                                await Task.Delay(200);
                                 if (cpssU < 1.3)
                                 {
                                     //不增加限速
@@ -404,13 +404,13 @@ namespace BLADE.TCPFORTRESS.CoreNET
                                     if (cpssU < 1.7)
                                     {
                                         //控速 +0.2秒
-                                        Thread.Sleep(200);
+                                        await Task.Delay(200);
 
                                     }
                                     else
                                     {
                                         // 超过 1.7倍  控速 +0.2秒  打开再控
-                                        Thread.Sleep(200);
+                                        await Task.Delay(200);
                                         //再次控速开关 开
                                         jxsleep = true;
                                     }
@@ -428,7 +428,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                                 else
                                 {
                                     //预警轻控速 0.08秒
-                                    Thread.Sleep(80);
+                                    await Task.Delay(80);
                                 }
                             }
 
@@ -440,7 +440,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
 
                             if (_tunset.SpeedMax < cpssU)
                             {   //控速 0.4秒
-                                Thread.Sleep(300);
+                                await Task.Delay(300);
                             }
                             _CurSpeedUP = stepcount + 1;
                             stepcount = 1;
@@ -480,7 +480,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                         }
                         else
                         {
-                            Thread.Sleep(6 * looptim);
+                            await Task.Delay(6 * looptim);
                         }
                     }
 
@@ -498,16 +498,16 @@ namespace BLADE.TCPFORTRESS.CoreNET
                         try { ttaa.TcpOut.Dispose(); } catch { }
                     }
 
-                    ServiceRunCenter.LOG.AddLog(false, 119, "transfer UP " + _tunset.TunName + "  EX: " + zee.ToString());
+                    _= ServiceRunCenter.LOG.AddLog(false, 119, "transfer UP " + _tunset.TunName + "  EX: " + zee.ToString());
                 }
             }
-            ServiceRunCenter.LOG.AddLogDebug(119, "=       NetCount  " + this._tunset.TunName + "   " + UpDownCount);
+           _= ServiceRunCenter.LOG.AddLogDebug(119, "=       NetCount  " + this._tunset.TunName + "   " + UpDownCount);
         }
         /// <summary>
         /// 转发接管 子线程方法  下行   
         /// </summary>
         /// <param name="obj">Tao 接管对象</param>
-        public void transferD(object obj)
+        public async void transferD(object obj)
         {
 
 
@@ -533,7 +533,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                     if (jxsleep)
                     {
                         jxsleep = false;
-                        Thread.Sleep(400);
+                        await Task.Delay(400);
                     }
                     step++;
                     if (step > 80)
@@ -547,7 +547,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                             { jxsleep = true; }
                             if (_tunset.SpeedMax < (int)(stepcount / 1024))
                             {
-                                Thread.Sleep(400);
+                                await Task.Delay(400);
                             }
                             _CurSpeedDOWN = stepcount + 1;
                             stepcount = 0;
@@ -570,7 +570,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                             looptim = 0;
                             if ((TimeProvider.LocalNow - LastTran).TotalSeconds > 30)
                             {
-                                ServiceRunCenter.LOG.AddLog(false, 117, "transfer Down TimeOut 30s. Closing Trans. " + _tunset.TunName + " : " + ttaa.TcpOut.Client.RemoteEndPoint.ToString());
+                               _=  ServiceRunCenter.LOG.AddLog(false, 117, "transfer Down TimeOut 30s. Closing Trans. " + _tunset.TunName + " : " + ttaa.TcpOut.Client.RemoteEndPoint.ToString());
                                 _running = false;
                                 ttaa.TcpIn.Dispose();
                                 ttaa.TcpOut.Dispose();
@@ -578,7 +578,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                         }
                         else
                         {
-                            Thread.Sleep(6 * looptim);
+                            await Task.Delay(6 * looptim);
                         }
                     }
 
@@ -596,7 +596,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                         try { ttaa.TcpOut.Dispose(); } catch { }
                     }
 
-                    ServiceRunCenter.LOG.AddLog(false, 119, "transfer DOWN " + _tunset.TunName + " EX: " + zee.ToString());
+                   _= ServiceRunCenter.LOG.AddLog(false, 119, "transfer DOWN " + _tunset.TunName + " EX: " + zee.ToString());
                 }
             }
             #endregion
@@ -692,18 +692,18 @@ namespace BLADE.TCPFORTRESS.CoreNET
         /// <summary>
         /// 启动工作循环线程。开始接受传入的连接请求。 必须在 SetListenOpen（） 方法之后手动调用
         /// </summary>
-        public void startLoop()
+        public async void startLoop()
         {
             if (selfThread != null)
             {
                 _listening = false;
-                Thread.Sleep(50);
+                await Task.Delay(50);
                 selfThread = null;
             }
             _listening = true;
             selfThread = new Thread(new ThreadStart(RunLoop));
             selfThread.Start();
-            ServiceRunCenter.LOG.AddLogDebug(220, "Open LoopThread: " + selfThread.ManagedThreadId.ToString());
+            _= ServiceRunCenter.LOG.AddLogDebug(220, "Open LoopThread: " + selfThread.ManagedThreadId.ToString());
         }
 
         protected int heartCount = 0;
@@ -732,7 +732,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                         // await ServiceRunCenter.LOG.AddLog(false, 555, "HEART Log");
                         string pdnips = "error pardon";
                         try { pdnips = (await ServiceRunCenter.PardonGray()).ToString(); } catch (Exception ppe) { pdnips = ppe.Message; }
-                        await ServiceRunCenter.LOG.AddLog(false, 99, "Heart and Make Pardon ips : " + pdnips);
+                        _= ServiceRunCenter.LOG.AddLog(false, 99, "Heart and Make Pardon ips : " + pdnips);
 
                     }
                 }
@@ -748,7 +748,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                         string nip = ((IPEndPoint)getNTCP.Client.RemoteEndPoint).Address.ToString().ToUpper().Trim();
                         if (_tunSet.DName != "")
                         { _tunSet.OutAddress = DNameCatch.GetIP(_tunSet.DName); }
-                        await ServiceRunCenter.LOG.AddLog(true, 101, _tunSet.InPort.ToString() + " Get Tcp In. From : " + getNTCP.Client.RemoteEndPoint.ToString());
+                        _= ServiceRunCenter.LOG.AddLog(true, 101, _tunSet.InPort.ToString() + " Get Tcp In. From : " + getNTCP.Client.RemoteEndPoint.ToString());
 
                         //判断IP是否允许通过
                         if (await ServiceRunCenter.CheckInIP(nip, _tunSet))
@@ -787,7 +787,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                 else
                 {
                     //无新连接进入，则让出线程。
-                    Thread.Sleep(60);
+                    await Task.Delay(60);
 
                 }
 
@@ -803,9 +803,9 @@ namespace BLADE.TCPFORTRESS.CoreNET
                             Trans ts = TransList[sssnn];
                             if (!ts.IsRunning)
                             {
-                                ts.StopClose();
+                                 _= ts.StopClose();
                                 TransList.Remove(sssnn);
-                                ServiceRunCenter.LOG.AddLogDebug(105, "Remove Tcp Trans: " + sssnn);
+                               _= ServiceRunCenter.LOG.AddLogDebug(105, "Remove Tcp Trans: " + sssnn);
                                 break;
                             }
                         }
@@ -887,7 +887,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
         public async Task<bool> SetStop()
         {
             _listening = false;
-            Thread.Sleep(50);
+            await Task.Delay(50);
             try
             {
                 await (Task.Run(() => Listener.Stop()));
