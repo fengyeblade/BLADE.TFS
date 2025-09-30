@@ -13,6 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" PrivateAssets="none" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="BLADE.MSGCORE.DLL">
       <HintPath>..\..\BLADE.MSGCORE\BLADE.MSGCORE.DLL\bin\Release\net9.0\BLADE.MSGCORE.DLL.dll</HintPath>
     </Reference>
