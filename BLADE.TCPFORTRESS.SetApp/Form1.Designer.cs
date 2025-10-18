@@ -435,7 +435,7 @@
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.button2.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button2.ForeColor = System.Drawing.Color.GreenYellow;
-            this.button2.Location = new System.Drawing.Point(975, 655);
+            this.button2.Location = new System.Drawing.Point(975, 662);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(134, 30);
             this.button2.TabIndex = 33;
@@ -450,7 +450,7 @@
             this.butStop.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.butStop.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.butStop.ForeColor = System.Drawing.Color.LightSeaGreen;
-            this.butStop.Location = new System.Drawing.Point(636, 655);
+            this.butStop.Location = new System.Drawing.Point(640, 662);
             this.butStop.Name = "butStop";
             this.butStop.Size = new System.Drawing.Size(76, 30);
             this.butStop.TabIndex = 34;
@@ -464,9 +464,9 @@
             this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.button4.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button4.ForeColor = System.Drawing.Color.Lime;
-            this.button4.Location = new System.Drawing.Point(722, 655);
+            this.button4.Location = new System.Drawing.Point(722, 662);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(140, 30);
+            this.button4.Size = new System.Drawing.Size(113, 30);
             this.button4.TabIndex = 35;
             this.button4.Text = "ReStart";
             this.button4.UseVisualStyleBackColor = false;
@@ -476,7 +476,7 @@
             // 
             this.serviceStatus.AutoSize = true;
             this.serviceStatus.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.serviceStatus.Location = new System.Drawing.Point(465, 662);
+            this.serviceStatus.Location = new System.Drawing.Point(465, 669);
             this.serviceStatus.Name = "serviceStatus";
             this.serviceStatus.Size = new System.Drawing.Size(142, 16);
             this.serviceStatus.TabIndex = 36;
