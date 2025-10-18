@@ -279,7 +279,7 @@ namespace BLADE.TCPFORTRESS.SetApp
             ServiceController[]  ts = ServiceController.GetServices();
             for(int z=0;z<ts.Length;z++)
             {
-                if (ts[z].ServiceName =="TFService")
+                if (ts[z].ServiceName == "BLADE.TFS.N9" ||  ts[z].ServiceName =="TFService")
                 {
                     serviceController1 = ts[z];
                     break;
