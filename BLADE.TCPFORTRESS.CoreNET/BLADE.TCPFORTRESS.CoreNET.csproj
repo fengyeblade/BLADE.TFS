@@ -21,6 +21,9 @@
     <Reference Include="BLADE.BRIDGEPROXY.HTTPCORE">
       <HintPath>..\..\BLADE.TOOLS\BLADE.BRIDGEPROXY.HTTPCORE\bin\Release\net9.0\BLADE.BRIDGEPROXY.HTTPCORE.dll</HintPath>
     </Reference>
+    <Reference Include="BLADE.MSGCORE.DLL">
+      <HintPath>..\..\BLADE.MSGCORE\BLADE.MSGCORE.DLL\bin\Release\net9.0\BLADE.MSGCORE.DLL.dll</HintPath>
+    </Reference>
     <Reference Include="BLADE.TOOLS.BASE">
       <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.BASE\bin\Release\net9.0\BLADE.TOOLS.BASE.dll</HintPath>
     </Reference>
