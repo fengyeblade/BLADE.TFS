@@ -5,7 +5,16 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-BLADE.TCPFORTRESS.TFSERVICE_Win_NET-9a661977-8255-4555-beaf-3df90fcc0880</UserSecretsId>
+    <ApplicationIcon>xq18.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="xq18.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="xq18.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
@@ -23,5 +32,9 @@
     <Reference Include="BLADE.TOOLS.LOG">
       <HintPath>..\BLADE.TCPFORTRESS.CoreNET\bin\Release\net9.0\publish\anycpu\BLADE.TOOLS.LOG.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="xq18.ico" />
   </ItemGroup>
 </Project>
