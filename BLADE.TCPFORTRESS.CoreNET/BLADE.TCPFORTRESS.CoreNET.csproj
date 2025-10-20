@@ -13,27 +13,31 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" PrivateAssets="none" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" PrivateAssets="none" />
+    <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="9.0.10" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="BLADE.MSGCORE.DLL">
-      <HintPath>..\..\BLADE.MSGCORE\BLADE.MSGCORE.DLL\bin\Release\net9.0\BLADE.MSGCORE.DLL.dll</HintPath>
+    <Reference Include="BLADE.BRIDGEPROXY.HTTPCORE">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.BRIDGEPROXY.HTTPCORE\bin\Release\net9.0\BLADE.BRIDGEPROXY.HTTPCORE.dll</HintPath>
     </Reference>
     <Reference Include="BLADE.TOOLS.BASE">
-      <HintPath>..\..\..\BLADE.TOOLS\BLADE.TOOLS.NET\bin\Release\net9.0\BLADE.TOOLS.BASE.dll</HintPath>
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.BASE\bin\Release\net9.0\BLADE.TOOLS.BASE.dll</HintPath>
     </Reference>
     <Reference Include="BLADE.TOOLS.DBO.DBCODER">
-      <HintPath>..\..\..\BLADE.TOOLS\BLADE.TOOLS.DBO.DBCODER\bin\Release\net9.0\BLADE.TOOLS.DBO.DBCODER.dll</HintPath>
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.DBO.DBCODER\bin\Release\net9.0\BLADE.TOOLS.DBO.DBCODER.dll</HintPath>
     </Reference>
     <Reference Include="BLADE.TOOLS.DBO.DBCODER.DBOP">
-      <HintPath>..\..\..\BLADE.TOOLS\BLADE.TOOLS.DBO.DBCODER\bin\Release\net9.0\BLADE.TOOLS.DBO.DBCODER.DBOP.dll</HintPath>
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.DBO.DBCODER\bin\Release\net9.0\BLADE.TOOLS.DBO.DBCODER.DBOP.dll</HintPath>
     </Reference>
     <Reference Include="BLADE.TOOLS.LOG">
-      <HintPath>..\..\..\BLADE.TOOLS\BLADE.TOOLS.LOG\bin\Release\net9.0\BLADE.TOOLS.LOG.dll</HintPath>
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.LOG\bin\Release\net9.0\BLADE.TOOLS.LOG.dll</HintPath>
     </Reference>
     <Reference Include="BLADE.TOOLS.NET">
-      <HintPath>..\..\..\BLADE.TOOLS\BLADE.TOOLS.NET\bin\Release\net9.0\BLADE.TOOLS.NET.dll</HintPath>
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.NET\bin\Release\net9.0\BLADE.TOOLS.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.TIMEZONE">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.TIMEZONE\bin\Release\net9.0\BLADE.TOOLS.TIMEZONE.dll</HintPath>
     </Reference>
   </ItemGroup>
 

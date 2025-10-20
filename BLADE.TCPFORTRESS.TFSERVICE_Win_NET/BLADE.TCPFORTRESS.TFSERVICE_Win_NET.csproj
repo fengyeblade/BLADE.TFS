@@ -26,15 +26,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="BLADE.TOOLS.BASE">
-      <HintPath>..\BLADE.TCPFORTRESS.CoreNET\bin\Release\net9.0\publish\anycpu\BLADE.TOOLS.BASE.dll</HintPath>
-    </Reference>
-    <Reference Include="BLADE.TOOLS.LOG">
-      <HintPath>..\BLADE.TCPFORTRESS.CoreNET\bin\Release\net9.0\publish\anycpu\BLADE.TOOLS.LOG.dll</HintPath>
-    </Reference>
+    <EmbeddedResource Include="xq18.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="xq18.ico" />
+    <Reference Include="BLADE.TOOLS.BASE">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.BASE\bin\Release\net9.0\BLADE.TOOLS.BASE.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.LOG">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.LOG\bin\Release\net9.0\BLADE.TOOLS.LOG.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>
