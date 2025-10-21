@@ -303,9 +303,9 @@ namespace BLADE.TCPFORTRESS.SetApp
             serviceController1.Stop();
             Thread.Sleep(1000);
             AppRunCenter.LOG.AddLog("Service Stop Succeed.");
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
            
-            serviceStatus.Text = "Service: " + serviceController1.Status.ToString();
+            serviceStatus.Text = "Service: " +serviceController1.ServiceName+" "+ serviceController1.Status.ToString();
         }
         protected void StartService()
         {
@@ -314,7 +314,7 @@ namespace BLADE.TCPFORTRESS.SetApp
             AppRunCenter.LOG.AddLog("Service Start Succeed.");
             Thread.Sleep(2000);
           
-            serviceStatus.Text = "Service: " + serviceController1.Status.ToString();
+            serviceStatus.Text = "Service: " +serviceController1.ServiceName+"  " + serviceController1.Status.ToString();
         }
         protected void RestartService()
         {
@@ -325,7 +325,6 @@ namespace BLADE.TCPFORTRESS.SetApp
             try
             {
                 StartService();
-               
             }
             catch(Exception zee) {
                 AppRunCenter.LOG.AddLog("Start Servicec Error: " + zee.ToString());
