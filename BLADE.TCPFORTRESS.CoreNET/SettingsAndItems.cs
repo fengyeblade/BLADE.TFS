@@ -11,11 +11,11 @@ using BLADE.TOOLS.DBO.DBCODER;
 using BLADE.TOOLS.DBO.DBCODER.DBOP;
 using BLADE.TOOLS.DBO.DBCODER.DBOP.VO;
 using BLADE.TCPFORTRESS.CoreNET.DB.DBV;
+using System.Text.Json;
+using BLADE.MSGCORE.Models;
 
 namespace BLADE.TCPFORTRESS.CoreNET
 {
-
-
     public class dnameItem
     {
         public string dname = "";
@@ -29,18 +29,88 @@ namespace BLADE.TCPFORTRESS.CoreNET
             IP = "127.0.0.1";
         }
     }
+
+    public class namelocker
+    {
+        private static Dictionary<string, bool> names = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
+        public static bool Lock(string inDNAME) {
+            inDNAME=inDNAME.Trim();
+            lock (names)
+            {
+                if (names.ContainsKey(inDNAME))
+                {
+                    if (names[inDNAME] == true)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        names[inDNAME] = true;
+                        return true;
+                    }
+                }
+                else
+                {
+                    names.Add(inDNAME, true);
+                    return true;
+                }
+            }
+        }
+
+        public static void Unlock(string inlock)
+        {
+            inlock = inlock.Trim();
+            lock (names)
+            {
+                if (names.ContainsKey(inlock))
+                {
+                    names[inlock] = false;
+                }
+            }
+        }
+    }
+    
     public class DNameCatch
     {
-        protected static SortedList<string, dnameItem> COL = new SortedList<string, dnameItem>(StringComparer.OrdinalIgnoreCase);
+        protected static BLADE.TOOLS.BASE.ThreadSAFE.Dictionary_TS<string, dnameItem> COL = new BLADE.TOOLS.BASE.ThreadSAFE.Dictionary_TS<string, dnameItem>(StringComparer.OrdinalIgnoreCase);
 
-        public static string GetIP(string indname)
+        public static   async Task< string> GetIP(string indname)
         {
             string nnn = indname.ToLower().Trim();
             string ii = "127.0.0.1";
-
-            lock (COL)
+            try
             {
-
+                if (namelocker.Lock(nnn))
+                { }
+                else
+                {
+                    await Task.Delay(20);
+                    if (namelocker.Lock(nnn))
+                    { }
+                    else
+                    {
+                        await Task.Delay(80);
+                        if (namelocker.Lock(nnn)) { }
+                        else
+                        {
+                            await Task.Delay(160);
+                            if (namelocker.Lock(nnn)) { }
+                            else
+                            {
+                                await Task.Delay(320);
+                                if (namelocker.Lock(nnn)) { }
+                                else {
+                                     await Task.Delay(640);
+                                    if (namelocker.Lock(nnn)) { }
+                                    else {
+                                        //  return ""; 
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 if (COL.ContainsKey(nnn))
                 {
                     if ((DateTime.Now - COL[nnn].dnstime).TotalMinutes < 6)
@@ -49,7 +119,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                     }
                     else
                     {
-                        COL[nnn].IP = dnsIP(nnn);
+                        COL[nnn].IP = await dnsIP(nnn);
                         COL[nnn].dnstime = DateTime.Now;
                         ii = COL[nnn].IP;
                     }
@@ -57,33 +127,66 @@ namespace BLADE.TCPFORTRESS.CoreNET
                 else
                 {
                     dnameItem td = new dnameItem(nnn);
-                    td.IP = dnsIP(nnn);
+                    td.IP = await dnsIP(nnn);
                     td.dnstime = DateTime.Now;
                     ii = td.IP;
                     COL.Add(nnn, td);
 
                 }
             }
-
-
+            catch { }
+            finally { namelocker.Unlock(nnn); }
             return ii;
         }
-        public static string dnsIP(string indname)
+        
+        public static async Task<string> dnsIP(string indname)
         {
             string ii = "127.0.0.1";
            // string la = indname.ToLower().Trim();
             string nnn = indname.Replace("mkv:", "").Trim();
             if (indname.StartsWith("mkv:"))
             {
-                BLADE.MSGCORE.DLL.JsonMods.PostMkvItem pmi = BLADE.MSGCORE.DLL.ClientWork.QueryMKV(nnn).Result;
-                if (pmi != null && pmi.KEYNAME.ToLower().Trim() == nnn)
+
+                 var rm = await BLADE.MSGCORE.ClientTools.ClientCore.MKV_CreateQryPost(0, nnn);
+                if (rm.StatusCode == 200 && rm.ResponseText.Length > 5)
                 {
-                    if (pmi.ENDUTCTIME.AddHours(20) > DateTime.UtcNow)
+                    BLADE.MSGCORE.Models.PostResponse? PR = JsonSerializer.Deserialize<PostResponse>(rm.ResponseText, jsonOptions.IncludeFields);
+                    if (PR != null)
                     {
-                        ServiceRunCenter.LOG.AddLog(false, 888, "mkv: " + nnn + " = " + pmi.KEYVALUE);
-                        return pmi.KEYVALUE.Trim();
+                        if (PR.secKEY == 99999999)
+                        {
+                            var pmi = JsonSerializer.Deserialize<PostMkvItem>(PR.Message, jsonOptions.IncludeFields);
+                            if (pmi != null && pmi.KEYNAME.ToLower().Trim() == nnn)
+                            {
+                                if (pmi.ENDUTCTIME.AddHours(20) > BLADE.TimeProvider.UtcNow)
+                                {
+                                    await ServiceRunCenter.LOG.AddLog(false, 888, "mkv: " + nnn + " = " + pmi.KEYVALUE);
+                                    return pmi.KEYVALUE.Trim();
+                                }
+                            }
+                        }
+                        else {
+                            await ServiceRunCenter.LOG.AddLog(false, 334, "Look mkv [" + nnn + "]  secKEY != 99999999  secKEY:" + PR.secKEY + "  Code:" + PR.StatusCode + "  Post: " + PR.PostCode + "  Mess: " + PR.Message);
+                        }
+                    }
+                    else
+                    {
+                        await ServiceRunCenter.LOG.AddLog(false, 334, "Look mkv [" + nnn + "]  PostResponse:NULL Code:" + rm.StatusCode + "  Error:" + (rm.Error?.Message ?? "null") + "  URL: " + rm.RequestUrl + "  Text: " + rm.ResponseText);
                     }
                 }
+                else {
+                    await ServiceRunCenter.LOG.AddLog(false, 333, "Look mkv ["+nnn+"]   Code:"+rm.StatusCode+"  Error:"+ (rm.Error?.Message ?? "null") +"  URL: "+rm.RequestUrl +"  Text: "+rm.ResponseText );
+                }
+
+              //  BLADE.MSGCORE.DLL.JsonMods.PostMkvItem pmi = BLADE.MSGCORE.DLL.ClientWork.QueryMKV(nnn).Result;
+                //if (pmi != null && pmi.KEYNAME.ToLower().Trim() == nnn)
+                //{
+                //    if (pmi.ENDUTCTIME.AddHours(20) > BLADE.TimeProvider.UtcNow)
+                //    {
+                //        ServiceRunCenter.LOG.AddLog(false, 888, "mkv: " + nnn + " = " + pmi.KEYVALUE);
+                //        return pmi.KEYVALUE.Trim();
+                //    }
+                //}
             }
             try
             {
@@ -362,7 +465,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
 
 
             string setFile = RunRoot + "\\Settings.cfg";
-            string n48set = RunRoot + "\\n48mkv.cfg";
+            string clientcoreset = RunRoot + "\\ClientCoreSet.cfg";
             try
             {
                 if (File.Exists(setFile))
@@ -392,30 +495,31 @@ namespace BLADE.TCPFORTRESS.CoreNET
                 Error = "Init Error " + zeee.ToString();
                 return 999;
             }
-            // 读取n48mkv设置文件
+            // 读取  ClientCore settings 设置文件
             try
-            {
-                BLADE.MSGCORE.DLL.MCSettings nms = new MSGCORE.DLL.MCSettings();
-                if (File.Exists(n48set))
+            {    
+                if (File.Exists(clientcoreset))
                 {
+                    using (var sr = File.OpenText(clientcoreset))
+                    {
+                        var x = await sr.ReadToEndAsync();
 
-                    XmlSerializer xs = new XmlSerializer(typeof(BLADE.MSGCORE.DLL.MCSettings));
-                    StreamReader sr = File.OpenText(n48set);
-                    nms = (BLADE.MSGCORE.DLL.MCSettings)xs.Deserialize(sr);
-                    sr.Close();
-                    sr.Dispose();
+                        var PST = JsonSerializer.Deserialize<MSGCORE.ClientTools.ProSettings>(x, jsonOptions.IncludeFields);
+                        if (PST != null)
+                        {
+                            MSGCORE.ClientTools.ClientCore.RunSet = PST;
+                        }
+                    } 
                 }
                 else
                 {
-
-                    XmlSerializer xs = new XmlSerializer(typeof(BLADE.MSGCORE.DLL.MCSettings));
-                    StreamWriter sw = File.CreateText(n48set);
-                    xs.Serialize(sw, nms);
-                    sw.Close();
-                    sw.Dispose();
-                }
-                BLADE.MSGCORE.DLL.ClientWork.FlushSettings(nms);
-                
+                    using (var sr = File.CreateText(clientcoreset))
+                    { 
+                        var x = JsonSerializer.Serialize<MSGCORE.ClientTools.ProSettings>(MSGCORE.ClientTools.ClientCore.RunSet, jsonOptions.IncludeFields);
+                          await sr.WriteAsync(x); 
+                    }
+                   
+                } 
             }
             catch (Exception zez)
             {
