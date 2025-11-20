@@ -143,7 +143,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
         {
             string ii = "127.0.0.1";
            // string la = indname.ToLower().Trim();
-            string nnn = indname.Replace("mkv:", "").Trim();
+            string nnn = indname.Replace("mkv:", "").Trim().ToLower();
             if (indname.StartsWith("mkv:"))
             {
 
@@ -199,7 +199,7 @@ namespace BLADE.TCPFORTRESS.CoreNET
                 }
 
             }
-            catch { }
+            catch { ii = ""; }
 
             return ii;
         }

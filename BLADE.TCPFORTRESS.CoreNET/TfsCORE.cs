@@ -747,7 +747,15 @@ namespace BLADE.TCPFORTRESS.CoreNET
                         getNTCP.LingerState = new LingerOption(true, 1);
                         string nip = ((IPEndPoint)getNTCP.Client.RemoteEndPoint).Address.ToString().ToUpper().Trim();
                         if (_tunSet.DName != "")
-                        { _tunSet.OutAddress = await DNameCatch.GetIP(_tunSet.DName); }
+                        { _tunSet.OutAddress = await DNameCatch.GetIP(_tunSet.DName);
+                            if (_tunSet.OutAddress == "")
+                            {
+                                getNTCP.Close();
+                                getNTCP.Dispose();
+                                getNTCP = null;
+                                await ServiceRunCenter.LOG.AddLog(true, 114, "DNameCatch.GetIP("+ _tunSet.DName + ") = null ");
+                            }
+                        }
                         _= ServiceRunCenter.LOG.AddLog(true, 101, _tunSet.InPort.ToString() + " Get Tcp In. From : " + getNTCP.Client.RemoteEndPoint.ToString());
 
                         //判断IP是否允许通过
