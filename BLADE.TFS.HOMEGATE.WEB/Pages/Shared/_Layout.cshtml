@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" data-bs-theme="dark" >
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BLADE.SERVICEWEB.RAZORBODY9</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/BLADE.SERVICEWEB.RAZORBODY9.styles.css" asp-append-version="true" />
+    <style>
+        /* PC端左侧导航栏滚动隐藏滚动条 */
+        .sidebar {
+            overflow-y: auto;
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
+        .sidebar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+        /* 设置PC端最小宽度 */
+        @@media (min-width: 992px) {
+            .main-container {
+                min-width: 992px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid main-container">
+        <!-- PC端布局 -->
+        <div class="row d-none d-lg-flex">
+            <!-- 左侧导航栏 -->
+            <nav class="col-lg-3 col-xl-2 sidebar vh-100 d-flex flex-column">
+                <div class="flex-grow-1">
+                    <a class="navbar-brand d-block  py-3" asp-area="" asp-page="/INDEX">RAZOR</a>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link  " asp-area="" asp-page="/INDEX">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link  " asp-area="" asp-page="/LOGIN">LOGIN</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link  " asp-area="" asp-page="/DESKTOP">DESKTOP</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link  " asp-area="" asp-page="/DYFORMTAB">DYFORMTAB</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link " asp-area="" asp-page="/DevTest">DEV</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link " asp-area="" asp-page="/ERROR">ERROR</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Footer内容 -->
+                <footer class="border-top text-muted text-center py-2">
+                    &copy; 2025 - BLADE.SERVICEWEB.RAZORBODY9  <br /><a class="nav-link " asp-area="" asp-page="/INDEX">Home</a>
+                </footer>
+            </nav>
+            <!-- 右侧正文内容 -->
+            <main class="col-lg-9 col-xl-10 vh-100 overflow-auto">
+                @RenderBody()
+            </main>
+        </div>
+
+        <!-- 移动端布局 -->
+        <div class="d-lg-none">
+            <!-- Header -->
+            <header class="navbar navbar-expand-lg  border-bottom">
+                <div class="container-fluid">
+                    <a class="navbar-brand" asp-area="" asp-page="/INDEX">RAZOR</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link " asp-area="" asp-page="/INDEX">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link " asp-area="" asp-page="/LOGIN">LOGIN</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link " asp-area="" asp-page="/DESKTOP">DESKTOP</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link " asp-area="" asp-page="/DYFORMTAB">DYFORMTAB</a>
+                            </li> 
+                            <li class="nav-item">
+                                <a class="nav-link " asp-area="" asp-page="/DevTest">DEV</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link " asp-area="" asp-page="/ERROR">ERROR</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+            <!-- Body -->
+            <main class="container py-3">
+                @RenderBody()
+            </main>
+            <!-- Footer -->
+            <footer class="border-top footer text-muted text-center py-2">
+                &copy; 2025 - BLADE.SERVICEWEB.RAZORBODY9<br /><a class="nav-link " asp-area="" asp-page="/INDEX">Home</a>
+            </footer>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

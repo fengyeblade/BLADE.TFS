@@ -1,0 +1,36 @@
+﻿@page
+@model ERRORModel
+@{
+    ViewData["Title"] = "Runtime Error Message";
+}
+
+<h1 class="text-danger">Error.</h1>
+<h2 class="text-danger">An error occurred while processing your request.</h2>
+
+@if (Model.ShowRequestId)
+{
+    <p>
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    </p>
+}
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+       <div class="card">
+           <div class="card-header text-info bg-dark"><b>@Model.ExTitle</b></div>
+              <div class="card-body text-success bg-dark">
+                @Model.ExMsg</div>
+       </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header text-primary bg-dark"><b>@Model.ErrorTitle</b></div>
+            <div class="card-body text-success bg-dark">
+                @Model.ErrorText
+            </div>
+        </div>
+    </div>
+</div>

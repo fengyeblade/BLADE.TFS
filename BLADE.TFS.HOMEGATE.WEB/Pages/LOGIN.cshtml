@@ -1,0 +1,55 @@
+﻿@page
+@model BLADE.SERVICEWEB.RAZORBODY9.Pages.LOGINModel
+@{
+    ViewData["Title"] = "Login - Blade RAZOR9";
+}
+ 
+
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4" style="width: 450px;">
+        <h2 class="text-center text-primary mb-4">用户登录</h2>
+        
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">用户名</label>
+                <input type="text" class="form-control" name="username" 
+                       minlength="4" maxlength="30" required value="">
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">密码</label>
+                <input type="password" class="form-control" name="password" 
+                       minlength="4" maxlength="30" required>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">验证码</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" name="captcha" 
+                           maxlength="8" required>
+                        <img src="/Captcha?t=@Model.rndstr"
+                             alt="验证码"
+                             id="captchaIMG"
+                             onclick="refreshCaptcha()"
+                         style="max-width: 350px; max-height: 50px; object-fit: contain;" />
+                    <script>
+                        function refreshCaptcha() {
+                            // 添加时间戳防止缓存
+                            document.getElementById('captchaIMG').src = '/CaptCha?t=' + new Date().getTime();
+                        }
+                    </script>
+                </div>
+
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100">登录</button>
+        </form>
+        
+        @if (!string.IsNullOrEmpty(Model.LoginInfo))
+        {
+            <div class="alert alert-info mt-3 mb-0">
+                @Model.LoginInfo
+            </div>
+        }
+    </div>
+</div>

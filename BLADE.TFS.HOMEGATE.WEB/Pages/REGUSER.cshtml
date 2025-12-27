@@ -1,0 +1,117 @@
+﻿@page
+@model BLADE.SERVICEWEB.RAZORBODY9.Pages.REGUSERModel
+@{
+    ViewData["Title"] = "REGUSER";
+}
+
+<h2 class="mb-5 text-primary">注册新用户</h2>
+
+<div class="container">
+    <form method="post">
+        <!-- 用户名 -->
+        <div class="mb-3">
+            <label class="form-label" title="建议使用电话号码作为登录名">登录名</label>
+            <input type="text" class="form-control" name="username" minlength="4" maxlength="30" required placeholder="请输入用户名称">
+        </div>
+
+        <!-- EMAIL -->
+        <div class="mb-3">
+            <label class="form-label">邮箱</label>
+            <input type="email" class="form-control" name="email" maxlength="100" required placeholder="请输入邮箱地址">
+        </div>
+
+        <!-- 移动电话 -->
+        <div class="mb-3">
+            <label class="form-label">移动电话</label>
+            <input type="tel" class="form-control" name="mobile" pattern="[0-9]{11}" required placeholder="请输入11位手机号码">
+        </div>
+
+        <!-- 省份/城市 -->
+        <div class="mb-3">
+            <label class="form-label">省份/城市</label>
+            <input type="text" class="form-control" name="provinceCity" required placeholder="请输入省份或城市">
+        </div>
+
+        <!-- 生日 -->
+        <div class="mb-3">
+            <label class="form-label">生日</label>
+            <input type="date" class="form-control" name="birthday" required value="2025-1-4">
+        </div>
+
+        <!-- 喜欢的主要颜色 -->
+        <div class="mb-3">
+            <label class="form-label">喜欢的主要颜色</label>
+            <input type="color" class="form-control form-control-color" name="favoriteColor" value="#000000" title="选择您喜欢的颜色">
+        </div>
+
+        <!-- 是否接收通知邮件 -->
+        <div class="mb-3 form-check"> 
+            <input type="checkbox" class="form-check-input" name="receiveNotifications" id="receiveNotifications"  checked >
+            <label class="form-check-label" for="receiveNotifications">接收通知邮件</label>
+        </div>
+
+        <!-- 爱好 -->
+        <div class="mb-3">
+            <label class="form-label">爱好</label>
+            <select class="form-select" name="hobbies" required>
+                <option value="" disabled selected>请选择您的爱好</option>
+                <option value="reading">阅读</option>
+                <option value="sports">运动</option>
+                <option value="music">音乐</option>
+                <option value="travel">旅行</option>
+            </select>
+        </div>
+
+        <!-- 性别 -->
+        <div class="mb-3">
+            <label class="form-label d-block">性别</label>
+            <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input" name="gender" id="genderMale" value="male" required>
+                <label class="form-check-label" for="genderMale">男</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input" name="gender" id="genderFemale" value="female" required>
+                <label class="form-check-label" for="genderFemale">女</label>
+            </div>
+        </div>
+
+        <!-- 密码 -->
+        <div class="mb-3">
+            <label class="form-label">密码</label>
+            <input type="password" class="form-control" name="password" minlength="6" required placeholder="请输入密码">
+        </div>
+
+        <!-- 密码提示词 -->
+        <div class="mb-3">
+            <label class="form-label">密码提示词</label>
+            <input type="text" class="form-control" name="passwordHint" maxlength="50" placeholder="请输入密码提示词">
+        </div>
+
+        <!-- 自定义签名 -->
+        <div class="mb-3">
+            <label class="form-label">自定义签名</label>
+            <textarea class="form-control" name="customSignature" rows="3" placeholder="请输入您的签名，支持部分HTML标签"></textarea>
+        </div>
+
+        <!-- 因数 -->
+        <div class="mb-3">
+            <label class="form-label">因数 (0.00格式)</label>
+            <input type="number" class="form-control" name="factor" step="0.01" placeholder="请输入因数，保留两位小数">
+        </div>
+
+        <!-- JSON文本 -->
+        <div class="mb-3">
+            <label class="form-label">JSON文本</label>
+            <textarea class="form-control" name="jsonContent" rows="5" maxlength="180" required    placeholder="请输入JSON格式的内容"></textarea>
+        </div>
+
+        <!-- 业务编号 -->
+        <div class="mb-3">
+            <label class="form-label">业务编号</label>
+            <input type="number" class="form-control" min="1"  max="100"   name="businessNumber" placeholder="请输入业务编号">
+        </div>
+
+        <!-- 提交按钮 -->
+        <button type="submit" class="btn btn-primary w-100">提交</button>
+    </form>
+</div>

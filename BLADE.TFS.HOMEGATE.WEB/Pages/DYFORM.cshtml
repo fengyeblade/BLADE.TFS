@@ -1,0 +1,63 @@
+﻿@page
+@model BLADE.SERVICEWEB.RAZORBODY9.Pages.DYFORMModel
+@{
+    ViewData["Title"] = Model.PageTITLE;
+}
+<h2 class="text-primary"> @Model.RunForm.FormName</h2>
+<h3 class="text-success"> @Html.Raw(Model.RunForm.FormInfo)</h3>
+<h4 class="text-secondary"> @Model.SessionID</h4>
+<div  class="container" >
+   
+    <div class="row mb-4">
+        <div class="card" name="card1">
+            <div class="card-header  text-center">@Model.RunForm.CD1_header</div>
+            <div class="card-body">@Model.RunForm._Step <br /> @Model.RunForm.CD1_card</div>
+
+        </div>
+        <div class="card" name="card2">
+            <div class="card-header  text-center">@Model.RunForm.CD2_header</div>
+            <div class="card-body">@Model.LoadTime<br />@Model.RunForm.CD2_card</div>
+
+        </div>
+        <div class="card" name="card3">
+            <div class="card-header  text-center">@Model.RunForm.CD3_header</div>
+            <div class="card-body">@Model.RunForm.CD3_card</div>
+
+        </div>
+
+    </div>
+
+     <form method="post" name="dmfname">
+
+        @foreach (var field in Model.RunForm.FormFieldRows)
+        {
+                 <div class="row mb-2" name="FieldsRow">  <div class="col">
+                     <div class="card">@Html.Raw(field)</div>
+                 </div>   </div>
+        }
+    
+    <div class="row mb-3" name="FormControlRow">
+            <div class="col-3  text-start">
+            <div>infotextblock</div>
+        </div>
+        <div class="col-3 text-center">
+                <button type="submit" class="btn btn-success w-100" name="action" value="back">@Model.backtext</button>
+        </div>
+            <div class="col-3  text-center">
+                <button type="submit" class="btn btn-primary w-100" name="action" value="submit">@Model.submittext</button>
+        </div>
+            <div class="col-3 text-end">
+            <div>
+                <input type="hidden" name="curssn" value="@Model.curssn" /><input type="hidden" name="curstep" value="@Model.curstep" />
+            </div>
+        </div> 
+    </div>
+    </form>
+    <div class="row mb-2" name="orgObjShow">
+        <div class="col text-secondary  text-start">
+            <b> @Model.RunForm.OrgObjTypeName </b><br />
+              @Html.Raw(Model.RunForm.OrgObjJson);
+        </div>
+    </div>
+
+</div>

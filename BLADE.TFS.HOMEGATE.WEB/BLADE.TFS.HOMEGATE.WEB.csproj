@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+	  <Version>1.2025.12</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="secret\**" />
+    <Content Remove="secret\**" />
+    <EmbeddedResource Remove="secret\**" />
+    <None Remove="secret\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.1" />
+    <PackageReference Include="SkiaSharp" Version="3.119.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.1" />
+    <PackageReference Include="System.CodeDom" Version="10.0.1" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.1" />
+  </ItemGroup>
+
+ 
+  <ItemGroup>
+    <None Update="defcert.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="RunSet.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\FileUpDown\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BLADE.TOOLS.BASE">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.WEB\bin\Release\net10.0\BLADE.TOOLS.BASE.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.LOG">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.WEB\bin\Release\net10.0\BLADE.TOOLS.LOG.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.NET">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.NET\bin\Release\net10.0\BLADE.TOOLS.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.TIMEZONE">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.WEB\bin\Release\net10.0\BLADE.TOOLS.TIMEZONE.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.WEB">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.WEB\bin\Release\net10.0\BLADE.TOOLS.WEB.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

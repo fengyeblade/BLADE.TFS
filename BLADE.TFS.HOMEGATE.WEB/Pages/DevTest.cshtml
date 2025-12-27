@@ -1,0 +1,66 @@
+﻿@page
+@model BLADE.SERVICEWEB.RAZORBODY9.Pages.DevTestModel
+@{
+    ViewData["Title"] = "DEV Runtime Message";
+}
+
+
+<h2 class=" bg-info  text-dark">Dev Test Page</h2>
+
+<div class="row">
+    <div class=" col-6">
+        <div class="card">
+            <div class="card-header bg-dark text-info"><b>RequestID:</b></div>
+            <div class="card-body bg-dark text-success">
+                @Html.Raw(Model.bind.RequestIDHtml)
+                <p style=" background-color:#55667788"></p>
+            </div>
+        </div>
+    </div>
+    <div class=" col-6">
+        <div class="card">
+            <div class="card-header bg-dark text-info"><b>LoginInput:</b></div>
+            <div class="card-body bg-dark text-success">
+                @Html.Raw(Model.bind.LoginInputHtml)
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class=" col-4">
+        <div class="card">
+            <div class="card-header bg-dark text-info"><b>Cookies:</b></div>
+            <div class="card-body bg-dark text-success">
+                @Html.Raw(Model.bind.CookiesHtml)
+            </div>
+        </div>
+    </div>
+    <div class=" col-4">
+        <div class="card">
+            <div class="card-header bg-dark text-info"><b>Headers:</b></div>
+            <div class="card-body bg-dark text-success">
+                @Html.Raw(Model.bind.HeadersHtml)
+            </div>
+        </div>
+    </div>
+    <div class=" col-4">
+        <div class="card">
+            <div class="card-header bg-dark text-info"><b>Session UserData:</b></div>
+            <div class="card-body bg-dark text-success">
+                @Html.Raw(Model.bind.SessionUserDataHtml)
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class=" col">
+        <div class="card">
+            <div class="card-header bg-dark text-info"><b>Other Request :</b></div>
+            <div class="card-body bg-dark text-success">
+                @Html.Raw(Model.bind.QueryStringHtml)
+            </div>
+        </div>
+    </div>
+  
+</div>

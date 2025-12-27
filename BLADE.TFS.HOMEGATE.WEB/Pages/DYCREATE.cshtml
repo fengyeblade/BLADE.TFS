@@ -1,0 +1,149 @@
+﻿@page
+@model BLADE.SERVICEWEB.RAZORBODY9.Pages.DYCREATEModel
+@{
+      ViewData["Title"] = Model.PageTITLE;
+}
+<h2 class="text-primary">OrgClassName　：@Model.WorkingDYCLASS.ClassName</h2>
+<h3 class="text-success">CreateTime　：@Model.LoadTime</h3>
+<div class="container">
+    <div class="row mb-2 text-info">@Model.ActMessage</div>
+    <form method="post" name="dyclassform" id="dyclassform">
+    <div class="row">
+        <div class="mb-2">以下内容填写，需按照命类型和字段的命名规则，禁用特殊符号.</div>
+        <div class="card">
+            <div class="card-header text-info bg-dark">Class Info :</div>
+            <div class="card-body " >
+               
+                <div class="mb-3">
+                    <label class="form-label" title="创建的原型类名">ClassName：</label>
+                        <input type="text" class="form-control" name="curClassName" minlength="3" maxlength="30" required placeholder="创建原型类的名称" value="@Model.WorkingDYCLASS.ClassName">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" title="继承基类的名称">BaseClassName：</label>
+                        <input type="text" class="form-control" name="curBaseClassName" minlength="3" maxlength="30" required placeholder="继承基类的名称" value="@Model.WorkingDYCLASS.BaseClassName">
+                </div>
+              
+                <div class="mb-3">
+                    <label class="form-label" title="原型类所处命名空间">NameSpace：</label>
+                        <input type="text" class="form-control" name="curNameSpace" minlength="3" maxlength="30" required placeholder="原型类所处命名空间" value="@Model.WorkingDYCLASS.NameSpace">
+                </div> 
+                <div class="mb-3">
+                    <label class="form-label" title="引用的空间">UsingAreas：</label>
+                        <input type="text" class="form-control" name="cmbUsingString" minlength="0" maxlength="150" required placeholder="引用的空间" value="@Model.cmbUsingString">
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr />
+            <div class="card">
+                <div class="card-header">Include Fields List:</div>
+                <div class="card-body">
+                @foreach (var fit in Model.WorkingDYCLASS.FieldList)
+                    {
+                        <div class="row mb-4">
+                            <div class="col-3 mb-1 text-success"><b>Name: @fit.Name</b><br />Attri: @fit.AttributesString</div>
+                            <div class="col-3 mb-1 text-secondary">IsProperty: @fit.IsProperty<br />Type: @fit.TypeName</div>
+                            <div class="col-3 mb-1 text-secondary">Nullable: @fit.NullAble<br />Value: @fit.ValueString</div>
+                            <div class="col-3 mb-1 text-center">
+                                <button type="submit" class="btn btn-info w-100" name="action" value="deleteField_@fit.Name">Del this</button></div>
+                        </div>                 
+                    }
+                </div>
+            </div>
+            <div class="card">
+               <div class="card-header">Make a new Field</div>
+               <div class="card-body">
+               <div class="mb-2">
+                    <label class="form-label" title="新字段名">New Field：</label>
+                    <input type="text" class="form-control" name="NewFieldName" minlength="3" maxlength="90" required placeholder="新字段名" value="">
+                </div>
+               <div class="mb-2">
+                    <label class="form-label">ValueType: </label>
+                    <select class="form-select" name="NewValueType" required>
+                        <option value="String" selected>String</option>
+                        <option value="Int">Int 整数</option>
+                        <option value="UInt">UInt 无符号整数</option>
+                        <option value="Short">Short 短整型</option>
+                        <option value="UShort">UShort 无符号短整</option>
+                        <option value="Long">Long 长整数</option>
+                        <option value="ULong">ULong 无符号长整数</option>
+                        <option value="Byte">Byte 无符号字节</option>
+                        <option value="SByte">SByte 有符号字节</option>
+                        <option value="ByteArray">byte[] HEX编码</option>
+                        <option value="DateTime">DateTime 日期和时间</option>
+                        <option value="DateOnly">日期</option>
+                        <option value="TimeOnly">时间</option>
+                        <option value="DateTimeOffset">全球日期时间</option>
+                        <option value="Float">单精度浮点数</option>
+                        <option value="Double">双精度浮点数</option>
+                        <option value="Decimal">十进制数</option>
+                        <option value="Object">通用对象</option>
+                        <option value="Enum">引用枚举</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" title="ValueType 为Enum/Object时，需要提供附加类型名，其他情况可留空">AppendValueTyp：</label>
+                    <input type="text" class="form-control" name="NewApdType" minlength="0" maxlength="90" required placeholder="ValueType 为Enum/Object时，需要提供附加类型名，其他情况可留空" value="">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" title="ValueType 为Enum时，此值应为选项，为object时，此值为对象的json">ValueString：</label>
+                    <input type="text" class="form-control" name="NewValueString" minlength="0" maxlength="90" required placeholder="ValueType 为Enum时，此值应为选项，为object时，此值为对象的json">
+                </div>
+              
+                <div class="mb-2">
+                    <label class="form-label" title="特性">AttriString：</label>
+                    <input type="text" class="form-control" name="NewAttriString" minlength="0" maxlength="90" required placeholder="特性名" value="@Model.NewAttriString">
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" name="NewIsProperty" id="NewIsProperty" @(Model.NewIsProperty ? "checked" : "") />
+                    <label class="form-check-label" for="NewIsProperty">IsProperty</label> &nbsp;&nbsp;
+                    <input type="checkbox" class="form-check-input" name="NewNullable" id="NewNullable" @(Model.NewNullable ? "checked" : "") />
+                    <label class="form-check-label" for="NewNullable">Nullable</label>
+                </div>
+                
+                   <div class="mb-2 text-center">
+                    <button type="submit" class="btn btn-info w-100" name="action" value="SubmitField">Submit Field</button></div>
+               </div>
+            </div>
+     <hr />
+        <div class="card text-info">
+            <div class="card-header">Include DyEnum List:</div>
+            <div class="card-body">
+                    @foreach (var ei in Model.WorkingDYCLASS.Enums)
+                    {
+                        <div class="row mb-2">
+                            <div class="col-3 mb-1 text-success"><b>Name: @ei.Name</b></div>
+                            <div class="col-6 mb-1 text-secondary">Options:  @Model.CmbString( ei.Items.ToArray())</div> 
+                            <div class="col-3 mb-1 text-center">
+                                <button type="submit" class="btn btn-info w-100" name="action" value="deleteEnum_@ei.Name">Del this</button></div>
+                        </div>                
+                    }
+                </div>
+            
+        </div>
+        <div class="card text-info">
+            <div class="card-header">Make a new DyEnum</div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <label class="form-label" title="新枚举的名称">NewEnumName：</label>
+                    <input type="text" class="form-control" name="NewEnumName" minlength="0" maxlength="30" required placeholder="新枚举的名称">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" title="新枚举选项">NewEnumOptions：</label>
+                    <input type="text" class="form-control" name="NewEnumOptions" minlength="0" maxlength="200" required placeholder="新枚举选项,使用逗号或分号分隔">
+                </div>
+                <div class="mb-2 text-center">
+                    <button type="submit" class="btn btn-info w-100" name="action" value="SubmitEnum">Submit Enum</button></div>
+            </div>
+        </div>
+        <hr />
+        <div class="card text-warning">
+            <div class="card-header">设计完成，保存提交</div>
+            <div class="card-body text-center">
+                <button type="submit" class="btn btn-success w-100" name="action" value="SubmitShow">刷新确认</button>
+                <button type="submit" class="btn btn-warning w-100" name="action" value="SubmitAll">保存原型类设计</button>
+            </div>
+        </div>
+     
+    </form>
+</div>

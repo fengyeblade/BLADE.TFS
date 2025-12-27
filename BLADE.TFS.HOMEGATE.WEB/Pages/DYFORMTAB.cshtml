@@ -1,0 +1,32 @@
+﻿@page
+@model BLADE.SERVICEWEB.RAZORBODY9.Pages.DYFORMTABModel
+@{
+    ViewData["Title"] = Model.PageTITLE;
+}
+
+<h3 class="text-primary text-center">Dynamic Form List : @Model.DFL.Count.ToString()</h3>
+<div class="container ">
+    <div class="row"><div class="col text-center">List save time : @Model.DFsavetime</div></div>
+    @foreach (var i in Model.DFL)
+    {
+        <div class="row"><div class="col card">
+                <div class="card-header text-info text-center"><b>@i.name</b></div>
+                <div class=" card-body">
+                    <p><b>SN:</b>@i.sn
+                    <br />  <b>SN:</b>@i.id
+                    <br />  <b>SN:</b>@i.talk
+                    <br />  <b>SN:</b>@i.service</p>
+                    <p class="text-end"><a class="link-primary link-underline-opacity-100-hover" href="/DYFORM?dfsn=@i.sn&step=open">CreateFormWork</a></p>
+                </div>
+            </div></div>
+    }
+
+    <hr />
+    <div class="row">
+        <div class="card">
+            <div class="card-body text-lg-center text-success"><a class="link-primary link-underline-opacity-100-hover w-100" href="/DYCREATE"><b>Make new DyForm and OrgModel</b></a> </div> 
+        </div> 
+    </div>
+</div>
+
+

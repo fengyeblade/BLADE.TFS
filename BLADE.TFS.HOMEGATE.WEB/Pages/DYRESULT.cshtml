@@ -1,0 +1,23 @@
+﻿@page
+@model BLADE.SERVICEWEB.RAZORBODY9.Pages.DYRESULTModel
+@{
+    ViewData["Title"] = Model.PageTITLE;
+}
+<h2 class="text-primary"><b> @Model.dmi?.Name</b>&nbsp;WorkResult</h2>
+<h3 class="text-success"> @Model.dmi?.SN</h3>
+<h4 class="text-secondary"> @Model.dmi?.IncADC</h4>
+<div class="container">
+    <div class="row">
+        <div class="col-3 text-end">调用结果：</div>
+        <div class="col-3 text-start">@Model.WorkState</div>
+        <div class="col-6 text-end">@Model.WorkResult</div>
+    </div>
+    <div class="row">
+        <div class="col-3 text-end">数据：</div>
+        <div class="col-9">@Model.WorkResultText</div>
+    </div>
+    <div class="row">
+        <div class="col-3 text-end">对象：</div>
+        <div class="col-9">@Html.Raw(Model.WorkResultObject)</div>
+    </div>
+</div>
