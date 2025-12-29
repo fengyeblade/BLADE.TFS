@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BladeTime = BLADE.TimeProvider;
 using BLADE.TOOLS.BASE.ThreadSAFE;
+using System.Runtime.InteropServices;
 
 
 namespace BLADE.SERVICEWEB.RAZORBODY9
@@ -40,7 +41,7 @@ namespace BLADE.SERVICEWEB.RAZORBODY9
         public WorkSetting WebRunSet { get; private set; }
         private WebApplication? _app;
         public Loger LOG { get; private set; }
-        public ILogger<BaseService> Syslog { get; private set; }
+        public ILogger<BaseService>? Syslog { get; private set; }
         public string AppStartFullPath { get; private set; } = "";
         public string WwwRootFullPath { get; private set; } = "";
         public string AppDbConnstring { get; private set; } = "";
@@ -51,7 +52,7 @@ namespace BLADE.SERVICEWEB.RAZORBODY9
         /// 中间层命令服务代理器。  可以通过此属性 设置中间层委托方法。当前台页面调用相关命令时，会触发注册的委托方法，与注册者进行交互。
         /// </summary>
         public MiddleCommandService MiddleDelegate { get { return BS.MCS; } }
-        public SITEManager(WorkSetting inset, ILogger<BaseService> _syslog, Loger _Bladelog, string appstartFullpath, string wwwrootFullpath,string appdbconnstring="")
+        public SITEManager(WorkSetting inset, ILogger<BaseService>? _syslog, Loger _Bladelog, string appstartFullpath, string wwwrootFullpath,string appdbconnstring="")
         {
              
             WebRunSet = inset; LOG = _Bladelog;
@@ -90,7 +91,8 @@ namespace BLADE.SERVICEWEB.RAZORBODY9
             {
                 // TODO :  启动站点
                 await MakeWebApp();
-                await _app.RunAsync();
+                Task.Run(async () => { await _app.RunAsync(); });
+                await Task.Delay(300);
                 await BS.StartAsync(new CancellationToken());
             }
             catch (Exception ex) {
@@ -160,7 +162,7 @@ namespace BLADE.SERVICEWEB.RAZORBODY9
         {
             ConfigureKestrelAndMiddleware(builder);
             builder.Services.AddDistributedMemoryCache(); // 使用内存缓存作为会话存储（适用于单服务器开发环境）
-
+             
             builder.Services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(30); // 设置 Session 过期时间
@@ -202,7 +204,9 @@ namespace BLADE.SERVICEWEB.RAZORBODY9
         private async ValueTask MakeWebApp()
         {
             var builder = WebApplication.CreateBuilder();
-         //   builder.Configuration.Sources.Clear();
+            //   builder.Configuration.Sources.Clear();
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole().AddDebug().AddEventLog();
 
             // 设置内容根路径和Web根路径
             builder.Environment.ContentRootPath = AppStartFullPath;

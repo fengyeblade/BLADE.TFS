@@ -8,6 +8,8 @@ using System;
 
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole().AddDebug().AddEventLog();
  WebAppCreater.runmode =  HostingEnvironmentDetector.DetectCurrentMode();
  await WebAppCreater.ConfigureBuilder(builder);
 
