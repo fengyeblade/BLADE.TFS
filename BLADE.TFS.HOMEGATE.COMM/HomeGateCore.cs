@@ -60,11 +60,11 @@ namespace BLADE.TFS.HOMEGATE.COMM
         public HomeGateCore()
         {
             if (RunCenter.Settings == null)
-            {  throw new Exception("HomeGateCore() Error: RunCenter.Settings is null. Need Load it frist by RunCenter.Init() !"); }
+            {  throw new Exception("HomeGateCore() Error: RunCenter.Settings is null. Need Load it frist by RunCenter.InitAndStart() !"); }
         }
         /// <summary>
         /// 启动 HOMEGATE  
-        /// 需要在调用此方法之前需要先加载RunCenter.Settings,  by RunCenter.Init() !
+        /// 需要在调用此方法之前需要先加载RunCenter.Settings,  by RunCenter.InitAndStart() !
         /// </summary>
         /// <returns></returns>
         public async Task<(bool suc,string info)> StartWork()
@@ -73,7 +73,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
             try
             {
                 if (RunCenter.Settings == null)
-                {  return  (false, "HomeGateCore.StartWork() Error: Settings is null.  Need Load it frist by RunCenter.Init() !" );   }
+                {  return  (false, "HomeGateCore.StartWork() Error: Settings is null.  Need Load it frist by RunCenter.InitAndStart() !" );   }
                 Running = true;
 
                 StringBuilder sb = new StringBuilder();
@@ -107,7 +107,17 @@ namespace BLADE.TFS.HOMEGATE.COMM
         }
         private Dictionary_TS<int, TcpListenerItem> TunDic = new Dictionary_TS<int, TcpListenerItem>( );
         private Dictionary_TS<int, Trans> TransDic = new Dictionary_TS<int, Trans>();
-
+        public string ListRuntimeTrans()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Tun list: "+ TunDic.Count);
+            foreach (var ls in TunDic.Values)
+            { sb.AppendLine(ls.ID+" "+ls.TunSetting.GetRoadInfo()+" "+ ls.Running); }
+            sb.AppendLine("Cur Trans: "+TransDic.Count);
+            lock (_lk)
+            {   foreach (var cd in TransDic.Values)  { sb.AppendLine(cd.GetTransInfo()); }   }
+            return sb.ToString();
+        }
         /// <summary>
         /// 运行时的转发线路数量。
         /// </summary>
@@ -239,7 +249,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
             } 
         }
         private int cjj = 0;
-
+        private int cjj2 = 0;
         /// <summary>
         /// 循环工作
         /// </summary>
@@ -254,7 +264,12 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 if (cjj < 1)
                 { await Task.Delay(70); }
                 RunCenter.TransCount = Count_Trans;
-                Task.Run(async () => { await RunCenter.TryFlushWLR(); });
+                cjj2++;
+                if (cjj2 > 10)
+                {
+                    cjj2 = 0;
+                    Task.Run(async () => { await RunCenter.TryFlushWLR(); });
+                }
             }
             await Task.Delay(24);
             Dispose();
@@ -467,6 +482,16 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 else
                 {
                     Settings = new GateSettings();
+                    Settings.AdminUser.UserID =0;
+                    Settings.AdminUser.UserName = "BladeAdmin";
+                    Settings.AdminUser.RealName = "BladeAdmin";
+                    Settings.AdminUser.ShowName = "BladeAdmin";
+                    Settings.AdminUser.SetCryptPass("BladePass");
+                    Settings.OperUser.UserID = 100;
+                    Settings.OperUser.UserName = "BladeOper";
+                    Settings.OperUser.RealName = "BladeOper";
+                    Settings.OperUser.ShowName = "BladeOper";
+                    Settings.OperUser.SetCryptPass("BladePass");
                     if(await SaveSettingsToFile(settingsFile))
                     {
                         R = new Result(true, "配置文件不存在，已使用默认数据创建配置文件", Settings); isnull = false;
@@ -501,8 +526,8 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 Settings = (GateSettings)a.DataOrSender;
                 CLOG = new Loger(AppStartPath + Settings.WebSettings.logsubdir + "/", "HG_", true, 500, 300, "log");
                 CLOG.Debug = Settings.WebSettings.EnableDeBug;
-                await CLOG.AddLogAsync(LogCodeEnum.App, "Init", "Load Settings File OK : " + setFile);
-                RR = new Result<GateSettings>(true, "Init OK", Settings);
+                await CLOG.AddLogAsync(LogCodeEnum.App, "InitAndStart", "Load Settings File OK : " + setFile);
+                RR = new Result<GateSettings>(true, "InitAndStart OK", Settings);
                 BLADE.MSGCORE.ClientTools.ClientCore.RunSet = Settings.ClientSettings;
                 if (Settings.WhiteListSettings.WL_Locals.Length > 0)
                 { WLR.AddWL_Locals(Settings.WhiteListSettings.WL_Locals); }
@@ -631,11 +656,12 @@ namespace BLADE.TFS.HOMEGATE.COMM
     /// </summary>
     public class GateSettings
     {
-
+        public BLADE.TOOLS.WEB.Razor.UserData.IUserDataSession AdminUser { get; set; } = TOOLS.WEB.Razor.UserData.IUserDataSession.CreateBase();
+        public BLADE.TOOLS.WEB.Razor.UserData.IUserDataSession OperUser { get; set; } = TOOLS.WEB.Razor.UserData.IUserDataSession.CreateBase();
         /// <summary>
         /// 建议的应用程序线程池设置。
         /// </summary>
-        public ushort ThreadsMax { get; set; } = 64;
+        public ushort ThreadsMax { get; set; } = 256;
         /// <summary>
         /// 建议的应用程序线程池设置。 
         /// </summary>
