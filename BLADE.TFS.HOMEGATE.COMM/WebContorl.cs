@@ -167,7 +167,8 @@ namespace BLADE.TFS.HOMEGATE.COMM
             if (mcm.Acc != null)
             {
                 if (mcm.Acc.ID == 0)
-                { if (CurAdmin!=null && mcm.Acc.TOKEN == CurAdmin.TOKEN)
+                {
+                    if (CurAdmin != null && mcm.Acc.TOKEN == CurAdmin.TOKEN)
                     { ok = true; }
                 }
                 else if (mcm.Acc.ID == 100)
@@ -178,7 +179,14 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 if (!ok) { return new Result<MiddleCommandMessage>(false, "Login State is timeout", null); }
                 return await WorkMCM(mcm);
             }
-            return new Result<MiddleCommandMessage>(false,"Not Find Premison Acc",null);
+            else {
+                if (mcm.MessageType == MCM_Type.WEBCONTORL)
+                { 
+                return await WorkMCM(mcm);
+                }
+
+            }
+                return new Result<MiddleCommandMessage>(false, "Not Find Premison Acc", null);
         }
         public async Task<Result<MiddleCommandMessage>> WorkMCM(MiddleCommandMessage mcm)
         {
@@ -267,6 +275,80 @@ namespace BLADE.TFS.HOMEGATE.COMM
                         rm.MessageText = "Not supt this UPDATE: " + j2;
                     }
                     break;
+
+                case MCM_Type.WEBCONTORL:
+                    string mmm = mcm.MessageInfo.ToUpper();
+                    if (mmm == "CFGADMIN" || mmm == "CFGOPER")
+                    {
+                        string m = Encoding.UTF8.GetString(Convert.FromHexString(mcm.MessageText));
+                        string un = RunCenter.SplString(m,"#@ #@", true).Trim();
+                        string up = RunCenter.SplString(m, "#@ #@", false).Trim();
+                        if (un.Length > 3 && up.Length > 3)
+                        {
+                            if (mmm == "CFGADMIN")
+                            {
+                                RunCenter.Settings.AdminUser.UserName = un;
+                                RunCenter.Settings.AdminUser.SetCryptPass(up);
+                                rm.MessageText = "CFGADMIN   DONE";
+                            }
+                            else
+                            {
+                                RunCenter.Settings.OperUser.UserName = un;
+                                RunCenter.Settings.OperUser.SetCryptPass(up);
+                                rm.MessageText = "CFGOPER   DONE";
+                            }
+                        }
+                        else {
+                            rm.MessageText = "CFGADMIN/CFGOPER  FAIL ";
+                        }
+                        rm.MessageType = MCM_Type.Text;
+                        rm.MessageInfo = "Text";
+                    } 
+                    else if (mcm.MessageInfo.ToUpper() == "REG USER")
+                    {
+                    
+                    }
+                    else if (mcm.MessageInfo.ToUpper() == "SAVESETTINGS")
+                    {
+                        try {
+                            var sf = await RunCenter.SaveSettingsToFile(RunCenter.AppStartPath + "HomeGateSettings.cfg");
+                            await RunCenter.AddLogAsync("WorkMCM", "SAVESETTINGS ["+sf.ToString()+"] by: "+mcm.MessageText , LogCodeEnum.Note);
+                            rm.MessageText = "SAVESETTINGS OK" ;
+                            rm.MessageType = MCM_Type.Text;
+                            rm.MessageInfo = "Text";
+                        }
+                        catch (Exception tze)
+                        {
+                            await RunCenter.AddLogAsync("WorkMCM", "SAVESETTINGS EX: " + tze.Message, LogCodeEnum.Alert);
+                            rm.MessageText = "SAVESETTINGS EX: " + tze.Message ;
+                            rm.MessageType = MCM_Type.Text;
+                            rm.MessageInfo = "ERROR";
+                        }
+                    }
+                    else
+                    {
+                        rm.MessageType = MCM_Type.WEBCONTORL;
+                        rm.MessageInfo = "Text";
+                        rm.MessageText = mcm.MessageInfo + "/" + mcm.MessageText + "  DONE";
+                        StringBuilder sb = new StringBuilder();
+                        sb.AppendLine("WebContorl MCM : " + mcm.MessageType + "/" + mcm.MessageInfo + "/" + mcm.MessageText + " ;");
+                        sb.AppendLine("Time:" + BLADETIME.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff") + " ;");
+                        sb.AppendLine("ServiceID : " + mcm.ServiceID + " ; SessionID : " + mcm.SessionID + " ; SnID : " + mcm.SnID + " ;");
+                        sb.AppendLine("RequestID : " + mcm.RequestID + " ; RequestSender : " + mcm.RequestSender + " ; ResponseWorker : " + mcm.ResponseWorker + " ;");
+
+                        string[] gdns = mcm.Data.GetAllFieldNames();
+                        foreach (var sss in gdns)
+                        {
+                            var tg = mcm.Data.TryGetValue(sss);
+                            if (tg.suc)
+                            { sb.AppendLine(sss + " = " + tg.obj.ToString() + " ;"); }
+                            else { sb.AppendLine(sss + " is Not Exist ;"); }
+                        }
+                        await RunCenter.AddLogAsync("WebContorl MCM", sb.ToString(), LogCodeEnum.Note);
+                        //  return new Result<MiddleCommandMessage>(true, "WebContorl MCM Processed", rm);
+                    }
+                    return new Result<MiddleCommandMessage>(false, "WebContorl MCM Processed", rm);
+
                 default:
                     return new Result<MiddleCommandMessage>(true, "Not Implemented " + mcm.MessageType + "/" + mcm.MessageInfo + "/" + mcm.MessageText, rm);
             }
