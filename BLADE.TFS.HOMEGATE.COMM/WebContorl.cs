@@ -8,6 +8,7 @@ using BLADE.TOOLS.WEB;
 using BLADETIME = BLADE.TimeProvider;
 using Microsoft.Extensions.Logging;
 using BLADE.MSGCORE.Models;
+using BLADE.TOOLS.WEB.Razor.UserData;
 
 namespace BLADE.TFS.HOMEGATE.COMM
 {
@@ -92,7 +93,9 @@ namespace BLADE.TFS.HOMEGATE.COMM
                         if (sg.suc && RunCenter.Settings.EnableWeb)
                         {
                             Web = new WebContorl();
+                           
                             var sw = await Web.StartWEB();
+                            BLADE.TOOLS.WEB.Razor.BasePageModel.SetUserManager(IUserManager.GetManagerMCMACC());
                             initInfo = initInfo + "\r\n WebContorl StartWEB:[" + sw.suc + "] " + sw.info;
                             await Task.Delay(100);
                             if (sw.suc)
@@ -306,7 +309,9 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     } 
                     else if (mcm.MessageInfo.ToUpper() == "REG USER")
                     {
-                    
+                        rm.MessageText = "Get REG USER : "+mcm.MessageText;
+                        rm.MessageType = MCM_Type.Text;
+                        rm.MessageInfo = "Text";
                     }
                     else if (mcm.MessageInfo.ToUpper() == "SAVESETTINGS")
                     {

@@ -45,26 +45,56 @@ namespace BLADE.SERVICEWEB.RAZORBODY9.Pages
             }
 
             // 用户名密码验证逻辑  这里只是一个实例，实际验证请替换真实逻辑
-            if (username.Length>3 && username.Length<16 && password == "888999")
+            //if (username.Length>3 && username.Length<16 && password == "888999")
+            //{
+            //    TempData["inputaccount"] = username;
+            //    TempData["inputpassword"] = password;
+            //    TempData["SessionId"] = sessionId;
+            //   var ur = MakeNewUserSession();
+            //    ur.UserName = username;
+            //    ur.SetCryptPass ( password);
+            //    ur.TokenKey = Convert.ToHexString(Encoding.UTF8.GetBytes(username + password));
+
+            //    ur.LastAddress = uuip;
+            //    ur.LastLogin_UTC = BLADE.TimeProvider.UtcNowOffSet;
+
+
+            //    await ur.MakeTokenInToSelf();
+            //    // 将用户信息存储在Session中
+            //    HttpContext.Session.SetString("USERDATA",BLADE.TOOLS.BASE.Json.JsonOptions.Serialize(ur));
+            //    await BS.AddLogAsync(160, "Login OK: " + username + " | " + password);
+            //    // 应该跳转到正常的工作页面地址    这里跳转到一个测试页面，展示运行时的一些信息。
+            //    return RTPage("/DevTest", new { ti = BLADE.TimeProvider.LocalNow.Ticks});
+            //}
+            if (UserManager == null)
+            {
+                LoginInfo = "UserManager is not initialized";
+                return Page();
+            }
+            if (username.Length > 3 && username.Length < 30 && password.Length > 3)
             {
                 TempData["inputaccount"] = username;
                 TempData["inputpassword"] = password;
                 TempData["SessionId"] = sessionId;
-                var ur = MakeNewUserSession();
-                ur.UserName = username;
-                ur.SetCryptPass ( password);
-                ur.TokenKey = Convert.ToHexString(Encoding.UTF8.GetBytes(username + password));
-                
-                ur.LastAddress = uuip;
-                ur.LastLogin_UTC = BLADE.TimeProvider.UtcNowOffSet;
-
-
-                await ur.MakeTokenInToSelf();
-                // 将用户信息存储在Session中
-                HttpContext.Session.SetString("USERDATA",BLADE.TOOLS.BASE.Json.JsonOptions.Serialize(ur));
-                await BS.AddLogAsync(160, "Login OK: " + username + " | " + password);
-                // 应该跳转到正常的工作页面地址    这里跳转到一个测试页面，展示运行时的一些信息。
-                return RTPage("/DevTest", new { ti = BLADE.TimeProvider.LocalNow.Ticks});
+                var a = await UserManager.Login(username, uuip, password, false);
+                if (a.suc)
+                {
+                    if (a.userdata != null)
+                    {
+                        Userdata  = a.userdata;
+                        Userdata.LastAddress = uuip;    
+                        Userdata.LastLogin_UTC = BLADE.TimeProvider.UtcNowOffSet;
+                        // 将用户信息存储在Session中
+                        HttpContext.Session.SetString("USERDATA", BLADE.TOOLS.BASE.Json.JsonOptions.Serialize(Userdata));
+                        await BS.AddLogAsync(160, "Login OK: " + Userdata.UserName + " "+Userdata.ShowName+" "+Userdata.UserID+" "+Userdata.CryptPass+" " + a.info);
+                        // 应该跳转到正常的工作页面地址    这里跳转到一个测试页面，展示运行时的一些信息。
+                        return RTPage("/DevTest", new { ti = BLADE.TimeProvider.LocalNow.Ticks });
+                    }
+                }
+                else {
+                    LoginInfo = "登录失败，"+a.info;
+                    return Page();
+                }
             }
 
             LoginInfo = "用户名或密码错误";
