@@ -34,23 +34,68 @@ namespace BLADE.TFS.HOMEGATE.WEB.Pages.WEBCONTORL
                 if (RR.Successful)
                 {
                     BLADE.TOOLS.WEB.MCM_ACC a = (BLADE.TOOLS.WEB.MCM_ACC)RR.DataOrSender;
-                    if (a!=null && a.TOKEN == Userdata.TokenValue)
+                    if (a != null && a.TOKEN == Userdata.TokenValue)
                     {
                         MiddleCommandMessage mcm = new MiddleCommandMessage(BS.RunSet.ServiceID, false, "", a, null, "", "", null);
                         mcm.MessageType = MCM_Type.GET;
                         mcm.MessageInfo = "ALLSETTINGS";
                         mcm.MessageText = "ALLSETTINGS";
-                       var mr = await   BaseService.Instance.MCS.ProcessMiddleCommandMessage(mcm);
-                        if (mr != null && mr.Successful && mr.DataOrSender!=null)
+                        var mr = await BaseService.Instance.MCS.ProcessMiddleCommandMessage(mcm);
+                        if (mr != null && mr.Successful && mr.DataOrSender != null)
                         {
                             MiddleCommandMessage mcr = (MiddleCommandMessage)mr.DataOrSender;
-                            bind.mcminfo = mcr.MessageInfo ;
+                            bind.mcminfo = mcr.MessageInfo;
                             bind.mcmtype = mcr.MessageType.ToString();
-                            bind.mcmtext = mcr.MessageText ;
+                            bind.mcmtext = mcr.MessageText;
                         }
                     }
-                    else {
+                    else
+                    {
                         await BS.AddLogAsync(141, "Log Out by other user ");
+                        TempData["loginfo"] = "Log Out by other user";
+                        return RTPage("/LOGIN");
+                    }
+                }
+            }
+            catch (Exception ze)
+            {
+                await BS.AddLogAsync(144, "Error: " + ze.Message);
+                TempData["loginfo"] = "Error: "+ze.Message;
+                return RTPage("/LOGIN");
+            }
+
+            return Page();
+        }
+
+        public async Task<IActionResult> OnPostFixDebugAsync()
+        {
+            GetClientIpAddress();
+            try
+            {
+                ReadyUserData();
+                var RR = GS.GetGlobalValue(Userdata.ShowName);
+                if (RR.Successful)
+                {
+                    BLADE.TOOLS.WEB.MCM_ACC a = (BLADE.TOOLS.WEB.MCM_ACC)RR.DataOrSender;
+                    if (a != null && a.TOKEN == Userdata.TokenValue)
+                    {
+                        MiddleCommandMessage mcm = new MiddleCommandMessage(BS.RunSet.ServiceID, false, "", a, null, "", "", null);
+                        mcm.MessageType = MCM_Type.Update;
+                        mcm.MessageInfo = "DEBUG";
+                        mcm.MessageText = "DEBUG";
+                        var mr = await BaseService.Instance.MCS.ProcessMiddleCommandMessage(mcm);
+                        if (mr != null && mr.Successful && mr.DataOrSender != null)
+                        {
+                            MiddleCommandMessage mcr = (MiddleCommandMessage)mr.DataOrSender;
+                            bind.mcminfo = mcr.MessageInfo;
+                            bind.mcmtype = mcr.MessageType.ToString();
+                            bind.mcmtext = mcr.MessageText;
+                        }
+                    }
+                    else
+                    {
+                        await BS.AddLogAsync(141, "Log Out by other user ");
+                        TempData["loginfo"] = "Log Out by other user";
                         return RTPage("/LOGIN");
                     }
                 }
@@ -60,8 +105,52 @@ namespace BLADE.TFS.HOMEGATE.WEB.Pages.WEBCONTORL
                 await BS.AddLogAsync(144, "Error: " + ze.Message);
                 return RTPage("/LOGIN");
             }
+            return Page();
+        }
 
-                return Page();
+        public async Task<IActionResult> OnPostAddWLAsync()
+        {
+            GetClientIpAddress();
+            string tunname = HttpContext.Request.Form["wltext"].ToString() ;
+            string wlvalue = HttpContext.Request.Form["wlval"].ToString();
+            
+            try
+            {
+                ReadyUserData();
+                var RR = GS.GetGlobalValue(Userdata.ShowName);
+                if (RR.Successful)
+                {
+                    BLADE.TOOLS.WEB.MCM_ACC a = (BLADE.TOOLS.WEB.MCM_ACC)RR.DataOrSender;
+                    if (a != null && a.TOKEN == Userdata.TokenValue)
+                    {
+                        MiddleCommandMessage mcm = new MiddleCommandMessage(BS.RunSet.ServiceID, false, "", a, null, "", "", null);
+                        mcm.MessageType = MCM_Type.Update;
+                        mcm.MessageInfo =  "WLDREG"; 
+                        mcm.MessageText = tunname + "#" + wlvalue;
+                        var mr = await BaseService.Instance.MCS.ProcessMiddleCommandMessage(mcm);
+                        if (mr != null && mr.Successful && mr.DataOrSender != null)
+                        {
+                            MiddleCommandMessage mcr = (MiddleCommandMessage)mr.DataOrSender;
+                            bind.mcminfo = mcr.MessageInfo;
+                            bind.mcmtype = mcr.MessageType.ToString();
+                            bind.mcmtext = mcr.MessageText;
+                        }
+                    }
+                    else
+                    {
+                        await BS.AddLogAsync(141, "Log Out by other user ");
+                        TempData["loginfo"] = "Log Out by other user";
+                        return RTPage("/LOGIN");
+                    }
+                }
+            }
+            catch (Exception ze)
+            {
+                await BS.AddLogAsync(144, "Error: " + ze.Message);
+                TempData["loginfo"] = "Error: " + ze.Message;
+                return RTPage("/LOGIN");
+            }
+            return Page();
         }
     }
 }

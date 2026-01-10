@@ -244,7 +244,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     break;
 
                 case MCM_Type.Update:
-                    string j2 = mcm.MessageText.ToUpper();
+                    string j2 = mcm.MessageInfo.ToUpper();
                     if (j2 == "DEBUG")
                     {
                         RunCenter.Settings?.WebSettings.EnableDeBug = !RunCenter.Settings.WebSettings.EnableDeBug;
@@ -256,16 +256,22 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     }
                     else if (j2 == "WLDREG")
                     {
-                        var t = await RunCenter.WLR.AddWL_Runtime(mcm.MessageInfo, mcm.MessageText);
+                        string[] strings = mcm.MessageText.Split(new char[] { '#'  }, StringSplitOptions.RemoveEmptyEntries);
+                        bool t = false;
+                        if (strings.Length > 1)
+                        {
+                            t = await RunCenter.WLR.AddWL_Runtime(strings[0], strings[1]);
+                        }
                         rm.MessageType = MCM_Type.Text;
                         rm.MessageInfo = "WLDREG";
                         rm.MessageText = "AddWL_Runtime " + mcm.MessageInfo+"/"+mcm.MessageText+" "+t;
                     }
                     else if (j2 == "WLREG")
                     {
+                        string[] strings = mcm.MessageText.Split(new char[] { '#' }, StringSplitOptions.RemoveEmptyEntries);
                         WL_Local wl = new WL_Local();
-                        wl.WL_Name = mcm.MessageInfo;
-                        wl.AddressOrIPCD = new string[] { mcm.MessageText };
+                        wl.WL_Name = strings[0];
+                        wl.AddressOrIPCD = new string[] { strings[1] };
                         var t =  RunCenter.WLR.AddWL_Locals( new WL_Local[] { wl });
                         rm.MessageType = MCM_Type.Text;
                         rm.MessageInfo = "WLREG";

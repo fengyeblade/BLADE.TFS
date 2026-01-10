@@ -21,11 +21,15 @@ namespace BLADE.SERVICEWEB.RAZORBODY9.Pages
         [BindProperty]
         public string CaptchaCode { get; set; } = "";
 
-        public string rndstr { get { var p = BLADE.TimeProvider.LocalNow; return p.Millisecond.ToString() + p.Second.ToString() + p.DayOfYear.ToString(); } } 
+        public string rndstr { get { var p = BLADE.TimeProvider.LocalNow; return p.Millisecond.ToString() + p.Second.ToString() + p.DayOfYear.ToString(); } }
         public void OnGet()
         {
             HttpContext.Session.SetString("NewInit", "true");
             Console.WriteLine($"Login Session ID: {HttpContext.Session.Id}");
+            string lif = TempData["loginfo"]?.ToString() ?? "";
+            lif = lif.Trim();
+            if (lif.Length > 1)
+            { LoginInfo = lif; }
         }
 
         public async Task<IActionResult> OnPostAsync(string username, string password, string captcha)

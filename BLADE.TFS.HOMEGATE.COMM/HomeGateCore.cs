@@ -5,6 +5,7 @@ using BLADE.TOOLS.BASE.ThreadSAFE;
 using BLADE.TOOLS.LOG;
 using BLADE.TOOLS.WEB;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -81,7 +82,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 // TODO: 初始化 侦听器， 初始化转发通道准备。
                 lock (_lk)
                 {
-                    foreach (var lt in RunCenter.Settings.TunSettings.Tuns)
+                    foreach (var lt in RunCenter.Settings.TunSettings.TcpTuns)
                     {
                          TcpListenerItem tli = new TcpListenerItem(lt);
                         try { var sr = tli.Start();
@@ -113,7 +114,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
             sb.AppendLine("Tun list: "+ TunDic.Count);
             foreach (var ls in TunDic.Values)
             { sb.AppendLine(ls.ID+" "+ls.TunSetting.GetRoadInfo()+" "+ ls.Running); }
-            sb.AppendLine("Cur Trans: "+TransDic.Count);
+            sb.AppendLine("Cur UdpTrans: "+TransDic.Count);
             lock (_lk)
             {   foreach (var cd in TransDic.Values)  { sb.AppendLine(cd.GetTransInfo()); }   }
             return sb.ToString();
@@ -233,7 +234,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     bool d = false;
                     lock (_lk) { if (TransDic.ContainsKey(tas.ID)) { tas.Dispose(); } else { TransDic.Add(tas.ID, tas); d = true;  } }
                     if (d) { await tas.StartWork();
-                        await RunCenter.AddLogAsync( "TransDic" ,"Make a new Trans: "+tas.GetTransInfo(),LogCodeEnum.Note);
+                        await RunCenter.AddLogAsync( "TransDic" ,"Make a new UdpTrans: "+tas.GetTransInfo(),LogCodeEnum.Note);
                     }
                 }
                 catch (Exception ze)
@@ -283,9 +284,9 @@ namespace BLADE.TFS.HOMEGATE.COMM
     {
         public bool Running { get; private set; } = false;
         protected TcpListener Listener;
-        public TunSet TunSetting;
+        public TcpTunSet TunSetting;
         public int ID { get; private set; } = 0;
-        public TcpListenerItem(TunSet ts )
+        public TcpListenerItem(TcpTunSet ts )
         {
             ID = Trans.NextID();
             TunSetting = ts;
@@ -762,7 +763,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
         public DateTime LastActUTC = TimeProvider.UtcNow;
         public TcpClient TcpW;
         public TcpClient TcpN;
-        public TunSet TunSetting;
+        public TcpTunSet TunSetting;
         public long LinkTimeSeconds
         {
             get
@@ -770,7 +771,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 return (long)(TimeProvider.UtcNow - StartUTC).TotalSeconds;
             }
         }
-        public Trans(TcpClient tw, TcpClient tn, TunSet ts)
+        public Trans(TcpClient tw, TcpClient tn, TcpTunSet ts)
         {
             TcpW = tw; TcpN = tn; TunSetting = ts;
             ID = NextID();
@@ -850,8 +851,8 @@ namespace BLADE.TFS.HOMEGATE.COMM
 
             try {
                 Dispose();
-                try { await RunCenter.AddLogAsync("Trans", "TransLoopWork Out while : " +ID, LogCodeEnum.Debug); } catch { }
-            } catch(Exception ze) { try { await RunCenter.AddLogAsync("Trans", "TransLoopWork Stoped EX:" + ze.Message, LogCodeEnum.Warning); } catch { } }
+                try { await RunCenter.AddLogAsync("UdpTrans", "TransLoopWork Out while : " +ID, LogCodeEnum.Debug); } catch { }
+            } catch(Exception ze) { try { await RunCenter.AddLogAsync("UdpTrans", "TransLoopWork Stoped EX:" + ze.Message, LogCodeEnum.Warning); } catch { } }
         }
         public async ValueTask StartWork()
         {
@@ -879,7 +880,29 @@ namespace BLADE.TFS.HOMEGATE.COMM
     /// <summary>
     /// 管道配置信息
     /// </summary>
-    public class TunSet
+    public class TcpTunSet:UdpTunSet
+    {
+        
+
+        /// <summary>
+        /// (Gate模式下 此属性无用)  连接限制  每个通道单独配置 除白名单模式外  超过限制则封锁到灰名单
+        /// </summary>
+        public int LockCount { get; set; } = 9;
+
+        /// <summary>
+        /// 未生效， 现版本是对全部TCP 连接使用转发处理。 下个版本实现http解析并提供代理处理。
+        /// </summary>
+        public bool HttpProxy { get; set; } = false;
+        /// <summary>
+        /// 转发说明
+        /// </summary>
+        public string GetRoadInfo()
+        { 
+            return InAddress + ":" + InPort.ToString() + " TO " + OutAddress + ":" + OutPort.ToString() + " R_" + UseRule.ToString();
+        }
+    }
+
+    public class UdpTunSet
     {
         /// <summary>
         /// 转发名称
@@ -911,41 +934,41 @@ namespace BLADE.TFS.HOMEGATE.COMM
         /// 速度限制   单向限制 单位 KB
         /// </summary>
         public int SpeedMax { get; set; } = 1024;
-
-        /// <summary>
-        /// 连接限制  每个通道单独配置 除白名单模式外  超过限制则封锁到灰名单
-        /// </summary>
-        public int LockCount { get; set; } = 9;
-        
-        /// <summary>
-        /// 转发说明
-        /// </summary>
-        public string GetRoadInfo()
-        { 
-            return InAddress + ":" + InPort.ToString() + " TO " + OutAddress + ":" + OutPort.ToString() + " R_" + UseRule.ToString();
-        }
     }
-
     /// <summary>
     /// 管道配置集合
     /// </summary>
     public class TunTransSettings
     {
-        public TunSet[] Tuns { get; set; }
+        public TcpTunSet[] TcpTuns { get; set; }
+        public UdpTunSet[] UdpTuns { get; set; }
         public TunTransSettings()
         {
-            Tuns = new TunSet[2];
-            Tuns[0] = new TunSet();
-            Tuns[0].TunName = "DefCreate_0";
-            Tuns[0].InPort = 2221;
-            Tuns[0].SpeedMax = 1200;
-            Tuns[0].UseRule = true;
+            TcpTuns = new TcpTunSet[2];
+            TcpTuns[0] = new TcpTunSet();
+            TcpTuns[0].TunName = "Def2221";
+            TcpTuns[0].InPort = 2221;
+            TcpTuns[0].SpeedMax = 1200;
+            TcpTuns[0].UseRule = true;
 
-            Tuns[1] = new TunSet();
-            Tuns[1].TunName = "DefCreate_1";
-            Tuns[1].InPort = 2223;
-            Tuns[1].SpeedMax = 850;
-            Tuns[1].UseRule = false;
+            TcpTuns[1] = new TcpTunSet();
+            TcpTuns[1].TunName = "Def2223";
+            TcpTuns[1].InPort = 2223;
+            TcpTuns[1].SpeedMax = 850;
+            TcpTuns[1].UseRule = false;
+
+            UdpTuns = new UdpTunSet[2]; 
+            UdpTuns[0] = new UdpTunSet();
+            UdpTuns[0].TunName = "DefUdp2221";
+            UdpTuns[0].InPort = 2221;
+            UdpTuns[0].SpeedMax = 1200;
+            UdpTuns[0].UseRule = true;
+
+            UdpTuns[1] = new UdpTunSet();
+            UdpTuns[1].TunName = "DefUdp2223";
+            UdpTuns[1].InPort = 2223;
+            UdpTuns[1].SpeedMax = 850;
+            UdpTuns[1].UseRule = false;
         }
     }
 
@@ -1294,7 +1317,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     _flushing = true;
                     _lastWL = TimeProvider.UtcNow;
 
-                    foreach (var t in RunCenter.Settings.TunSettings.Tuns)
+                    foreach (var t in RunCenter.Settings.TunSettings.TcpTuns)
                     {
                         try
                         {
@@ -1425,6 +1448,145 @@ namespace BLADE.TFS.HOMEGATE.COMM
         IPv6,
         CIDR,
         Domain
+    }
+
+    #endregion
+
+
+    #region  UDP trans
+    public class UDPTransManager
+    {
+        private readonly UdpTunSet[] _udpTunSets;
+        private readonly ConcurrentDictionary<string, UdpTrans> _transfers = new();
+        private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
+
+        public UDPTransManager(UdpTunSet[] udpTunSets)
+        {
+            _udpTunSets = udpTunSets;
+        }
+
+        public void Start()
+        {
+            foreach (var tunSet in _udpTunSets)
+            {
+                Task.Run(() => Listen(tunSet));
+            }
+        }
+
+        private async Task Listen(UdpTunSet tunSet)
+        {
+            using var udpClient = new UdpClient(new IPEndPoint(IPAddress.Parse(tunSet.InAddress), tunSet.InPort));
+          //  var buffer = new byte[tunSet.MTUSize];
+
+            while (true)
+            {
+                try
+                {
+                    var result = await udpClient.ReceiveAsync();
+                    var remoteEndPoint = result.RemoteEndPoint;
+                    var key = $"{remoteEndPoint.Address}:{remoteEndPoint.Port}:{tunSet.InPort}";
+
+                    if (_transfers.TryGetValue(key, out var trans))
+                    {
+                        trans.Refresh();
+                        await trans.SendToInternalAsync(result.Buffer);
+                    }
+                    else
+                    {
+                        if (tunSet.UseRule && !CheckWhiteList(remoteEndPoint.Address.ToString()))
+                        {
+                            continue; // Drop packet if not in whitelist
+                        }
+
+                        trans = new UdpTrans(tunSet, remoteEndPoint);
+                        _transfers[key] = trans;
+                        trans.StartCleanup(() => _transfers.TryRemove(key, out _));
+                        await trans.SendToInternalAsync(result.Buffer);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error in Listen: {ex.Message}");
+                }
+            }
+        }
+
+        private bool CheckWhiteList(string address)
+        {
+            // Placeholder for whitelist check logic
+            return true;
+        }
+
+        private class UdpTrans
+        {
+            private readonly UdpTunSet _tunSet;
+            private readonly IPEndPoint _externalEndPoint;
+            private readonly UdpClient _internalClient;
+            private readonly UdpClient _externalClient;
+            private DateTime _lastActivity;
+
+            public UdpTrans(UdpTunSet tunSet, IPEndPoint externalEndPoint)
+            {
+                _tunSet = tunSet;
+                _externalEndPoint = externalEndPoint;
+                _internalClient = new UdpClient();
+                _externalClient = new UdpClient();
+                _lastActivity = DateTime.UtcNow;
+
+                Task.Run(() => ListenInternal());
+            }
+
+            public void Refresh()
+            {
+                _lastActivity = DateTime.UtcNow;
+            }
+
+            public async Task SendToInternalAsync(byte[] data)
+            {
+                await _internalClient.SendAsync(data, data.Length, _tunSet.OutAddress, _tunSet.OutPort);
+            }
+
+            private async Task ListenInternal()
+            {
+                using var udpClient = new UdpClient(new IPEndPoint(IPAddress.Parse(_tunSet.OutAddress), _tunSet.OutPort));
+                while (true)
+                {
+                    try
+                    {
+                        var result = await udpClient.ReceiveAsync();
+                        await _externalClient.SendAsync(result.Buffer, result.Buffer.Length, _externalEndPoint);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error in ListenInternal: {ex.Message}");
+                        break;
+                    }
+                }
+            }
+
+            public void StartCleanup(Action onTimeout)
+            {
+                Task.Run(async () =>
+                {
+                    while (true)
+                    {
+                        await Task.Delay(700);
+                        if (DateTime.UtcNow - _lastActivity > TimeSpan.FromSeconds(20))
+                        {
+                            onTimeout();
+                            Dispose();
+                            break;
+                        }
+                    }
+                });
+            }
+
+            public void Dispose()
+            {
+                _internalClient.Dispose();
+                _externalClient.Dispose();
+            }
+        }
     }
 
     #endregion

@@ -23,8 +23,24 @@
     </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-6"></div>
-    <div class="col-6"></div>
+<div class="row mb-3">
+    <div class="col mb-3">Update</div>
+    <div class="row">
+        <div class="col mb-3">
+            <form method="post" > 
+                 
+                <button type="submit" class="btn btn-primary" asp-page-handler="FixDebug"> Fix DEBUG mode</button>
+                <br />
+                <label for="wltext" class="form-label">本地白名单分组</label>
+                <input type="text" class="form-control" id="wltext"  value=""  />
+                <br />
+                <label for="wlval" class="form-label">本地白名单地址</label>
+                <input type="text" class="form-control" id="wlval" value="" />
+                <button type="submit" class="btn btn-primary" asp-page-handler="AddWL"> 添加</button>
+            </form>
+
+        </div>
+
+    </div>
 
 </div>
