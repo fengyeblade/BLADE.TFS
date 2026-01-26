@@ -12,4 +12,26 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.1" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BLADE.TFS.HOMEGATE.COMM\BLADE.TFS.HOMEGATE.COMM.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BLADE.MSGCORE.Comm">
+      <HintPath>..\..\BLADE.MSGCORE\BLADE.MSGCORE.Comm\bin\Release\net10.0\BLADE.MSGCORE.Comm.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.BASE">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.WEB\bin\Release\net10.0\BLADE.TOOLS.BASE.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.LOG">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.WEB\bin\Release\net10.0\BLADE.TOOLS.LOG.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.NET">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.NET\bin\Release\net10.0\BLADE.TOOLS.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.WEB">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.WEB\bin\Release\net10.0\BLADE.TOOLS.WEB.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

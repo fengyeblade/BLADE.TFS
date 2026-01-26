@@ -58,7 +58,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
         }
     }
 
-    public class ServerCore
+    public class ServerCore  :IDisposable
     {
         private string AppStartPath = "";
         protected WebContorl? Web =null ;
@@ -364,6 +364,13 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     return new Result<MiddleCommandMessage>(true, "Not Implemented " + mcm.MessageType + "/" + mcm.MessageInfo + "/" + mcm.MessageText, rm);
             }
             return new Result<MiddleCommandMessage>(true, "Response", rm);
+        }
+
+        public void Dispose()
+        {
+            Web?.Dispose();
+            Gate?.Dispose();
+            RunCenter.AddLog("ServerCore","Dispose !!!",LogCodeEnum.Note);
         }
     }
 }
