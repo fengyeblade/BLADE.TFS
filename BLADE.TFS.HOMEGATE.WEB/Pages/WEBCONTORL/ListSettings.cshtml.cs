@@ -108,12 +108,17 @@ namespace BLADE.TFS.HOMEGATE.WEB.Pages.WEBCONTORL
             return Page();
         }
 
+        /// <summary>
+        /// 添加动态白名单给服务
+        /// </summary>
+        /// <returns></returns>
         public async Task<IActionResult> OnPostAddWLAsync()
         {
             GetClientIpAddress();
             string tunname = HttpContext.Request.Form["wltext"].ToString() ;
             string wlvalue = HttpContext.Request.Form["wlval"].ToString();
-            
+            bool isPermanent = false;
+            try { isPermanent = bool.Parse(HttpContext.Request.Form["isPermanent"].ToString()); } catch { isPermanent = false; }
             try
             {
                 ReadyUserData();
@@ -125,7 +130,8 @@ namespace BLADE.TFS.HOMEGATE.WEB.Pages.WEBCONTORL
                     {
                         MiddleCommandMessage mcm = new MiddleCommandMessage(BS.RunSet.ServiceID, false, "", a, null, "", "", null);
                         mcm.MessageType = MCM_Type.Update;
-                        mcm.MessageInfo =  "WLDREG"; 
+                        mcm.MessageInfo =  "WLDREG";
+                        if (isPermanent) { mcm.MessageInfo = "WLREG"; }
                         mcm.MessageText = tunname + "#" + wlvalue;
                         var mr = await BaseService.Instance.MCS.ProcessMiddleCommandMessage(mcm);
                         if (mr != null && mr.Successful && mr.DataOrSender != null)

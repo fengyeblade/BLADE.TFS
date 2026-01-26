@@ -36,6 +36,12 @@
                 <br />
                 <label for="wlval" class="form-label">本地白名单地址</label>
                 <input type="text" class="form-control" id="wlval" value="" />
+                <!-- 添加时效选项复选框 -->
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="isPermanent" name="isPermanent" value="false">
+                    <label class="form-check-label" for="isPermanent">长时间生效</label>
+                </div>
+                
                 <button type="submit" class="btn btn-primary" asp-page-handler="AddWL"> 添加</button>
             </form>
 
