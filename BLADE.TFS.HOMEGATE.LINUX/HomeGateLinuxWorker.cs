@@ -1,25 +1,25 @@
-namespace BLADE.TFS.HOMEGATE.WIN
+using Microsoft.Extensions.Logging;
+
+namespace BLADE.TFS.HOMEGATE.LINUX
 {
-    public class HomeGateWinWorker : BackgroundService
+    public class HomeGateLinuxWorker  : BackgroundService
     {
         protected COMM.ServerCore SC;
         private bool running = false;
         protected string AppStartPath = "";
         protected int js = 0;
-        private readonly ILogger<HomeGateWinWorker> logger;
+        //private readonly ILogger<HomeGateLinuxWorker> logger;
 
-        public HomeGateWinWorker(ILogger<HomeGateWinWorker> _logger)
+        public HomeGateLinuxWorker()
         {
-            this.logger = _logger;
-            AppStartPath= AppContext.BaseDirectory;
+            AppStartPath = AppContext.BaseDirectory;
             SC = new COMM.ServerCore(AppStartPath);
-            COMM.RunCenter.AddLog("HomeGateWinWorker", "Create Worker", TOOLS.LOG.LogCodeEnum.App);
+            COMM.RunCenter.AddLog("HomeGateLinuxWorker", "Create Worker", TOOLS.LOG.LogCodeEnum.App);
         }
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var sttt = await SC.InitAndStart();
-            await COMM.RunCenter.AddLogAsync("HomeGateWinWorker", "Service Start Execute", TOOLS.LOG.LogCodeEnum.App);
+            await COMM.RunCenter.AddLogAsync("HomeGateLinuxWorker", "Service Start Execute", TOOLS.LOG.LogCodeEnum.App);
             if (sttt.suc)
             {
                 running = true;
@@ -29,27 +29,22 @@ namespace BLADE.TFS.HOMEGATE.WIN
                     if (js > 5)
                     {
                         js = 0;
-                        if (logger.IsEnabled(LogLevel.Information))
-                        {
-                            logger.LogInformation("HomeGateWinWorker running at: {time}", DateTimeOffset.Now);
-                        }
+                         
+                         await COMM.RunCenter.AddLogAsync("HomeGateLinuxWorker","I am running");
+                         
                     }
                     await Task.Delay(5000, stoppingToken);
                 }
 
-                if (logger.IsEnabled(LogLevel.Information))
-                {
-                    logger.LogInformation("HomeGateWinWorker Out Execute loop at: {time}", DateTimeOffset.Now);
-                }
+                await COMM.RunCenter.AddLogAsync("HomeGateLinuxWorker", " Out Execute while loop"); 
             }
             else
             {
-                running = false; 
-                await COMM.RunCenter.AddLogAsync("HomeGateWinWorker", "Service start fail: "+ sttt.info, TOOLS.LOG.LogCodeEnum.App);
+                running = false;
+                await COMM.RunCenter.AddLogAsync("HomeGateLinuxWorker", "Service start fail: " + sttt.info, TOOLS.LOG.LogCodeEnum.App);
             }
-            await COMM.RunCenter.AddLogAsync("HomeGateWinWorker", "Service Out Execute", TOOLS.LOG.LogCodeEnum.App);
+            await COMM.RunCenter.AddLogAsync("HomeGateLinuxWorker", "Service Out Execute", TOOLS.LOG.LogCodeEnum.App);
         }
-
         private bool _disposeded = false;
         public override void Dispose()
         {
@@ -60,14 +55,14 @@ namespace BLADE.TFS.HOMEGATE.WIN
             {
                 _disposeded = true;
                 SC?.Dispose();
-                _=StopAsync(CancellationToken.None);
+                _ = StopAsync(CancellationToken.None);
             }
             base.Dispose();
         }
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
             SC?.Dispose();
-            await COMM.RunCenter.AddLogAsync("HomeGateWinWorker", "Service StopAsync", TOOLS.LOG.LogCodeEnum.App);
+            await COMM.RunCenter.AddLogAsync("HomeGateLinuxWorker", "Service StopAsync", TOOLS.LOG.LogCodeEnum.App);
             await base.StopAsync(cancellationToken);
         }
         public override async Task StartAsync(CancellationToken cancellationToken)
