@@ -91,6 +91,11 @@ namespace BLADE.TFS.HOMEGATE.COMM
         private HomeGateCenter? Center = null;
         private BLADE.TOOLS.NET.GreenTCP.GreenTcpServer? Server = null;
         private AtomicBoolean isPumping = new();
+
+        /// <summary>
+        /// 这个 GreenTcpApi 本身没有设置循环工作线程，因为 HomeGateCore 组件里已经有很多后台循环线程了，依靠外部触发作为引擎带动就足够了。
+        /// 所以这个方法是用于外部带动循环工作的。
+        /// </summary>
         public void PumpWork()
         {
             if (Disposed) { return; }
@@ -132,6 +137,11 @@ namespace BLADE.TFS.HOMEGATE.COMM
         }
 
         //=============================
+        /// <summary>
+        /// 接收来自 GreenTCP 客户端的消息，解析出其中的有效信息，并通过 ApiGreenMSG 事件传递给外部。 这个事件的订阅者通常是 HomeGateCore 组件。
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void Server_OnReceviced(object? sender, (long clientid, List<GreenTcpProtocol> gtp) e)
         {
             if (Disposed) { return; }
@@ -170,6 +180,13 @@ namespace BLADE.TFS.HOMEGATE.COMM
             catch { }
             finally { isPumping.TrySetFalse(); }
         }
+
+        /// <summary>
+        /// 上层程序向目标客户发送消息
+        /// </summary>
+        /// <param name="clientid"></param>
+        /// <param name="msgjson"></param>
+        /// <returns></returns>
         public bool Send(long clientid, string msgjson)
         {
             if (Disposed) { return false; }
@@ -197,18 +214,18 @@ namespace BLADE.TFS.HOMEGATE.COMM
         /// 对于被转发的业务主机就是反过来的 远端端口=本地端口 ，字符串值还是  "8080=80" ，因为它看来 8080 是远端端口。
         /// </summary>
         /// <param name="port2port">端口映射字符串，格式为 "本地端口=远程端口"</param>
-        /// <param name="wansideIPEP">外侧IP地址</param>
+        /// <param name="RealClientIPEP">真实用户的远端公网地址和端口</param>
         /// <param name="tcp">是否为TCP协议</param>
-        public static void SetBackRoutingTab(string port2port, string wansideIPEP, bool tcp = true)
+        public static void SetBackRoutingTab(string port2port, string RealClientIPEP, bool tcp = true)
         {
             port2port = port2port.ToUpper().Trim();
-            wansideIPEP = wansideIPEP.ToUpper().Trim();
-            if (string.IsNullOrEmpty(port2port) || string.IsNullOrEmpty(wansideIPEP))
+            RealClientIPEP = RealClientIPEP.ToUpper().Trim();
+            if (string.IsNullOrEmpty(port2port) || string.IsNullOrEmpty(RealClientIPEP))
             {
                 return;
             }
             string key = (tcp ? "TCP_" : "UDP_") + port2port;
-            routingTab.AddOrUpdate(key, wansideIPEP, 30);
+            routingTab.AddOrUpdate(key, RealClientIPEP, 30);
         }
 
         /// <summary>
@@ -234,7 +251,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
             return "";
         }
         /// <summary>
-        /// 删除 反向外侧地址查询。 参数中 port2port 是本机转发服务的本地端口=远程端口 的格式字符串， 例如 "8080=80"
+        /// 删除 反向外侧地址记录。 参数中 port2port 是本机转发服务的本地端口=远程端口 的格式字符串， 例如 "8080=80"
         /// </summary>
         /// <param name="port2port"></param>
         /// <param name="tcp"></param>
@@ -251,6 +268,12 @@ namespace BLADE.TFS.HOMEGATE.COMM
 
         // public static readonly CancellationTokenSource _cts = new CancellationTokenSource(600);
         //   public static readonly CancellationToken tk = _cts.Token;
+
+        /// <summary>
+        /// 将较大的数值转换为  KB  MB 形式。
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
         public static string GetKM(ulong a)
         {
             if (a < 1024)
