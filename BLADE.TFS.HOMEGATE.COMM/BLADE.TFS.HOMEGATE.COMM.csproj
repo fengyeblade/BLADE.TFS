@@ -27,14 +27,26 @@
     <Reference Include="BLADE.TOOLS.BASE">
       <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.WEB\bin\Release\net10.0\BLADE.TOOLS.BASE.dll</HintPath>
     </Reference>
+    <Reference Include="BLADE.TOOLS.HOTDIC">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.HOTDIC\bin\Release\net10.0\BLADE.TOOLS.HOTDIC.dll</HintPath>
+    </Reference>
     <Reference Include="BLADE.TOOLS.LOG">
       <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.WEB\bin\Release\net10.0\BLADE.TOOLS.LOG.dll</HintPath>
     </Reference>
     <Reference Include="BLADE.TOOLS.NET">
       <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.NET\bin\Release\net10.0\BLADE.TOOLS.NET.dll</HintPath>
     </Reference>
+    <Reference Include="BLADE.TOOLS.NET.IPGATE_SqlBase">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.NET.IPGATE_SqlBase\bin\Release\net10.0\BLADE.TOOLS.NET.IPGATE_SqlBase.dll</HintPath>
+    </Reference>
     <Reference Include="BLADE.TOOLS.WEB">
       <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.WEB\bin\Release\net10.0\BLADE.TOOLS.WEB.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.UC.Models">
+      <HintPath>..\..\..\..\BLADE.UC\BLADE.UC.WebCore\BLADE.UC.RRClientCore\bin\x64\Release\net10.0\BLADE.UC.Models.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.UC.RRClientCore">
+      <HintPath>..\..\..\..\BLADE.UC\BLADE.UC.WebCore\BLADE.UC.RRClientCore\bin\x64\Release\net10.0\BLADE.UC.RRClientCore.dll</HintPath>
     </Reference>
   </ItemGroup>
 
