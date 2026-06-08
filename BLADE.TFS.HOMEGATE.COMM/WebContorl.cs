@@ -13,6 +13,67 @@ using BLADE.TOOLS.WEB.Razor.UserData;
 namespace BLADE.TFS.HOMEGATE.COMM
 {
 
+    public class WorkCore : IDisposable
+    {
+        public void Dispose()
+        {
+            Core?.Dispose();
+            Core = null;  
+        }
+        private string AppStartPath = "";
+        private HomeGateCore? Core = null;
+        public async ValueTask<(bool suc, string msg)> StartUp(string appstart)
+        {
+            AppStartPath = appstart.Trim();
+            bool suc = false; string msg = "";
+
+            if (Core != null) { msg = "Core is already initialized. Cantnot restart!! "; }
+            else { 
+            
+              Core = new HomeGateCore(AppStartPath);
+                return await Core.InitAndStart(); 
+            }
+            
+            return (suc, msg);
+        }
+
+        public async ValueTask<(bool suc, string msg)> Stop()
+        {
+            bool suc = false; string msg = "";
+
+            if (Core != null)
+            {
+                msg = "Core worked " + (BLADE.TimeProvider.UtcNow - Core.StartUTC).TotalSeconds + " seconds.";
+                Dispose();
+                suc = true;
+                msg = msg + " Now, Core stopped successfully.";
+            }
+            else
+            {
+                msg = "Core is not initialized.";
+            }
+
+            return (suc, msg);
+        }
+
+        public string RunStatus
+        {
+
+            get
+            {
+                if (Core == null || !Core.Running)
+                {
+                    return "Core is not running or null.";
+                }
+                else
+                {
+                    return  Core.ListRuntimeTrans();
+
+                }
+            }
+        }
+    }
+
     //===========================
 
     #region 屏蔽掉，不需要了。

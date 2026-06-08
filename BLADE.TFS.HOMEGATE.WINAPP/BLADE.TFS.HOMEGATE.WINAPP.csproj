@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BLADE.TFS.HOMEGATE.COMM\BLADE.TFS.HOMEGATE.COMM.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BLADE.TOOLS.BASE">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.NET.IPGATE_SqlBase\bin\Release\net10.0\BLADE.TOOLS.BASE.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.HOTDIC">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.NET.IPGATE_SqlBase\bin\Release\net10.0\BLADE.TOOLS.HOTDIC.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.LOG">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.NET.IPGATE_SqlBase\bin\Release\net10.0\BLADE.TOOLS.LOG.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.NET">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.NET.IPGATE_SqlBase\bin\Release\net10.0\BLADE.TOOLS.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.NET.IPGATE_SqlBase">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.NET.IPGATE_SqlBase\bin\Release\net10.0\BLADE.TOOLS.NET.IPGATE_SqlBase.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
