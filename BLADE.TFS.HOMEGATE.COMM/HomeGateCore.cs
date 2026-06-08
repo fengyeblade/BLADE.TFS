@@ -6,6 +6,7 @@ using BLADE.TOOLS.LOG;
 using BLADE.TOOLS.NET;
 using BLADE.TOOLS.NET.GreenTCP;
 using BLADE.TOOLS.WEB;
+using BLADE.UC.Models;
 using BLADE.UC.RRClientCore;
 //using Microsoft.AspNetCore.Mvc.Formatters;
 using System;
@@ -1022,6 +1023,10 @@ namespace BLADE.TFS.HOMEGATE.COMM
                         {
                             using (var fs = System.IO.File.CreateText(rrcorecfg))
                             {
+                                RRCoreSettings = new RRCoreSettings() ;
+                                RRCoreSettings.ConfigName = "NewRRsettings";
+                                RRCoreSettings.SetPassword("RawPassword",valueType.Text);
+                            
                                 await fs.WriteAsync(BLADE.TOOLS.BASE.Json.JsonOptions.Serialize<RRCoreSettings>(RRCoreSettings));
                             }
                             msg = msg + "\r\n配置文件 RRCoreSettings.cfg 不存在，已使用默认数据创建配置文件: " + rrcorecfg; suc = true;
