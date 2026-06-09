@@ -1727,15 +1727,15 @@ namespace BLADE.TFS.HOMEGATE.COMM
         /// 速度限制   单向限制 单位 KB
         /// </summary>
         public int SpeedMax { get; set; } = 1024;
-        /// <summary>
-        /// (Gate模式下 此属性无用)  连接限制  每个通道单独配置 除白名单模式外  超过限制则封锁到灰名单
-        /// </summary>
-        public int LockCount { get; set; } = 9;
+        // /// <summary>
+        // /// (Gate模式下 此属性无用)  连接限制  每个通道单独配置 除白名单模式外  超过限制则封锁到灰名单
+        // /// </summary>
+        // public int LockCount { get; set; } = 9;
 
-        /// <summary>
-        /// 未生效， 现版本是对全部TCP 连接使用转发处理。 下个版本实现http解析并提供代理处理。
-        /// </summary>
-        public bool HttpProxy { get; set; } = false;
+        // /// <summary>
+        // /// 未生效， 现版本是对全部TCP 连接使用转发处理。 下个版本实现http解析并提供代理处理。
+        // /// </summary>
+        // public bool HttpProxy { get; set; } = false;
         /// <summary>
         /// 转发说明
         /// </summary>
@@ -1747,7 +1747,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
 
     public class UdpTunSet
     {
-        public bool UdpHolePunch { get; set; } = true;
+      //  public bool UdpHolePunch { get; set; } = true;
         public string WanSideKey { get { return WanAddress+":"+WanPort.ToString(); } }   
         /// <summary>
         /// 转发名称
