@@ -399,7 +399,14 @@ namespace BLADE.TFS.HOMEGATE.COMM
                         case 1:
                             r = ListRuntimeTrans();
                             break;
-
+                        case 6:
+                            Center.AddIP(j.PerParam);
+                            r = "Added IP " + j.PerParam+" White";
+                            break;
+                        case 7:
+                            Center.AddIP(j.PerParam, true);
+                            r = "Added IP " + j.PerParam+" Black";
+                            break;
                         case 8:
                             if (j.PerParam.Length > 1) { Center.Pardon(new string[] { j.PerParam }); r = "Pardon executed "+j.PerParam; }
                             else if (j.Params.Length > 0) { Center.Pardon(j.Params); r = "Pardon executed "+j.Params.Length+" IPs"; }
@@ -410,7 +417,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             break;
                     }
                     j.Response = r;
-                    string repjson = BLADE.TOOLS.BASE.Json.JsonOptions.Serialize(j);
+                    string repjson = BLADE.TOOLS.BASE.Json.JsonOptions.Serialize<ApiMsg>(j);
                     try
                     {
                         GreenAPI.Send(one.ClientID, repjson);
@@ -1109,7 +1116,13 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 }
            }
         }
-
+        public void AddIP(string ipaddr, bool isblack = false)
+        {
+            if (IPGM != null)
+            { 
+              IPGM.Run_Add( isblack ? NameListType.Black : NameListType.White, ipaddr);
+            }
+        }
         /// <summary>
         /// 静态共享方法， 记录日志。
         /// </summary>
