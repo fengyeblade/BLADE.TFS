@@ -41,7 +41,7 @@
             textBox1.Multiline = true;
             textBox1.Name = "textBox1";
             textBox1.ScrollBars = ScrollBars.Vertical;
-            textBox1.Size = new Size(701, 152);
+            textBox1.Size = new Size(701, 342);
             textBox1.TabIndex = 0;
             // 
             // label1
@@ -85,7 +85,7 @@
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(725, 295);
+            ClientSize = new Size(725, 478);
             Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(label1);

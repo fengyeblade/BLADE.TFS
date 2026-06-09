@@ -38,6 +38,7 @@ namespace BLADE.TFS.HOMEGATE.WINAPP
             if (WC != null && (BLADE.TimeProvider.UtcNow - _loadsta).TotalSeconds > 15)
             {
                 UpdateStatus(WC.RunStatus);
+                _loadsta = BLADE.TimeProvider.UtcNow;
             }
         }
         public void UpdateStatus(string status)

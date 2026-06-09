@@ -14,6 +14,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Channels;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -2322,14 +2323,18 @@ namespace BLADE.TFS.HOMEGATE.COMM
         public bool Running { get; private set; } = false;
         private readonly UdpTunSet[] _udpTunSets;
         private readonly ConcurrentDictionary<string, UdpTrans> _transfers = new();
+
+        private Channel <tempTrans> _temptrans;
+      //  private readonly ConcurrentQueue<tempTrans> _temptrans = new();
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
         private readonly int _udpIdelBreakMilliseconds;
         protected HomeGateCenter Center;
-
+        private ulong _dropWanCount = 0;
         public int TransCount { get { return _transfers.Count; } }
         public string[] GetTransStatus()
         {
             List<string> a = new List<string>();
+            a.Add("UdpTrans: "+_transfers.Count + " | Dropped bag: " + _dropWanCount);
             foreach(var i in _transfers.Values)
             {
                 a.Add(i.RoutingKey + " | " + i.GetStatusCount());
@@ -2341,6 +2346,12 @@ namespace BLADE.TFS.HOMEGATE.COMM
             Center = theCenter;
             _udpTunSets = Center.Settings.TunSettings.UdpTuns;
             _udpIdelBreakMilliseconds = Center.Settings.TunSettings.UdpIdelBreakMilliseconds  ;
+            _temptrans = Channel.CreateBounded<tempTrans>(new BoundedChannelOptions(_udpTunSets.Length*300)
+            {
+                SingleWriter = true,
+                SingleReader = true,
+                FullMode = BoundedChannelFullMode.Wait
+            });
         }
 
         public void Start()
@@ -2353,15 +2364,18 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     var localTunSet = tunSet;
                     Task.Run(async () => await ListenWAN(localTunSet));
                 }
+
+                Task.Run(async () => await RequestNewTrans() );
             }
+
+            
         }
+         
 
-
-
-        private async Task ListenWAN(UdpTunSet tunSet)
+        private async ValueTask ListenWAN(UdpTunSet tunSet)
         {
             using var sk = CreateBoundUdpSocket(new IPEndPoint(IPAddress.Parse(tunSet.WanAddress), tunSet.WanPort));
-            using var udpClient = new UdpClient { Client = sk };
+            using var udpWanClient = new UdpClient { Client = sk };
             UdpReceiveResult _curResult;
             IPEndPoint _curRemoteEndPoint;
             string _curKey = "";
@@ -2370,33 +2384,45 @@ namespace BLADE.TFS.HOMEGATE.COMM
             {
                 try
                 {
-                    if (udpClient.Available > 0)
+                    if (udpWanClient.Available > 0)
                     {
                         idleCount = 0;
                         using CancellationTokenSource _ccc = new CancellationTokenSource();
-                        _curResult = await udpClient.ReceiveAsync(_ccc.Token);
+                        _curResult = await udpWanClient.ReceiveAsync(_ccc.Token);
                         _curRemoteEndPoint = _curResult.RemoteEndPoint;
-                        _curKey = $"{_curRemoteEndPoint}#{udpClient.Client.LocalEndPoint}";
+                        _curKey = $"{_curRemoteEndPoint}#{udpWanClient.Client.LocalEndPoint}";
 
                         if (_transfers.TryGetValue(_curKey, out var trans))
                         {
-                            if (trans.Running)
-                            {
-                                trans.TranWan2Lan(_curResult.Buffer);
-                            }
+                            // 已获准来源的包不再检查，直接进入转发队列。
+                            TransBag(trans, _curResult.Buffer);
                         }
                         else
                         {
-                            if (tunSet.UseRule)
+                            if (_temptrans.Reader.CanCount)
                             {
-                                if (!CheckIP(tunSet.TunName, _curRemoteEndPoint.Address.ToString()))
+                                if (_temptrans.Reader.Count < (_udpTunSets.Length * 256) && _transfers.Count < Center.Settings.MaxConnection)
                                 {
-                                    continue; // drop the udp data.
+                                    // 未获准的包，要进行检查后处理。
+                                      _temptrans.Writer.TryWrite(new tempTrans(tunSet, udpWanClient, _curRemoteEndPoint, _curResult, _curKey));
+                                }
+                                
+                            }
+                            else {
+                                if ( _transfers.Count < Center.Settings.MaxConnection)
+                                {
+                                    // 未获准的包，要进行检查后处理。
+                                      _temptrans.Writer.TryWrite(new tempTrans(tunSet, udpWanClient, _curRemoteEndPoint, _curResult, _curKey));
                                 }
                             }
-                            trans = new UdpTrans(tunSet, udpClient, _curRemoteEndPoint, _curResult.Buffer, _udpIdelBreakMilliseconds);
-                            trans.Break_TaskRun += takeBreakEvent;
-                            _transfers[_curKey] = trans;
+                            //// if (_temptrans.Count < (_udpTunSets.Length* 256) && _transfers.Count < Center.Settings.MaxConnection )
+                            //if ( _temptrans.Reader.Count < (_udpTunSets.Length* 256) && _transfers.Count < Center.Settings.MaxConnection)
+                            //{
+                            //    // 未获准的包，要进行检查后处理。
+                            //    await _temptrans.Writer.WriteAsync(new tempTrans(tunSet, udpWanClient, _curRemoteEndPoint, _curResult, _curKey));
+                            //}
+                            _dropWanCount++;
+                            //  出现大量洪水包则丢弃。
                         }
                     }
                     else
@@ -2414,12 +2440,65 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 }
                 catch (Exception ex)
                 {
-                    udpClient.Dispose();
+                    udpWanClient.Dispose();
 
                     await HomeGateCenter.AddLog("ListenWAN Error", $"Ex ListenWAN: {ex.Message} \r\n Will Rebuild ListenWAN thread.");
                     await rebuildListenWAN(tunSet);
                 }
             }
+        }
+        private struct tempTrans
+        {
+            public string curkey;
+            public UdpTunSet tunset;
+            public UdpClient wanClietn;
+            public IPEndPoint remote;
+            public UdpReceiveResult res;
+            public tempTrans(UdpTunSet intunset,UdpClient inwan, IPEndPoint inremote,UdpReceiveResult indata,string inkey) {
+                tunset = intunset; wanClietn = inwan; remote = inremote; res = indata; curkey = inkey;
+            }
+        }
+        private void TransBag(UdpTrans ut , byte[] buf)
+        {
+            if (ut.Running)
+            {
+                ut.TranWan2Lan(buf);
+            }
+        }
+        private async ValueTask RequestNewTrans()
+        {
+            await Task.Delay(80);
+            
+            while (Running)
+            {
+                try
+                {
+                    var tt = await _temptrans.Reader.ReadAsync();
+
+                    if (_transfers.TryGetValue(tt.curkey, out var trans))
+                    {
+                        TransBag(trans, tt.res.Buffer);
+                    }
+                    else
+                    {
+                        if (tt.tunset.UseRule)
+                        {
+                            if (!CheckIP(tt.tunset.TunName, tt.remote.Address.ToString()))
+                            {
+                                continue;
+                            }
+                        }
+                        var ntr = new UdpTrans(tt.tunset, tt.wanClietn, tt.remote, tt.res.Buffer, _udpIdelBreakMilliseconds);
+                        ntr.Break_TaskRun += takeBreakEvent;
+                        _transfers[tt.curkey] = ntr;
+                    }
+                }
+                catch(ChannelClosedException)
+                { }
+                catch (Exception ) { }
+                
+            }
+
         }
         private async void takeBreakEvent(object? sender, string e)
         {
@@ -2450,6 +2529,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
         public void Dispose()
         {
             Running = false;
+            _temptrans.Writer.TryComplete();
             Thread.Sleep(100);
              foreach(var i in _transfers.Values)
              {
@@ -2457,6 +2537,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
              }
             _transfers.Clear();
             Thread.Sleep(100);
+          
             // throw new NotImplementedException();
         }
 
@@ -2593,8 +2674,11 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             idleCount++;
                             if (idleCount >= 3)
                             {
-                                await Task.Delay(30);
-                                idleCount = 0;
+                                await Task.Delay(15);
+                                if (idleCount > 8)
+                                {
+                                    idleCount = 1;
+                                }
                             }
                         }
                         //if (brokenCount > 20)
