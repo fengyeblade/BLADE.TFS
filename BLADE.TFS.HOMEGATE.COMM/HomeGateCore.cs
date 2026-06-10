@@ -2417,8 +2417,9 @@ namespace BLADE.TFS.HOMEGATE.COMM
                                 if (_temptrans.Reader.Count < (_udpTunSets.Length * 256) && _transfers.Count < Center.Settings.MaxConnection)
                                 {
                                     // 未获准的包，要进行检查后处理。
-                                      _temptrans.Writer.TryWrite(new tempTrans(tunSet, udpWanClient, _curRemoteEndPoint, _curResult, _curKey));
+                                    _temptrans.Writer.TryWrite(new tempTrans(tunSet, udpWanClient, _curRemoteEndPoint, _curResult, _curKey));
                                 }
+                                else { _dropWanCount++; }
                                 
                             }
                             else {
@@ -2427,6 +2428,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                                     // 未获准的包，要进行检查后处理。
                                       _temptrans.Writer.TryWrite(new tempTrans(tunSet, udpWanClient, _curRemoteEndPoint, _curResult, _curKey));
                                 }
+                                else { _dropWanCount++; }
                             }
                             //// if (_temptrans.Count < (_udpTunSets.Length* 256) && _transfers.Count < Center.Settings.MaxConnection )
                             //if ( _temptrans.Reader.Count < (_udpTunSets.Length* 256) && _transfers.Count < Center.Settings.MaxConnection)
@@ -2434,7 +2436,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             //    // 未获准的包，要进行检查后处理。
                             //    await _temptrans.Writer.WriteAsync(new tempTrans(tunSet, udpWanClient, _curRemoteEndPoint, _curResult, _curKey));
                             //}
-                            _dropWanCount++;
+                            
                             //  出现大量洪水包则丢弃。
                         }
                     }
