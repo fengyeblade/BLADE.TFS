@@ -8,20 +8,22 @@ using BLADE.TOOLS.NET.GreenTCP;
 using BLADE.TOOLS.WEB;
 using BLADE.UC.Models;
 using BLADE.UC.RRClientCore;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 //using Microsoft.AspNetCore.Mvc.Formatters;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Threading.Channels;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Xml;
+using static BLADE.TOOLS.NET.IPGateManager;
 using static System.Net.WebRequestMethods;
 
 namespace BLADE.TFS.HOMEGATE.COMM
@@ -39,6 +41,16 @@ namespace BLADE.TFS.HOMEGATE.COMM
 
         /// <summary>
         /// API命令码。 见下文约定
+        ///     0. Command=0 留空，视为无效信息。
+        ///     1. Command=1 列出当前转发通道的状态信息。  Response 输出文本格式的转发通道列表。
+        ///     2. Command=2 关闭指定的转发通道。 PerParam 需要提供 TunName 参数来指定要关闭的通道。 Response 输出操作结果文本。
+        ///     3. Command=3 启动指定的转发通道。 PerParam 需要提供 TunName 参数来指定要刷新的通道。 Response 输出操作结果文本。
+        ///     4. Command=4 获取当前服务使用的三个Settings，序列化给调用者。
+        ///     5. Command=5 提取提交上来的Settings，保存在配置文件中。不会及时影响服务器行为，在下次启动时生效。 Response 输出操作结果文本。
+        ///     6. Command=6 添加临时白名单到 IPGATE 中 。
+        ///     7. Command=7 添加临时黑名单到 IPGATE 中 。
+        ///     8. Command=8 从 IPGATE 中临时赦免指定地址 。
+        ///     9. Command=9 尝试 IPGATE 数据重置，清理 IPGATE 的缓存层，并尝试重新加载数据库数据。
         /// </summary>
         public int Command { get; set; } = 0;
         /// <summary>
@@ -55,19 +67,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
         /// </summary>
         public string Response { get; set; } = string.Empty;
 
-        ///<summary>
-        ///     0. Command=0 留空，视为无效信息。
-        ///     1. Command=1 列出当前转发通道的状态信息。  Response 输出文本格式的转发通道列表。
-        ///     2. Command=2 关闭指定的转发通道。 PerParam 需要提供 TunName 参数来指定要关闭的通道。 Response 输出操作结果文本。
-        ///     3. Command=3 启动指定的转发通道。 PerParam 需要提供 TunName 参数来指定要刷新的通道。 Response 输出操作结果文本。
-        ///     4. Command=4 暂空
-        ///     5. Command=5 暂空
-        ///     6. Command=6 添加临时白名单到 IPGATE 中 。
-        ///     7. Command=7 添加临时黑名单到 IPGATE 中 。
-        ///     8. Command=8 从 IPGATE 中临时赦免指定地址 。
-        ///     9. Command=9 尝试 IPGATE 数据重置，清理 IPGATE 的缓存层，并尝试重新加载数据库数据。
-        /// 
-        ///</summary>
+       
     }
     public class GreenTcpAPI : IDisposable
     {
@@ -412,6 +412,86 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             else if (j.Params.Length > 0) { Center.Pardon(j.Params); r = "Pardon executed "+j.Params.Length+" IPs"; }
                             else { r = "No IP provided for pardon."; }
                             break;
+                        case 4:
+                            string kk = j.PerParam.Trim().ToUpper();
+                            if (kk == "HOMEGATE")
+                            {
+                                var h = await Center.GetSettings(true, false, false);
+                                if (h.tmpGate != null)
+                                {
+                                    r = BLADE.TOOLS.BASE.Json.JsonOptions.Serialize(h.tmpGate);
+                                }
+                                else
+                                {
+                                    r = "Failed to retrieve HOMEGATE settings.";
+                                }
+                            }
+                            else if (kk == "RRCORE")
+                            {
+                                var h = await Center.GetSettings(false, true, false);
+                                if (h.tmpRRC != null)
+                                {
+                                    r = BLADE.TOOLS.BASE.Json.JsonOptions.Serialize(h.tmpRRC);
+                                }
+                                else
+                                {
+                                    r = "Failed to retrieve RRCORE settings.";
+                                }
+                            }
+                            else if (kk == "IPGATE")
+                            {
+                                var h = await Center.GetSettings(false, false, true);
+                                if (h.tmpIPG != null)
+                                {
+                                    r = BLADE.TOOLS.BASE.Json.JsonOptions.Serialize(h.tmpIPG);
+                                }
+                                else
+                                {
+                                    r = "Failed to retrieve IPGATE settings.";
+                                }
+                            }
+                            else {
+                                r = "UNKNOWN Settings";
+                            }
+                            break;
+                        case 5:
+                            if (j.PerParam == "UPDATESETTINGS")
+                            {
+                                IpGateSettingsMOD? ig = null;
+                                RRCoreSettings? rr = null;
+                                GateSettings? gs = null;
+                                try { ig = BLADE.TOOLS.BASE.Json.JsonOptions.Deserialize<IpGateSettingsMOD>(j.Params[2]);
+                                    if (ig != null)
+                                    { r = r + " get IpGateSettingsMOD; "; }
+                                    else { r = r + " not found IpGateSettingsMOD; "; }
+                                }
+                                catch {  r= r+ " error IpGateSettingsMOD; "; }
+
+                                try
+                                {
+                                    rr = BLADE.TOOLS.BASE.Json.JsonOptions.Deserialize<RRCoreSettings>(j.Params[1]);
+                                    if (rr != null)
+                                    { r = r + " get RRCoreSettings; "; }
+                                    else { r = r + " not found RRCoreSettings; "; }
+                                }
+                                catch { r = r + " error RRCoreSettings; "; }
+
+                                try
+                                {
+                                    gs = BLADE.TOOLS.BASE.Json.JsonOptions.Deserialize<GateSettings>(j.Params[0]);
+                                    if (gs != null)
+                                    { r = r + " get GateSettings; "; }
+                                    else { r = r + " not found GateSettings; "; }
+                                }
+                                catch { r = r + " error GateSettings; "; }
+                                var k = await Center.SaveSettings(gs, rr, ig);
+                                r = r + "  SaveSettings " +  k ;
+
+                            }
+                            else {
+                                r = "WRONG update";
+                            }
+                            break;
                         default:
                             r = "Unknown Command";
                             break;
@@ -525,7 +605,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
             if ((TimeProvider.UtcNow - _lastscan).TotalSeconds > 3)
             {
                 _stjs++;
-                if (_stjs > 90)
+                if (_stjs > 310)
                 { _stjs = 0; }
                 _lastscan = TimeProvider.UtcNow;
                 string ll = "";
@@ -542,7 +622,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             { i.Dispose(); jss++; ll = ll + "DisopseTrans:" + i.GetTransInfo() + "  || "; }
                             else
                             {
-                                if (_stjs == 50)
+                                if ((_stjs % 40) == 3)
                                 {  lp = lp + "\r\n" + i.GetTransInfo();  }
                             }
 
@@ -656,7 +736,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 { await Task.Delay(30); }
                 //HomeGateCore.TransCount = Count_Trans;
                 cjj2++;
-                if (cjj2 > 30)
+                if (cjj2 > 60)
                 {
                     cjj2 = 0;
 
@@ -719,7 +799,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 }
 
                 //  简单的状态信息，每间隔90秒可以向RRCore 的 comm接口提交一次。这个信息是在服务中暂存，有查阅者便提供，无查阅会自动销毁，不记录到数据库。
-                var b = await Center.RRCORE.HF_ApiComm_Submit(Center.RRCoreSettings.UC_User_ORGID, ((Center.Settings.ComCode - 11) / 7), Center.Settings.ComChannel, Center.Settings.ComFreq,
+                var b = await Center.RRCORE.HF_ApiComm_Submit(Center.rrCoreSettings.UC_User_ORGID, ((Center.Settings.ComCode - 11) / 7), Center.Settings.ComChannel, Center.Settings.ComFreq,
                     Center.Settings.ComTarget,  Center.Settings.ComName, reptext);
                 if(b.suc && b.CR!=null && b.CR.StatusCode == 200)
                 { }
@@ -838,7 +918,92 @@ namespace BLADE.TFS.HOMEGATE.COMM
 
     public class HomeGateCenter : IDisposable
     {
+        public  async   ValueTask<string> SaveSettings(GateSettings? tmpGate=null,RRCoreSettings? tmpRRC=null,IpGateSettingsMOD? tmpIPG=null  ) 
+        {
+            string msg = "";
+            if(tmpGate != null)
+            {
+                // 保存 GateSettings 的逻辑
+                if (tmpGate.RRCoreCfg != Settings.RRCoreCfg)
+                {
+                    if (tmpRRC == null) { tmpRRC = rrCoreSettings; }
+                }
+                if (tmpGate.IpGateCfg != Settings.IpGateCfg)
+                {
+                    var t = TryGetIPGateSettings();
+                    if (tmpIPG == null && t != null) { tmpIPG = t; }
+                }
+                string jj = BLADE.TOOLS.BASE.Json.JsonOptions.Serialize<GateSettings>(tmpGate);
+                string fp = Path.Combine(AppStartPath, "HomeGateSettings.cfg");
+                try
+                {
+                    using (var fs = System.IO.File.CreateText(fp))
+                    {
+                        await fs.WriteAsync(jj);
+                    }
+                    Settings.IpGateCfg = tmpGate.IpGateCfg;
+                    Settings.RRCoreCfg = tmpGate.RRCoreCfg;
+                    msg=msg+ "\r\nUpdate New HomeGateSettings saved successfully. "; 
+                }
+                catch (Exception ze)
+                {
+                      await HomeGateCenter.AddLog("SaveSettings", "Save HomeGateSettings [" + fp + "] Error: " + ze.Message);
+                    msg = msg + "\r\n" + "Save HomeGateSettings Error: " + ze.Message;
+                }
+            }
+            if(tmpRRC != null)
+            {
+                // 保存 rrCoreSettings 的逻辑
+                string jj= BLADE.TOOLS.BASE.Json.JsonOptions.Serialize<RRCoreSettings>(tmpRRC);
+                string fp = Path.Combine(AppStartPath, Settings.RRCoreCfg);
+                try
+                {
+                    using (var fs = System.IO.File.CreateText(fp))
+                    {
+                        await fs.WriteAsync(jj);
+                    }
+                    msg = msg + "\r\nUpdate New rrCoreSettings saved successfully. ";
+                }
+                catch (Exception ze)
+                {
+                    await HomeGateCenter.AddLog("SaveSettings", "Save rrCoreSettings [" + fp + "] Error: " + ze.Message);
+                    msg = msg + "\r\n" + "Save rrCoreSettings Error: " + ze.Message;
+                }
+               
+            }
+            if(tmpIPG != null)
+            {
+                // 保存 IpGateSettingsMOD 的逻辑
+                string jj = BLADE.TOOLS.BASE.Json.JsonOptions.Serialize<IpGateSettingsMOD>(tmpIPG);
+                string fp = Path.Combine( AppStartPath, Settings.IpGateCfg );
+                try
+                {
+                    using (var fs = System.IO.File.CreateText(fp))
+                    {
+                        await fs.WriteAsync(jj);
+                    }
+                    msg = msg + "\r\nUpdate New IpGateSettingsMOD saved successfully. ";
+                }
+                catch(Exception ze)
+                {
+                    await HomeGateCenter.AddLog("SaveSettings", "Save IpGateSettingsMOD [" + fp + "] Error: " + ze.Message);
+                    msg=msg +"\r\n" + "Save IpGateSettingsMOD Error: " + ze.Message;
+                }
+            }
 
+            return msg;
+        }
+        public async ValueTask<(GateSettings? tmpGate, RRCoreSettings? tmpRRC, IpGateSettingsMOD? tmpIPG)> GetSettings(bool getGate = false, bool getRRC = false, bool getIPG = false)
+        {
+            GateSettings? tmpGate = null; RRCoreSettings? tmpRRC = null; IpGateSettingsMOD? tmpIPG = null;
+            if (getGate)
+            { tmpGate = Settings; }
+            if (getRRC)
+            { tmpRRC = rrCoreSettings; }
+            if (getIPG)
+            { tmpIPG = TryGetIPGateSettings(); }
+            return (tmpGate, tmpRRC, tmpIPG);
+        }
         /// <summary>
         /// BLADE LOGER 对象，静态的，共享的。  如果未初始化会在InitAsync中创建。
         /// </summary>
@@ -868,7 +1033,14 @@ namespace BLADE.TFS.HOMEGATE.COMM
         /// </summary>
         public GateSettings Settings { get; set; } = new GateSettings();
 
-
+        public IpGateSettingsMOD? TryGetIPGateSettings()
+        {
+            if (IPGM != null)
+            {
+                return IPGM.MOD;
+            }
+            return null;
+        }
         /// <summary>
         /// 应用启动路径。
         /// </summary>
@@ -885,9 +1057,9 @@ namespace BLADE.TFS.HOMEGATE.COMM
         public BLADE.TOOLS.NET.IPGateManager? IPGM { get; set; } = null;
 
         /// <summary>
-        /// RRCoreSettings 对象，存储了与 RRCore 相关的配置信息。 在InitAsync中加载。
+        /// rrCoreSettings 对象，存储了与 RRCore 相关的配置信息。 在InitAsync中加载。
         /// </summary>
-        public BLADE.UC.RRClientCore.RRCoreSettings? RRCoreSettings { get; set; } = null;
+        public BLADE.UC.RRClientCore.RRCoreSettings? rrCoreSettings { get; set; } = null;
 
         /// <summary>
         /// RRCore 对象，负责与 BLADE RRCore Web服务的交互。 在InitAsync中创建并初始化。
@@ -1010,7 +1182,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                                     var se = BLADE.TOOLS.BASE.Json.JsonOptions.Deserialize<RRCoreSettings>(k);
                                     if (se != null)
                                     {
-                                        RRCoreSettings = se;
+                                        rrCoreSettings = se;
                                         msg = msg + "\r\n加载RRCoreSettings.cfg配置文件成功"; suc = true;
                                     }
                                     else
@@ -1031,13 +1203,13 @@ namespace BLADE.TFS.HOMEGATE.COMM
                         {
                             using (var fs = System.IO.File.CreateText(rrcorecfg))
                             {
-                                RRCoreSettings = new RRCoreSettings() ;
-                                RRCoreSettings.ConfigName = "NewRRsettings";
-                                RRCoreSettings.SetPassword("RawPassword",valueType.Text);
+                                rrCoreSettings = new RRCoreSettings() ;
+                                rrCoreSettings.ConfigName = "NewRRsettings";
+                                rrCoreSettings.SetPassword("RawPassword",valueType.Text);
                             
-                                await fs.WriteAsync(BLADE.TOOLS.BASE.Json.JsonOptions.Serialize<RRCoreSettings>(RRCoreSettings));
+                                await fs.WriteAsync(BLADE.TOOLS.BASE.Json.JsonOptions.Serialize<RRCoreSettings>(rrCoreSettings));
                             }
-                            msg = msg + "\r\n配置文件 RRCoreSettings.cfg 不存在，已使用默认数据创建配置文件: " + rrcorecfg; suc = true;
+                            msg = msg + "\r\n配置文件 rrCoreSettings.cfg 不存在，已使用默认数据创建配置文件: " + rrcorecfg; suc = true;
                         }
                         catch (Exception nze) { msg = msg + "\r\nMake new [" + rrcorecfg + "] Ex: " + nze.Message; suc = false; }
                     }
@@ -1045,12 +1217,17 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     // 当RRCore配置加载成功后 创建 RRCore对象和 IPGateManager对象。
                     if (suc)
                     {
-                        RRCORE = new(RRCoreSettings, RunMsgHandler);
+                        RRCORE = new(rrCoreSettings, RunMsgHandler);
                         string ipgatesafecfg = Path.Combine(cfgdir, Settings.IpGateCfg);
                         IPGateManager im = new IPGateManager(ipgatesafecfg, RRCORE);
                         var jg = await im.InitAsync();
                         if (jg.suc)
-                        { IPGM = im; msg = msg + "\r\nIPGateManager 初始化成功  " + jg.msg; suc = true; }
+                        { IPGM = im; msg = msg + "\r\nIPGateManager 初始化成功  " + jg.msg; suc = true;
+                             IPGM.GrayEvent += IPGM_GrayEvent;
+                            IPGM.MessageEvent += IPGM_MessageEvent; 
+                            
+                            msg = msg + "\r\nIPGateManager 初始化失败  " + jg.msg; suc = false;
+                        }
                         else { msg = msg + "\r\n|| IPGateManager 初始化失败 " + jg.msg; suc = false; }
                     }
                 }
@@ -1063,7 +1240,21 @@ namespace BLADE.TFS.HOMEGATE.COMM
             // 至此核心的初始化工作已经做完，结果是成功还是失败都已经记录在日志和 suc/msg 里。
             return (suc, msg);
         }
+        private async void IPGM_MessageEvent(object? sender, MsgEventArgs e)
+        {
+            if (CLOG != null) { await CLOG.AddLogAsync(LogCodeEnum.Info, "IPGateManager", "MessageEvent: " + e.EventMsg); }
+        }
+        private async void IPGM_GrayEvent(object? sender, GrayEventArgs e)
+        {
 
+            string inf = "";
+            if (e.Ig.HasValue)
+            {
+                inf = e.Ig.Value.Address + " BC:" + e.Ig.Value.BlockCount + " MT:" + e.Ig.Value.Match + " NT:" + e.Ig.Value.NetType + " LC:" + e.Ig.Value.LastCheck_utc.ToString("yyyy-MM-dd HH:mm:ss");
+            }
+                if (CLOG != null) { await CLOG.AddLogAsync(LogCodeEnum.Info, "IPGateManager", "GrayEvent: " + e.Msg + " Info [" + inf+" ]"); }
+            
+        }
         /// <summary>
         /// 将RRCore运行时的消息通过日志记录下来。
         /// </summary>
@@ -1095,7 +1286,8 @@ namespace BLADE.TFS.HOMEGATE.COMM
             if (IPGM == null) { return false; }
             var r = IPGM.CheckIP(inip, tunName);
             if (r.wbg == WBG_CheckResult.WhitePass || r.wbg == WBG_CheckResult.BlackPass || r.wbg == WBG_CheckResult.GrayPass || r.wbg == WBG_CheckResult.NotFound)
-            { return true; }
+            {  AddLogTask(  "CheckIPAllow", $"IP {inip} for {tunName} is {r.wbg.ToString()}"); return true; }
+             
             return false;
         }
 
@@ -1132,6 +1324,10 @@ namespace BLADE.TFS.HOMEGATE.COMM
         public static async ValueTask AddLog(string title, string msg)
         {
             if (CLOG != null) {     await CLOG.AddLogAsync(LogCodeEnum.Note, title.Trim(), msg.Trim());     }
+        }
+        public static  void   AddLogTask(string title, string msg)
+        {
+             Task.Run(async()=> await AddLog(title, msg));
         }
 
         /// <summary>
@@ -1509,6 +1705,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
         /// SafeCode * 7 + 11 = ComCode   (SafeCode 是 RRCore 对应业务模块的安全码，必须一致才能正确提交数据。)
         /// </summary>
         public long ComCode { get; set; } = 622222227;
+       
     }
     /// <summary>
     /// 管道 Tao ，将TcpIn 读取的数据转发入 TcpOut 。 可分别承担上下行转发。
@@ -1645,6 +1842,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     if (rd1 < 0 || rd2 < 0)
                     {
                         await HomeGateCenter.AddLog("transWork", "OperationCanceledException Break !!! "  );
+
                         return false;
                     }
 
@@ -1658,7 +1856,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                         if ((TimeProvider.UtcNow - speedTime).TotalMilliseconds > 2000)
                         {
                             Speed = "IN "+ HomeGateCore.GetKM( speedW2N / 2)+" / OUT "+HomeGateCore.GetKM( speedN2W / 2);
-                            if (matherCore.Count_Trans > 2 && ((speedN2W / 2200.0) > TunSetting.SpeedMax || (speedW2N / 2200.0) > TunSetting.SpeedMax))
+                            if (matherCore.Count_Trans > 2 && ((speedN2W / 2048.0) > TunSetting.SpeedMax || (speedW2N / 2048.0) > TunSetting.SpeedMax))
                             {
                                 await Task.Delay(120);
                             }
@@ -1683,7 +1881,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
         protected async ValueTask LoopWork()
         {
             while (!disposed) {
-                if (await transWork())
+                if (  await transWork())
                 { }
                 else { break; }
             }
@@ -2377,16 +2575,17 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     var localTunSet = tunSet;
                     Task.Run(async () => await ListenWAN(localTunSet));
                 }
-
-                Task.Run(async () => await RequestNewTrans() );
+                if (_udpTunSets.Length > 0)
+                {
+                    Task.Run(async () => await RequestNewTrans());
+                }
             }
-
-            
         }
          
 
         private async ValueTask ListenWAN(UdpTunSet tunSet)
         {
+            ushort atmc = (ushort)BLADE.TimeProvider.UtcNow.Millisecond;
             using var sk = CreateBoundUdpSocket(new IPEndPoint(IPAddress.Parse(tunSet.WanAddress), tunSet.WanPort));
             using var udpWanClient = new UdpClient { Client = sk };
             UdpReceiveResult _curResult;
@@ -2395,6 +2594,8 @@ namespace BLADE.TFS.HOMEGATE.COMM
             int idleCount = 0;
             while (Running)
             {
+                atmc++;
+                if (atmc > 50000) { atmc = 0; }
                 try
                 {
                     if (udpWanClient.Available > 0)
@@ -2451,6 +2652,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             idleCount = 0;
                             await Task.Delay(10);
                         }
+                        if ((atmc % 100) < 9) { await HomeGateCenter.AddLog("Clear UDP", "Clear Died trans: "+  ClearDiedTrans()); }
                     }
                 }
                 catch (Exception ex)
@@ -2551,11 +2753,37 @@ namespace BLADE.TFS.HOMEGATE.COMM
                  i.Dispose("UDPTransManager Disposing...");
              }
             _transfers.Clear();
-            Thread.Sleep(100);
+            Thread.Sleep(80);
           
             // throw new NotImplementedException();
         }
+        private DateTime _lastClearutc = BLADE.TimeProvider.UtcNow;
+        public int ClearDiedTrans()
+        {
+            if ((BLADE.TimeProvider.UtcNow - _lastClearutc).TotalSeconds > 11)
+            {
+                _lastClearutc = BLADE.TimeProvider.UtcNow;
+                if (_transfers.Count > 0)
+                {
+                    List<string> rm = new List<string>();
+                    foreach (var kv in _transfers.Values)
+                    {
+                        if (!kv.Running)
+                        {
+                            rm.Add(kv.RoutingKey);
+                        }
+                    }
+                    foreach(var sk  in rm)
+                    {
+                        if (_transfers.TryRemove(sk, out var ts))
+                        {   ts.Dispose("ClearDiedTrans Clear");   }
+                    }
+                    return rm.Count;
+                }
+            }
 
+            return 0;
+        }
         public class UdpTrans
         {
              
@@ -2716,7 +2944,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     }
                 }
             }
-
+            
             /// <summary>
             /// 外来数据的缓存队列。由TranLan2Wan负责读取，TranWan2Lan写入
             /// </summary>
@@ -2737,13 +2965,16 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 return false;
             }
 
+            private bool disposed = false;
             /// <summary>
             /// 断开并释放，尝试触发 Break_TaskRun 事件通知上层，参数是断开原因说明。 例如异常信息，或闲置超时等。
             /// </summary>
             /// <param name="msg"></param>
             public void Dispose(string msg = "")
             {
+                if (disposed) { return; }
                 Running = false;
+                disposed = true;
                 HomeGateCore.DelBackRoutingTab(LansideIPEP, false);
                 //_WanSide.Dispose();
                 _LanSide.Dispose();
