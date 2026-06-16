@@ -292,7 +292,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
         }
 
        // public static int TransCount { get; set; } = 0;
-        protected HomeGateCenter Center;
+        public HomeGateCenter Center { get; private set; }
         protected UDPTransManager? UM=null;
         public void Dispose()
         {
@@ -751,6 +751,8 @@ namespace BLADE.TFS.HOMEGATE.COMM
                         Task.Run(async () => await FlushTuns());
                     }
                 }
+                if ((cjj2 % 11) == 5)
+                { await Task.Delay(10); }
             }
             await Task.Delay(30);
 
@@ -794,41 +796,47 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 if (ndm.Count < 1) { return; }
                 try
                 {
-                    var dl = await Center.IPGM.DnsRedFlush(ndm.ToList());
-                    var da = dl.ToArray();
-                    foreach (var i in Center.Settings.TunSettings.TcpTuns)
+                    if (Center.IPGM != null)
                     {
-                        p = i.LanDOM.Trim();
-                        if (p.Length > 3)
+                        var dl = await Center.IPGM.DnsRedFlush(ndm.ToList());
+                        var da = dl.ToArray();
+                        foreach (var i in Center.Settings.TunSettings.TcpTuns)
                         {
-                            foreach (var pd in da)
+                            p = i.LanDOM.Trim();
+                            if (p.Length > 3)
                             {
-                                if (pd.Dom == p && pd.IpAddr.Length > 0)
+                                foreach (var pd in da)
                                 {
-                                    i.LanAddress = pd.IpAddr[0];
-                                    jjj++;
-                                    break;
+                                    if (pd.Dom == p && pd.IpAddr.Length > 0)
+                                    {
+                                        i.LanAddress = pd.IpAddr[0];
+                                        jjj++;
+                                        break;
+                                    }
                                 }
                             }
                         }
-                    }
-                    foreach (var i in Center.Settings.TunSettings.UdpTuns)
-                    {
-                        p = i.LanDOM.Trim();
-                        if (p.Length > 3)
+                        foreach (var i in Center.Settings.TunSettings.UdpTuns)
                         {
-                            foreach (var pd in da)
+                            p = i.LanDOM.Trim();
+                            if (p.Length > 3)
                             {
-                                if (pd.Dom == p && pd.IpAddr.Length > 0)
+                                foreach (var pd in da)
                                 {
-                                    i.LanAddress = pd.IpAddr[0];
-                                    jjj++;
-                                    break;
+                                    if (pd.Dom == p && pd.IpAddr.Length > 0)
+                                    {
+                                        i.LanAddress = pd.IpAddr[0];
+                                        jjj++;
+                                        break;
+                                    }
                                 }
                             }
                         }
+                        await HomeGateCenter.AddLog("IPGM.DnsRedFlush", "Work update DNS-RED : " + jjj + " IpAddress");
                     }
-                    await HomeGateCenter.AddLog("IPGM.DnsRedFlush", "Work update DNS-RED : " + jjj + " IpAddress");
+                    else {
+                        await HomeGateCenter.AddLog("IPGM.DnsRedFlush", "IPGM is null " );
+                    }
                 }
                 catch (Exception z)
                 {
@@ -1311,11 +1319,11 @@ namespace BLADE.TFS.HOMEGATE.COMM
                         IPGateManager im = new IPGateManager(ipgatesafecfg, RRCORE);
                         var jg = await im.InitAsync();
                         if (jg.suc)
-                        { IPGM = im; msg = msg + "\r\nIPGateManager 初始化成功  " + jg.msg; suc = true;
-                             IPGM.GrayEvent += IPGM_GrayEvent;
-                            IPGM.MessageEvent += IPGM_MessageEvent; 
-                            
-                            msg = msg + "\r\nIPGateManager 初始化失败  " + jg.msg; suc = false;
+                        {
+                            IPGM = im;
+                            msg = msg + "\r\nIPGateManager 初始化成功  " + jg.msg; suc = true;
+                            IPGM.GrayEvent += IPGM_GrayEvent;
+                            IPGM.MessageEvent += IPGM_MessageEvent;
                         }
                         else { msg = msg + "\r\n|| IPGateManager 初始化失败 " + jg.msg; suc = false; }
                     }

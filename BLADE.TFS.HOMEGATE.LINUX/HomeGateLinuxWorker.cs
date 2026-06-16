@@ -17,8 +17,7 @@ namespace BLADE.TFS.HOMEGATE.LINUX
             if (j.suc)
             {
                 while (!stoppingToken.IsCancellationRequested)
-                {
-                   
+                { 
                     await Task.Delay(5000, stoppingToken);
                 }
             }

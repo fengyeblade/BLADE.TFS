@@ -9,6 +9,7 @@ using BLADETIME = BLADE.TimeProvider;
 //using Microsoft.Extensions.Logging;
 //using BLADE.MSGCORE.Models;
 using BLADE.TOOLS.WEB.Razor.UserData;
+using BLADE.TOOLS.NET;
 
 namespace BLADE.TFS.HOMEGATE.COMM
 {
@@ -28,15 +29,19 @@ namespace BLADE.TFS.HOMEGATE.COMM
             bool suc = false; string msg = "";
 
             if (Core != null) { msg = "Core is already initialized. Cantnot restart!! "; }
-            else { 
-            
-              Core = new HomeGateCore(AppStartPath);
+            else {
+
+                Core = new HomeGateCore(AppStartPath);
+               
                 return await Core.InitAndStart(); 
             }
             
             return (suc, msg);
         }
-
+        public IPGateManager? IPGM
+        { 
+            get { if(Core != null && Core.Center.IPGM!=null) { return Core.Center.IPGM; } else { return null; } }
+        }
         public async ValueTask<(bool suc, string msg)> Stop()
         {
             bool suc = false; string msg = "";

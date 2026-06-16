@@ -64,10 +64,18 @@ namespace BLADE.TFS.HOMEGATE.WINAPP
             WC = new BLADE.TFS.HOMEGATE.COMM.WorkCore();
             var j = await WC.StartUp(Application.StartupPath);
             UpdateStatus("StartUp " + j.suc + ", Msg: " + j.msg);
+           
             if (j.suc)
             {
                 button1.Enabled = false;
                 button2.Enabled = true;
+
+                var im = WC.IPGM;
+                if (im != null)
+                {
+                    im.GrayEvent += (sender, e) => { BLADE.TOOLS.NET.IPGateManager.GrayEventArgs EE = e; UpdateStatus("GrayMsg= " + EE.Msg); };
+                    im.MessageEvent += (sender, e) => { BLADE.TOOLS.NET.MsgEventArgs EE = e; UpdateStatus("IPGM_Msg= " + EE.EventMsg); };
+                }
             }
         }
 
