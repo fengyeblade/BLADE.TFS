@@ -743,10 +743,99 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     Task.Run(async () => { await ReportWork(); });
 
                 }
+                if (cjj2 == 13 || cjj2 == 19)
+                { 
+                    if ((BLADE.TimeProvider.UtcNow - _lastflushdnsred).TotalSeconds >= 200)
+                    {
+                        // 刷新 Tuns 转发通道中需要DNS或RED 解析的部分。解析地址后更新到 LanAddress 字段中。
+                        Task.Run(async () => await FlushTuns());
+                    }
+                }
             }
             await Task.Delay(30);
 
             Dispose();
+        }
+        private DateTime _lastflushdnsred = BLADE.TimeProvider.UtcNow.AddMinutes(-30);
+
+        private bool _dnsredflushing = false;
+        /// <summary>
+        /// 刷新 Tuns 转发通道中需要DNS或RED 解析的部分。解析地址后更新到 LanAddress 字段中。
+        /// </summary>
+        /// <returns></returns>
+        protected async ValueTask FlushTuns()
+        {
+            if (_dnsredflushing) { return; }
+            _lastflushdnsred = BLADE.TimeProvider.UtcNow;
+            _dnsredflushing = true;
+
+            try
+            {
+               
+                string p = "";
+                int jjj = 0;
+                HashSet<string> ndm = new HashSet<string>();
+                foreach (var i in Center.Settings.TunSettings.TcpTuns)
+                {
+                    p = i.LanDOM.Trim();
+                    if (p.Length > 3)
+                    {
+                        ndm.Add(p);
+                    }
+                }
+                foreach (var i in Center.Settings.TunSettings.UdpTuns)
+                {
+                    p = i.LanDOM.Trim();
+                    if (p.Length > 3)
+                    {
+                        ndm.Add(p);
+                    }
+                }
+                if (ndm.Count < 1) { return; }
+                try
+                {
+                    var dl = await Center.IPGM.DnsRedFlush(ndm.ToList());
+                    var da = dl.ToArray();
+                    foreach (var i in Center.Settings.TunSettings.TcpTuns)
+                    {
+                        p = i.LanDOM.Trim();
+                        if (p.Length > 3)
+                        {
+                            foreach (var pd in da)
+                            {
+                                if (pd.Dom == p && pd.IpAddr.Length > 0)
+                                {
+                                    i.LanAddress = pd.IpAddr[0];
+                                    jjj++;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    foreach (var i in Center.Settings.TunSettings.UdpTuns)
+                    {
+                        p = i.LanDOM.Trim();
+                        if (p.Length > 3)
+                        {
+                            foreach (var pd in da)
+                            {
+                                if (pd.Dom == p && pd.IpAddr.Length > 0)
+                                {
+                                    i.LanAddress = pd.IpAddr[0];
+                                    jjj++;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    await HomeGateCenter.AddLog("IPGM.DnsRedFlush", "Work update DNS-RED : " + jjj + " IpAddress");
+                }
+                catch (Exception z)
+                {
+                    await HomeGateCenter.AddLog("IPGM.DnsRedFlush", "WorkEx: " + z.Message);
+                }
+            }
+            finally { _dnsredflushing = false; }
         }
         private DateTime _lassubmit1 = BLADE.TimeProvider.UtcNow.AddMinutes(-2);
         private int _substep = 0;
@@ -1964,10 +2053,17 @@ namespace BLADE.TFS.HOMEGATE.COMM
         /// </summary>
         public int LanPort { get; set; } = 2222;
         /// <summary>
-        /// 转发管道的  目标  远端地址
+        /// 转发管道的  目标  远端地址  不可空
+        /// 当需要使用动态接卸地址时，请使用 LanDOM 属性，此值随便写（会被解析替换）
         /// </summary>
         public string LanAddress { get; set; } = "192.168.100.100";
-      
+
+        /// <summary>
+        /// DNS OR DOM ITEM ex:  "V4:h.mlez.net",  "V6:h.mlez.net",  "R6:PVE_GATE", "R4:PVE_GATE"
+        ///  需要DNS 或者 RED 解析的地址 当此属性存在时，HOMEGATE 将解析此地址并替换 LanAddress 进行转发连接
+        ///  不需要解析时，此属性无必留空，HOMEGATE会直接使用 LanAddress 进行连接
+        /// </summary>
+        public string LanDOM { get; set; } = "";
         /// <summary>
         /// 设置此管道是否应用名单规则  具体的应用规则由 Settings.RunWithWhiteOrBlack 决定。 true = 应用   false = 不应用规则，直通
         /// </summary>
