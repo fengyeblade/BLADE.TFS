@@ -2685,11 +2685,10 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 }
             }
         }
-         
 
+        private ushort atmc = (ushort)BLADE.TimeProvider.UtcNow.Millisecond;
         private async ValueTask ListenWAN(UdpTunSet tunSet)
-        {
-            ushort atmc = (ushort)BLADE.TimeProvider.UtcNow.Millisecond;
+        { 
             using var sk = CreateBoundUdpSocket(new IPEndPoint(IPAddress.Parse(tunSet.WanAddress), tunSet.WanPort));
             using var udpWanClient = new UdpClient { Client = sk };
             UdpReceiveResult _curResult;
@@ -2744,6 +2743,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             
                             //  出现大量洪水包则丢弃。
                         }
+                        if ((atmc % 450) == 9) { await HomeGateCenter.AddLog("Clear UDP", "Clear Died trans: " + ClearDiedTrans()); }
                     }
                     else
                     {
@@ -2756,7 +2756,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             idleCount = 0;
                             await Task.Delay(10);
                         }
-                        if ((atmc % 100) < 9) { await HomeGateCenter.AddLog("Clear UDP", "Clear Died trans: "+  ClearDiedTrans()); }
+                        if ((atmc % 500) == 9) { await HomeGateCenter.AddLog("Clear UDP", "Clear Died trans: "+  ClearDiedTrans()); }
                     }
                 }
                 catch (Exception ex)
