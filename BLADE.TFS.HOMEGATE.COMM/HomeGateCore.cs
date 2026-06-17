@@ -2698,7 +2698,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
             while (Running)
             {
                 atmc++;
-                if (atmc > 50000) { atmc = 0; }
+                if (atmc > 51010) { atmc = 0; }
                 try
                 {
                     if (udpWanClient.Available > 0)
@@ -2743,7 +2743,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             
                             //  出现大量洪水包则丢弃。
                         }
-                        if ((atmc % 450) == 9) { await HomeGateCenter.AddLog("Clear UDP", "Clear Died trans: " + ClearDiedTrans()); }
+                        if ((atmc % 2150) == 9) { await HomeGateCenter.AddLog("Clear UDP", "Clear Died trans: " + ClearDiedTrans()); }
                     }
                     else
                     {
@@ -2756,7 +2756,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             idleCount = 0;
                             await Task.Delay(10);
                         }
-                        if ((atmc % 500) == 9) { await HomeGateCenter.AddLogDEBUG("Clear UDP", "Clear Died trans: "+  ClearDiedTrans()); }
+                        if ((atmc % 2500) == 9) { await HomeGateCenter.AddLogDEBUG("Clear UDP", "Clear Died trans: "+  ClearDiedTrans()); }
                     }
                 }
                 catch (Exception ex)
