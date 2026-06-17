@@ -2756,7 +2756,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             idleCount = 0;
                             await Task.Delay(10);
                         }
-                        if ((atmc % 500) == 9) { await HomeGateCenter.AddLog("Clear UDP", "Clear Died trans: "+  ClearDiedTrans()); }
+                        if ((atmc % 500) == 9) { await HomeGateCenter.AddLogDEBUG("Clear UDP", "Clear Died trans: "+  ClearDiedTrans()); }
                     }
                 }
                 catch (Exception ex)
