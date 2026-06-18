@@ -522,6 +522,24 @@ namespace BLADE.TFS.HOMEGATE.COMM
         /// 启动时的时间。
         /// </summary>
         public DateTime StartUTC { get; private set; } = BLADE.TimeProvider.UtcNow;
+
+        private void createTcpListener(TcpTunSet lt, IPAddress bindAddress,StringBuilder sb)
+        {
+            try
+            {
+                TcpListenerItem tli = new TcpListenerItem(lt, bindAddress);
+                var sr = tli.Start();
+                if (sr.suc)
+                { TunDic.Add(tli.ID, tli); sb.AppendLine("Make Listener OK " + lt.GetRoadInfo()); }
+                else
+                {
+                    sb.AppendLine("Make Listener  " + lt.GetRoadInfo() + " Failed: " + sr.info);
+                }
+            }
+            catch (Exception ze)
+            { sb.AppendLine("Make " + lt.GetRoadInfo() + " Listener EX: " + ze.ToString()); }
+
+        }
         /// <summary>
         /// 启动 HOMEGATE  TCP 业务的工作循环
         ///  在 InitAndStart() 方法确定初始化完成后自动调用。
@@ -542,16 +560,29 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 {
                     foreach (var lt in Center.Settings.TunSettings.TcpTuns)
                     {
-                         TcpListenerItem tli = new TcpListenerItem(lt);
-                        try { var sr = tli.Start();
-                            if (sr.suc)
-                            { TunDic.Add(tli.ID, tli); sb.AppendLine("Make Listener OK " + lt.GetRoadInfo()); }
-                            else {
-                                sb.AppendLine("Make Listener  " + lt.GetRoadInfo() + " Failed: " + sr.info);
-                            }
+                        if (lt.WanAddress.ToUpper().Trim() == "DOUBLE")
+                        { 
+                            createTcpListener(lt, IPAddress.Any, sb);
+                            createTcpListener(lt, IPAddress.IPv6Any, sb);
                         }
-                        catch (Exception ze)
-                        { sb.AppendLine("Make " + lt.GetRoadInfo() + " Listener EX: " + ze.ToString()); }
+                        else
+                        {
+
+                            createTcpListener(lt, IPAddress.Parse(lt.WanAddress), sb);
+                            //try
+                            //{
+                            //    TcpListenerItem tli = new TcpListenerItem(lt);
+                            //    var sr = tli.Start();
+                            //    if (sr.suc)
+                            //    { TunDic.Add(tli.ID, tli); sb.AppendLine("Make Listener OK " + lt.GetRoadInfo()); }
+                            //    else
+                            //    {
+                            //        sb.AppendLine("Make Listener  " + lt.GetRoadInfo() + " Failed: " + sr.info);
+                            //    }
+                            //}
+                            //catch (Exception ze)
+                            //{ sb.AppendLine("Make " + lt.GetRoadInfo() + " Listener EX: " + ze.ToString()); }
+                        }
                     }
                 }
                 await Task.Delay(200);
@@ -942,6 +973,14 @@ namespace BLADE.TFS.HOMEGATE.COMM
             ID = TcpTrans.NextID();
             TunSetting = ts;
             Listener = new TcpListener(IPAddress.Parse(ts.WanAddress), ts.WanPort);
+            Listener.Server.LingerState = new LingerOption(true, 1);
+            Listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+        }
+
+        public TcpListenerItem(TcpTunSet ts ,IPAddress bindaddr ) {
+            ID = TcpTrans.NextID();
+            TunSetting = ts;
+            Listener = new TcpListener(bindaddr, ts.WanPort);
             Listener.Server.LingerState = new LingerOption(true, 1);
             Listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
         }
@@ -1899,7 +1938,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
             ID = NextID();
             try
             {
-                LanSideIPEP = ((IPEndPoint)tn.Client.LocalEndPoint).Port.ToString()+"="+((IPEndPoint)tn.Client.RemoteEndPoint).Port.ToString(); 
+                LanSideIPEP = ((IPEndPoint)tn.Client.LocalEndPoint).ToString()+"="+((IPEndPoint)tn.Client.RemoteEndPoint).ToString(); 
                 if (LanSideIPEP.Length>=3)
                 {    HomeGateCore.SetBackRoutingTab(LanSideIPEP, tw.Client.RemoteEndPoint.ToString(), true);    }
             }
@@ -2681,7 +2720,15 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 foreach (var tunSet in _udpTunSets)
                 {
                     var localTunSet = tunSet;
-                    Task.Run(async () => await ListenWAN(localTunSet));
+                    if(localTunSet.WanAddress.ToUpper().Trim() == "DOUBLE")
+                    {
+                        Task.Run(async () => await ListenWAN(localTunSet, IPAddress.Any));
+                        Task.Run(async () => await ListenWAN(localTunSet, IPAddress.IPv6Any));
+                    }
+                    else
+                    {
+                        Task.Run(async () => await ListenWAN(localTunSet));
+                    }
                 }
                 if (_udpTunSets.Length > 0)
                 {
@@ -2691,9 +2738,11 @@ namespace BLADE.TFS.HOMEGATE.COMM
         }
 
         private ushort atmc = (ushort)BLADE.TimeProvider.UtcNow.Millisecond;
-        private async ValueTask ListenWAN(UdpTunSet tunSet)
-        { 
-            using var sk = CreateBoundUdpSocket(new IPEndPoint(IPAddress.Parse(tunSet.WanAddress), tunSet.WanPort));
+        private async ValueTask ListenWAN(UdpTunSet tunSet,IPAddress? wanip=null)
+        {
+            if (wanip == null)
+            { wanip = IPAddress.Parse(tunSet.WanAddress); }
+            using var sk = CreateBoundUdpSocket(new IPEndPoint(wanip, tunSet.WanPort));
             using var udpWanClient = new UdpClient { Client = sk };
             UdpReceiveResult _curResult;
             IPEndPoint _curRemoteEndPoint;
@@ -2768,7 +2817,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     udpWanClient.Dispose();
 
                     await HomeGateCenter.AddLog("ListenWAN Error", $"Ex ListenWAN: {ex.Message} \r\n Will Rebuild ListenWAN thread.");
-                    await rebuildListenWAN(tunSet);
+                    await rebuildListenWAN(tunSet, wanip);
                 }
             }
         }
@@ -2830,12 +2879,12 @@ namespace BLADE.TFS.HOMEGATE.COMM
             if (sender != null)
             {   _transfers.TryRemove(((UdpTrans)sender).RoutingKey, out var _);  }
         }
-        private async Task rebuildListenWAN(UdpTunSet tunSet)
+        private async Task rebuildListenWAN(UdpTunSet tunSet,IPAddress rewan)
         {
             if (Running)
             {
                 await Task.Delay(700);
-                _ = Task.Run(async () => await ListenWAN(tunSet));
+                _ = Task.Run(async () => await ListenWAN(tunSet,rewan));
             }
         }
 
@@ -2947,7 +2996,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 _LanSide.Connect(_tunSet.LanAddress, _tunSet.LanPort);
                 try
                 {
-                    LansideIPEP = ((IPEndPoint)_LanSide.Client.LocalEndPoint).Port.ToString() + "=" + ((IPEndPoint)_LanSide.Client.RemoteEndPoint).Port.ToString();
+                    LansideIPEP = ((IPEndPoint)_LanSide.Client.LocalEndPoint).ToString() + "=" + ((IPEndPoint)_LanSide.Client.RemoteEndPoint).ToString();
                     if (LansideIPEP.Length >= 3)
                     {
                         HomeGateCore.SetBackRoutingTab(LansideIPEP, RemoteIPEP.ToString(), false);
