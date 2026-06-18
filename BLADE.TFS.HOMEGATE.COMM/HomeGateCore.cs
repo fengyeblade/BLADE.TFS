@@ -736,7 +736,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 { await Task.Delay(30); }
                 //HomeGateCore.TransCount = Count_Trans;
                 cjj2++;
-                if (cjj2 > 60)
+                if (cjj2 > 90)
                 {
                     cjj2 = 0;
 
@@ -854,21 +854,21 @@ namespace BLADE.TFS.HOMEGATE.COMM
         /// <returns></returns>
         protected async ValueTask ReportWork()
         {
-            if ((BLADE.TimeProvider.UtcNow - _lassubmit1).TotalSeconds <90)
+            if ((BLADE.TimeProvider.UtcNow - _lassubmit1).TotalSeconds <30)
             {
-                // 90秒内不重新提交。
+                // 30秒内不重新触发。
                 return;
             }
             routingTab.ClearTimeOut();
             _lassubmit1=BLADE.TimeProvider.UtcNow;
             _substep++;
-
+            if (_substep > 3000) {_substep = 0; }
             string reptext ="{ \"HomeGate\":\""+ Center.Settings.ComName + "\", \"Running\":"+Running+ " ,  \"ListenCount\": " + TunDic.Count + " ,  \"TransCount\": " + Count_Trans + " ,  \"WorkMins\": " + (BLADE.TimeProvider.UtcNow-StartUTC).TotalMinutes+" }";
             if (Center.RRCORE != null)
             {
-                if (_substep >= 5)
+                if ((_substep % 11) == 5)
                 {
-                    //  90 * 5 秒提交一次详细的转发报告，报告会按照RRCore 的 Report 业务逻辑进行数据存档。 其他时间只提交基本的状态信息。
+                    //  30 * 11 秒提交一次详细的转发报告，报告会按照RRCore 的 Report 业务逻辑进行数据存档。 其他时间只提交基本的状态信息。
                     _substep = 0;
                     //int[] at = TransDic.KeysArray;
                     //if (at.Length > 0)
@@ -881,13 +881,13 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     //    }
                     //    await HomeGateCenter.AddLog("TransInfo", "Name: " + Center.Settings.ComName + "\r\n" + sbb.ToString());
                     //}
-                    string xiangxi = reptext + "\r\n"+ ListRuntimeTrans();
+                    string xiangxi = reptext + "\r\n" + ListRuntimeTrans();
                     await HomeGateCenter.AddLog("TransInfo", xiangxi);
                     //  报告提交动作。结果成功则不产生日志。失败了会记录异常信息。
                     var a = await Center.RRCORE.HF_ApiReport_Submit(Center.Settings.ComName, xiangxi);
                     if (a.suc && a.RB != null && a.RB.StatusCode == 200)
                     {
-                       
+
                     }
                     else
                     {
@@ -895,13 +895,17 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     }
                 }
 
-                //  简单的状态信息，每间隔90秒可以向RRCore 的 comm接口提交一次。这个信息是在服务中暂存，有查阅者便提供，无查阅会自动销毁，不记录到数据库。
-                var b = await Center.RRCORE.HF_ApiComm_Submit(Center.rrCoreSettings.UC_User_ORGID, ((Center.Settings.ComCode - 11) / 7), Center.Settings.ComChannel, Center.Settings.ComFreq,
-                    Center.Settings.ComTarget,  Center.Settings.ComName, reptext);
-                if(b.suc && b.CR!=null && b.CR.StatusCode == 200)
-                { }
-                else {
-                    await HomeGateCenter.AddLog("Submit Error", "HF_ApiComm_Submit Error: " + b.msg + " _ " + b.CR?.StatusCode);
+                if ((_substep % 3) == 2)
+                {
+                    //  简单的状态信息，每间隔90秒可以向RRCore 的 comm接口提交一次。这个信息是在服务中暂存，有查阅者便提供，无查阅会自动销毁，不记录到数据库。
+                    var b = await Center.RRCORE.HF_ApiComm_Submit(Center.rrCoreSettings.UC_User_ORGID, ((Center.Settings.ComCode - 11) / 7), Center.Settings.ComChannel, Center.Settings.ComFreq,
+                        Center.Settings.ComTarget, Center.Settings.ComName, reptext);
+                    if (b.suc && b.CR != null && b.CR.StatusCode == 200)
+                    { }
+                    else
+                    {
+                        await HomeGateCenter.AddLog("Submit Error", "HF_ApiComm_Submit Error: " + b.msg + " _ " + b.CR?.StatusCode);
+                    }
                 }
             }
 
@@ -2743,7 +2747,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             
                             //  出现大量洪水包则丢弃。
                         }
-                        if ((atmc % 2150) == 9) { await HomeGateCenter.AddLog("Clear UDP", "Clear Died trans: " + ClearDiedTrans()); }
+                        if ((atmc % 2150) == 900) { await HomeGateCenter.AddLog("Clear UDP", "Clear Died trans: " + ClearDiedTrans()); }
                     }
                     else
                     {
@@ -2756,7 +2760,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             idleCount = 0;
                             await Task.Delay(10);
                         }
-                        if ((atmc % 2500) == 9) { await HomeGateCenter.AddLogDEBUG("Clear UDP", "Clear Died trans: "+  ClearDiedTrans()); }
+                        if ((atmc % 2500) == 90) { await HomeGateCenter.AddLogDEBUG("Clear UDP", "Clear Died Trans: "+  ClearDiedTrans()); }
                     }
                 }
                 catch (Exception ex)
