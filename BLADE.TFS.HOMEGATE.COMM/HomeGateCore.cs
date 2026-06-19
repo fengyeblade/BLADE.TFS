@@ -2137,29 +2137,35 @@ namespace BLADE.TFS.HOMEGATE.COMM
         {
             TcpTuns = new TcpTunSet[2];
             TcpTuns[0] = new TcpTunSet();
-            TcpTuns[0].TunName = "Def2221";
+            TcpTuns[0].TunName = "DOUBLE";
             TcpTuns[0].WanPort = 2221;
             TcpTuns[0].SpeedMax = 1200;
             TcpTuns[0].UseRule = true;
+            TcpTuns[0].WanAddress = "DOUBLE";
 
             TcpTuns[1] = new TcpTunSet();
-            TcpTuns[1].TunName = "Def2223";
-            TcpTuns[1].WanPort = 2223;
+            TcpTuns[1].TunName = "Def2233";
+            TcpTuns[1].WanPort = 2233;
             TcpTuns[1].SpeedMax = 850;
             TcpTuns[1].UseRule = false;
+            TcpTuns[1].WanAddress = "0.0.0.0";
+            TcpTuns[1].LanAddress = "192.168.100.100";
 
             UdpTuns = new UdpTunSet[2]; 
             UdpTuns[0] = new UdpTunSet();
-            UdpTuns[0].TunName = "DefUdp2221";
+            UdpTuns[0].TunName = "DOUBLE";
             UdpTuns[0].WanPort = 2221;
-           // UdpTuns[0].SpeedMax = 1200;
+            UdpTuns[0].WanAddress = "DOUBLE";
+          
             UdpTuns[0].UseRule = true;
 
             UdpTuns[1] = new UdpTunSet();
-            UdpTuns[1].TunName = "DefUdp2223";
-            UdpTuns[1].WanPort = 2223;
+            UdpTuns[1].TunName = "DefUdp2233";
+            UdpTuns[1].WanPort = 2233;
            // UdpTuns[1].SpeedMax = 850;
             UdpTuns[1].UseRule = false;
+            UdpTuns[1].WanAddress = "0.0.0.0";
+            UdpTuns[1].LanAddress = "192.168.100.100";
         }
     }
 
