@@ -2120,7 +2120,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
         /// </summary>
         public bool UseRule { get; set; } = true;
 
-        
+        public string Title { get; set; } = "some info";
     }
     /// <summary>
     /// 管道配置集合
