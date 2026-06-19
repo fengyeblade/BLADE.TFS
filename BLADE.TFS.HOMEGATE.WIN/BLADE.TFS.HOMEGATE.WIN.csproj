@@ -24,13 +24,28 @@
 
   <ItemGroup>
     <Reference Include="BLADE.TOOLS.BASE">
-      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.WEB\bin\Release\net10.0\BLADE.TOOLS.BASE.dll</HintPath>
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.LOG\bin\Release\net10.0\BLADE.TOOLS.BASE.dll</HintPath>
     </Reference>
     <Reference Include="BLADE.TOOLS.LOG">
-      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.WEB\bin\Release\net10.0\BLADE.TOOLS.LOG.dll</HintPath>
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.LOG\bin\Release\net10.0\BLADE.TOOLS.LOG.dll</HintPath>
     </Reference>
     <Reference Include="BLADE.TOOLS.NET">
       <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.NET\bin\Release\net10.0\BLADE.TOOLS.NET.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Configs\HomeGateSettings.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Configs\ipgatesafe.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Configs\rrcoresafe.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Logs\logs.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
