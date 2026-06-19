@@ -1019,12 +1019,12 @@ namespace BLADE.TFS.HOMEGATE.COMM
             try
             {
                 Listener.Start();
-                HomeGateCenter.AddLog("ListenWAN", "StartListener [" + TunSetting.GetRoadInfo() + "]  OK"  );
+                HomeGateCenter.AddLog("ListenWAN", "StartListener (" + ID + ") [" + TunSetting.GetRoadInfo() + "]  OK"  );
                 Running = true;
                 return (true, "");
             } catch (Exception ze)
             {
-                HomeGateCenter.AddLog("ListenWAN", "StartListener ["+TunSetting.GetRoadInfo()+"]  Error :" + ze.Message);
+                HomeGateCenter.AddLog("ListenWAN", "StartListener (" + ID + ") ["+TunSetting.GetRoadInfo()+"]  Error :" + ze.Message);
                 return (false,  ze.Message);
             } 
         }
