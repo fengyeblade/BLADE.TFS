@@ -5,7 +5,7 @@ using BLADE.TOOLS.BASE.ThreadSAFE;
 using BLADE.TOOLS.LOG;
 using BLADE.TOOLS.NET;
 using BLADE.TOOLS.NET.GreenTCP;
-using BLADE.TOOLS.WEB;
+//using BLADE.TOOLS.WEB;
 using BLADE.UC.Models;
 using BLADE.UC.RRClientCore;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -530,14 +530,14 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 TcpListenerItem tli = new TcpListenerItem(lt, bindAddress);
                 var sr = tli.Start();
                 if (sr.suc)
-                { TunDic.Add(tli.ID, tli); sb.AppendLine("Make Listener OK " + lt.GetRoadInfo()); }
+                { TunDic.Add(tli.ID, tli); sb.AppendLine("Make Listener ("+tli.ID+") OK " + lt.GetRoadInfo()); }
                 else
                 {
-                    sb.AppendLine("Make Listener  " + lt.GetRoadInfo() + " Failed: " + sr.info);
+                    sb.AppendLine("Make Listener ("+tli.ID+") " + lt.GetRoadInfo() + " Failed: " + sr.info);
                 }
             }
             catch (Exception ze)
-            { sb.AppendLine("Make " + lt.GetRoadInfo() + " Listener EX: " + ze.ToString()); }
+            { sb.AppendLine("Make Listener ("+lt.GetRoadInfo()+" "+bindAddress.ToString()+") EX: " + ze.ToString()); }
 
         }
         /// <summary>
@@ -2079,7 +2079,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
         /// </summary>
         public string GetRoadInfo()
         { 
-            return WanAddress + ":" + WanPort.ToString() + " TO " + LanAddress + ":" + LanPort.ToString() + " R_" + UseRule.ToString();
+            return  WanAddress + ":" + WanPort.ToString() + " TO " + LanAddress + ":" + LanPort.ToString() + " R_" + UseRule.ToString();
         }
     }
 

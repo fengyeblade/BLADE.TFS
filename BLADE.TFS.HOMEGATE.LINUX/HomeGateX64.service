@@ -1,0 +1,13 @@
+[Unit]
+Description=HomeGateServiceX64
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/local/HomeGate
+ExecStart=/usr/local/HomeGate/HOMEGATE.LINUX64
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
