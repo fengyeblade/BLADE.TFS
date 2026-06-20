@@ -724,6 +724,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 await HomeGateCenter.AddLogDEBUG("CheckIP", "Welcome = " + nip + ":" + nippt);
                 try {
                     TcpClient ntc = new TcpClient(tun.TunSetting.LanAddress, tun.TunSetting.LanPort);
+                    ntc.NoDelay = true;
                     ntc.LingerState = new LingerOption(true, 1);
                     ntc.ReceiveTimeout = 33000;
                     ntc.SendTimeout = 33000;
@@ -996,6 +997,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     if (Listener.Pending())
                     {
                         TcpClient a = Listener.AcceptTcpClient();
+                        a.NoDelay = true;
                         return (true, a);
                     }
                    
