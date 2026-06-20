@@ -894,7 +894,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
             _lassubmit1=BLADE.TimeProvider.UtcNow;
             _substep++;
             if (_substep > 3000) {_substep = 0; }
-            string reptext ="{ \"HomeGate\":\""+ Center.Settings.ComName + "\", \"Running\":"+Running+ " ,  \"ListenCount\": " + TunDic.Count + " ,  \"TransCount\": " + Count_Trans + " ,  \"WorkMins\": " + (BLADE.TimeProvider.UtcNow-StartUTC).TotalMinutes+" }";
+            string reptext ="{\"HomeGate\":\""+ Center.Settings.ComName + "\", \"Running\":"+Running+ " ,  \"ListenCount\": " + TunDic.Count + " ,  \"TransCount\": " + Count_Trans + " ,  \"WorkMins\": " + (BLADE.TimeProvider.UtcNow-StartUTC).TotalMinutes+" }";
             if (Center.RRCORE != null)
             {
                 if ((_substep % 11) == 5)
@@ -915,7 +915,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     string xiangxi = reptext + "\r\n" + ListRuntimeTrans();
                     await HomeGateCenter.AddLog("TransInfo", xiangxi);
                     //  报告提交动作。结果成功则不产生日志。失败了会记录异常信息。
-                    var a = await Center.RRCORE.HF_ApiReport_Submit(Center.Settings.ComName, xiangxi);
+                    var a = await Center.RRCORE.HF_ApiReport_Submit(Center.Settings.ComName, reptext);
                     if (a.suc && a.RB != null && a.RB.StatusCode == 200)
                     {
 
