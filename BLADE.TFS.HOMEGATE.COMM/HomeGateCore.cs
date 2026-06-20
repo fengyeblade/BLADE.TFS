@@ -1452,7 +1452,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
         {
             if (IPGM != null)
             { 
-              IPGM.Run_Add( isblack ? NameListType.Black : NameListType.White, ipaddr);
+              IPGM.Run_Add( isblack ? NameListType.Black : NameListType.White, ipaddr,"",true);
             }
         }
         /// <summary>
