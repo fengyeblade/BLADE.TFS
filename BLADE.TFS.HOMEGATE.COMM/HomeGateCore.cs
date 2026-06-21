@@ -1788,7 +1788,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
     {
 
         public bool EnableGreenAPI { get; set; } = true;
-        public ushort GreenAPIPort { get; set; } = 3399;
+        public ushort GreenAPIPort { get; set; } = 20000;
         public string GreenAPIAddress { get; set; } = "0.0.0.0";
 
         //  public BLADE.TOOLS.WEB.Razor.UserData.IUserDataSession AdminUser { get; set; } = TOOLS.WEB.Razor.UserData.IUserDataSession.CreateBase();
