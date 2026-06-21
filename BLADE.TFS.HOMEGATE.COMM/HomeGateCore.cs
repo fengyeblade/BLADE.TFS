@@ -2659,8 +2659,15 @@ namespace BLADE.TFS.HOMEGATE.COMM
     {
         private static Socket CreateBoundUdpSocket(IPEndPoint ipep)
         {
-            var sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
+            Socket sock;
+            if (ipep.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                sock = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
+            }
+            else
+            {
+                sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            }
             // 关键：在 Bind 之前设置
             // Windows 语义：这能让“同地址同端口”更容易立刻可重绑（前提是你没有 EXCLUSIVEADDRUSE 冲突）
             sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
