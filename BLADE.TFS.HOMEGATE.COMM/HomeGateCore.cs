@@ -2727,14 +2727,16 @@ namespace BLADE.TFS.HOMEGATE.COMM
             });
         }
 
-        public void Start()
+        public async Task Start()
         {
             if (_udpTunSets.Length > 0)
             {
+                int dmcc=(BLADE.TimeProvider.UtcNow.Millisecond % 7);
                 Running = true;
                 foreach (var tunSet in _udpTunSets)
                 {
                     var localTunSet = tunSet;
+                    dmcc++;
                     if(localTunSet.WanAddress.ToUpper().Trim() == "DOUBLE")
                     {
                         Task.Run(async () => await ListenWAN(localTunSet, IPAddress.Any));
@@ -2744,6 +2746,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     {
                         Task.Run(async () => await ListenWAN(localTunSet));
                     }
+                    await Task.Delay(dmcc);
                 }
                 if (_udpTunSets.Length > 0)
                 {
@@ -2763,6 +2766,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
             IPEndPoint _curRemoteEndPoint;
             string _curKey = "";
             int idleCount = 0;
+           
             while (Running)
             {
                 atmc++;
