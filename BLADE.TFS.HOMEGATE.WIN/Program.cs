@@ -5,4 +5,5 @@ builder.Services.AddWindowsService();
 builder.Services.AddHostedService<HomeGateWinWorker>();
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 var host = builder.Build();
+AppContext.SetSwitch("System.Net.SocketsHttpHandler.Http3Support", false);
 host.Run();
