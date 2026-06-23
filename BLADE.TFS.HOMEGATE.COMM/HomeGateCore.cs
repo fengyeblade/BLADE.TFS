@@ -895,13 +895,13 @@ namespace BLADE.TFS.HOMEGATE.COMM
             _lassubmit1=BLADE.TimeProvider.UtcNow;
             _substep++;
             if (_substep > 3000) {_substep = 0; }
-            string reptext ="{\"HomeGate\":\""+ Center.Settings.ComName + "\", \"Running\":"+Running+ " ,  \"ListenCount\": " + TunDic.Count + " ,  \"TransCount\": " + Count_Trans + " ,  \"WorkMins\": " + (BLADE.TimeProvider.UtcNow-StartUTC).TotalMinutes+" }";
+            string reptext ="{\"HomeGate\":\""+ Center.Settings.ComName + "\", \"Running\":"+Running+ " ,  \"ListenCount\": " + TunDic.Count + " ,  \"TransCount\": " + Count_Trans + " ,  \"WorkMins\": " + (BLADE.TimeProvider.UtcNow-StartUTC).TotalMinutes.ToString("#.#")+" }";
             if (Center.RRCORE != null)
             {
                 if ((_substep % 11) == 5)
                 {
                     //  30 * 11 秒提交一次详细的转发报告，报告会按照RRCore 的 Report 业务逻辑进行数据存档。 其他时间只提交基本的状态信息。
-                    _substep = 0;
+                    
                     //int[] at = TransDic.KeysArray;
                     //if (at.Length > 0)
                     //{
@@ -2039,7 +2039,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
         }
         public string GetTransInfo()
         {
-            return  TunSetting.GetRoadInfo()+ " ("+ID+") = [ W2N: " + HomeGateCore.GetKM(Tao_W2N.TransBytesCount) + " ][ N2W: " + HomeGateCore.GetKM(Tao_N2W.TransBytesCount) + " ] " + Speed;
+            return  TunSetting.GetRoadInfo()+ " (" +TcpW.Client.RemoteEndPoint?.ToString()+"**"+TunSetting.LanDOM+ ") ("+ID+") \r\n= [ W2N: " + HomeGateCore.GetKM(Tao_W2N.TransBytesCount) + " ][ N2W: " + HomeGateCore.GetKM(Tao_N2W.TransBytesCount) + " ] " + Speed;
         }
         public void Dispose()
         {
@@ -2835,8 +2835,9 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 {
                     udpWanClient.Dispose();
 
-                    await HomeGateCenter.AddLog("ListenWAN Error", $"Ex ListenWAN: {ex.Message} \r\n Will Rebuild ListenWAN thread.");
+                    await HomeGateCenter.AddLog("ListenUdpWAN Error", $"Ex Udp ListenWAN: {ex.ToString()} \r\n Will Rebuild ListenWAN thread.");
                     await rebuildListenWAN(tunSet, wanip);
+                    break;
                 }
             }
         }
