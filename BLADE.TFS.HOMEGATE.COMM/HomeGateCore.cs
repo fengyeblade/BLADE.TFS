@@ -708,7 +708,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
             } 
             return a;
         }
-
+        private string tbdip = string.Empty;
         /// <summary>
         /// 对新连接进行白名单判断，如果允许，则创建转发通道，并放入通道集合。
         /// </summary>
@@ -749,7 +749,8 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 if (Center.DisConnectMsg.Length > 0)
                 {    try{ await inc.GetStream().WriteAsync(Center.DisConnectMsg); await inc.GetStream().FlushAsync(); } catch { } }
                 inc.Dispose();
-                await HomeGateCenter.AddLogDEBUG("CheckIP", "Block Income = " + nip + ":" + nippt);
+                if(nip != tbdip) { tbdip = nip; await HomeGateCenter.AddLog("CheckIP", "Block " + nip + ":" + nippt );  }
+              //  await HomeGateCenter.AddLogDEBUG("CheckIP", "Block Income = " + nip + ":" + nippt);
             } 
         }
         private int cjj = 0;
@@ -1414,9 +1415,9 @@ namespace BLADE.TFS.HOMEGATE.COMM
         /// <param name="tunName"></param>
         /// <param name="inip"></param>
         /// <returns></returns>
-        public (WBG_CheckResult wbg, int hit) CheckIP(string tunName, string inip)
+        public (WBG_CheckResult wbg, int hit,string debug) CheckIP(string tunName, string inip)
         {
-            if (IPGM == null) { return (WBG_CheckResult.Disposed, 0); }
+            if (IPGM == null) { return (WBG_CheckResult.Disposed, 0, "IPGateManager is null"); }
             return IPGM.CheckIP(inip, tunName);
         }
         /// <summary>
@@ -1429,8 +1430,12 @@ namespace BLADE.TFS.HOMEGATE.COMM
         {
             if (IPGM == null) { return false; }
             var r = IPGM.CheckIP(inip, tunName);
+            if (BLADE.TimeProvider.UtcNow.Millisecond % 200 < 3)
+            {
+                AddLogTask("Checkdebug", $"IP {inip} for {tunName} is {r.wbg.ToString()} Debug:[{r.debug}]");
+            }
             if (r.wbg == WBG_CheckResult.WhitePass || r.wbg == WBG_CheckResult.BlackPass || r.wbg == WBG_CheckResult.GrayPass || r.wbg == WBG_CheckResult.NotFound)
-            {  AddLogTask(  "CheckIPAllow", $"IP {inip} for {tunName} is {r.wbg.ToString()}"); return true; }
+            {  return true; }
              
             return false;
         }
@@ -2748,23 +2753,23 @@ namespace BLADE.TFS.HOMEGATE.COMM
         {
             if (_udpTunSets.Length > 0)
             {
-                int dmcc=(BLADE.TimeProvider.UtcNow.Millisecond % 13)+3;
+                byte dmcc= (byte)((BLADE.TimeProvider.UtcNow.Millisecond % 13)+3);
                 Running = true;
                 foreach (var tunSet in _udpTunSets)
                 {
                     var localTunSet = tunSet;
-                    dmcc++;
+                    dmcc++; if (dmcc > 100) { dmcc = 5; }
                     if(localTunSet.WanAddress.ToUpper().Trim() == "DOUBLE")
                     {
-                        Task.Run(async () => await ListenWAN(localTunSet, IPAddress.Any));
-                        await Task.Delay(dmcc );
-                        Task.Run(async () => await ListenWAN(localTunSet, IPAddress.IPv6Any));
+                        Task.Run(async () => await ListenWAN(localTunSet, IPAddress.Any,dmcc));
+                        dmcc = (byte)(dmcc + 7);
+                        Task.Run(async () => await ListenWAN(localTunSet, IPAddress.IPv6Any,dmcc));
                     }
                     else
                     {
-                        Task.Run(async () => await ListenWAN(localTunSet));
+                        Task.Run(async () => await ListenWAN(localTunSet,null,dmcc));
                     }
-                    await Task.Delay(dmcc);
+                    
                 }
                 if (_udpTunSets.Length > 0)
                 {
@@ -2774,8 +2779,9 @@ namespace BLADE.TFS.HOMEGATE.COMM
         }
 
         private ushort atmc = (ushort)BLADE.TimeProvider.UtcNow.Millisecond;
-        private async ValueTask ListenWAN(UdpTunSet tunSet,IPAddress? wanip=null)
+        private async ValueTask ListenWAN(UdpTunSet tunSet, IPAddress? wanip = null, byte tk = 4)
         {
+            await Task.Delay(tk);
             if (wanip == null)
             { wanip = IPAddress.Parse(tunSet.WanAddress); }
           //  using var sk = CreateBoundUdpSocket(new IPEndPoint(wanip, tunSet.WanPort));
@@ -2840,7 +2846,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     {
                         idleCount++;
                         if (idleCount > 3)
-                        { await Task.Delay(15); }
+                        { await Task.Delay(15+idleCount); }
 
                         if (idleCount > 20)
                         {
