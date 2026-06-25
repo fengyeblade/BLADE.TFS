@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.9" />
+    <PackageReference Include="System.IO.Hashing" Version="10.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BLADE.TFS.HOMEGATE.COMM\BLADE.TFS.HOMEGATE.COMM.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BLADE.TOOLS.BASE">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.NET.IPGATE_SqlBase\bin\Release\net10.0\BLADE.TOOLS.BASE.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.NET">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.NET.IPGATE_SqlBase\bin\Release\net10.0\BLADE.TOOLS.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="BLADE.TOOLS.NET.IPGATE_SqlBase">
+      <HintPath>..\..\BLADE.TOOLS\BLADE.TOOLS.NET.IPGATE_SqlBase\bin\Release\net10.0\BLADE.TOOLS.NET.IPGATE_SqlBase.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
