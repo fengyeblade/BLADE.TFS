@@ -1,20 +1,42 @@
-﻿using System;
+﻿using BLADE.TOOLS.NET;
+using BLADE.TOOLS.NET.IPGATE_SqlBase;
+using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Runtime.CompilerServices;
+using System.Text;
 namespace BLADE.TFS.HOMEGATE.WinMng
 {
     public class AppCenter
     { 
+        
         public static bool DBOPENED = false;
-        public static CurWBG CWBG = CurWBG.NONE;
+        public static NameListType CWBG = NameListType.ALL;
         public static CurIPFM CIPFM = CurIPFM.NONE;
         public static string DBTYPE = "SQLSERVER";
-        public static string DBCONNSTR = "Server=192.168.1.11;Database=BLADEUC;User Id=bladeuc;Password=Blade2026;TrustServerCertificate=True;Encrypt=True;Connection Timeout=20;Command Timeout=20;MultipleActiveResultSets=True;";
+        public static string DBCONNSTR = "Server=192.168.1.11;Database=BLADEUC;User Id=bladeuc;Password=Blade2026;TrustServerCertificate=True;Encrypt=True;Connection Timeout=20;MultipleActiveResultSets=True;";
         public static List<selectedItem> SELECTED=new List<selectedItem>();
-        public static void UpdateSELECTED(CurWBG wbg, CurIPFM ipf, List<selectedItem> items)
+        public static List<WBGshow>? CurWorkList = new List<WBGshow>();
+        public static void UpdateWorkList(NameListType wbg, CurIPFM ipf, List<WBGshow>? work)
         {
-            CWBG = wbg; CIPFM = ipf; SELECTED = items;
+            CWBG = wbg; CIPFM = ipf;
+            CurWorkList = work;
+            
+            WorkClass.BindDataGrid(CurWorkList);
+            UpdateSELECTED(new List<selectedItem>());
+
+        }
+        public static void UpdateSELECTED(List<selectedItem> items)
+        {
+            SELECTED = items;
+            WorkClass.reshowSelected();
+        }
+         
+
+        public static   Interface_IPGATE_DB? IDB = null;
+
+        public static NameListType WBGNAME(byte wbg)
+        {
+            try { return (NameListType)wbg; } catch { return NameListType.ALL; }
         }
     }
 
@@ -32,20 +54,22 @@ namespace BLADE.TFS.HOMEGATE.WinMng
             AddressFULL = AddressFULL + "/" + msk.ToString();
             }
         }
+
+        public override string ToString()
+        {
+            return ID+" | " + AddressFULL;
+        }
     }
-    public enum CurWBG
-    {
-        White,Black,Gray ,DOM,NONE
-    }
+  
     public enum CurIPFM
     { 
-      IPV4,IPV6 ,NONE
+      IPV4,IPV6 ,DOM,NONE
     }
 
     public class DG_Extend
     {
         // 你要扩充的自定义属性，任意数量
-        public CurWBG WBG { get; set; } = CurWBG.NONE;
+        public NameListType WBG { get; set; } = NameListType.ALL;
         public CurIPFM IPFM { get; set; } = CurIPFM.NONE;
         public bool Loaded { get; set; } = false;
     }
