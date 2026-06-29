@@ -208,8 +208,8 @@ namespace BLADE.TFS.HOMEGATE.COMM
     /// </summary>
     public class HomeGateCore : IDisposable 
     { 
-        protected static BLADE.TOOLS.HOTDIC.HotStringDictionary<string> routingTab = new TOOLS.HOTDIC.HotStringDictionary<string>(32, false, 16, true);
-
+        //protected static BLADE.TOOLS.HOTDIC.HotStringDictionary<string> routingTab = new TOOLS.HOTDIC.HotStringDictionary<string>(32, false, 16, true);
+        protected static ConcurrentDictionary<string, string> routingTab = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// 存入 反向外侧地址查询。
         /// 注意参数中 port2port 是本机转发服务的本地端口=远程端口 的格式字符串， 例如 "8080=80" 
@@ -227,7 +227,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 return;
             }
             string key = (tcp ? "TCP_" : "UDP_") + port2port;
-            routingTab.AddOrUpdate(key, RealClientIPEP, 30);
+            routingTab.AddOrUpdate(key, RealClientIPEP, (k, v) => RealClientIPEP);
         }
 
         /// <summary>
@@ -245,10 +245,9 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 return "";
             }
             string key = (tcp ? "TCP_" : "UDP_") + port2port;
-            var j = routingTab.TryGetValue(key, TOOLS.HOTDIC.GetAct.renew);
-            if (j.suc)
+            if (routingTab.TryGetValue(key, out var value))
             {
-                return j.value;
+                return value;
             }
             return "";
         }
@@ -265,7 +264,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 return;
             }
             string key = (tcp ? "TCP_" : "UDP_") + port2port;
-            routingTab.Remove(key);
+            routingTab.TryRemove(key, out _);
         }
 
         // public static readonly CancellationTokenSource _cts = new CancellationTokenSource(600);
@@ -609,12 +608,19 @@ namespace BLADE.TFS.HOMEGATE.COMM
             {   foreach (var cd in TransDic.Values)  { try{ TcpTrans ttt = cd;  sb.AppendLine(ttt.GetTransInfo()); } catch { } } }
 
             if (UM != null)
-            { 
+            {
+                sb.AppendLine(UM.LoadLiveUDP());
               sb.AppendLine("Cur UdpTrans: "+ UM.TransCount);
                 var a = UM.GetTransStatus();
                 foreach (var u in a) {
                 sb.AppendLine("UT: " + u);
                 }
+            }
+            if (routingTab.Count > 0)
+            {
+                sb.AppendLine("Routing Table Count : " + routingTab.Count);
+                foreach (var r in routingTab.Keys)
+                { sb.AppendLine("RT:[ " + r+" ]"); }
             }
             return sb.ToString();
         }
@@ -894,7 +900,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 // 30秒内不重新触发。
                 return;
             }
-            routingTab.ClearTimeOut();
+           // routingTab.ClearTimeOut();
             _lassubmit1=BLADE.TimeProvider.UtcNow;
             _substep++;
             if (_substep > 3000) {_substep = 0; }
@@ -2748,7 +2754,17 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 FullMode = BoundedChannelFullMode.Wait
             });
         }
-
+        private ConcurrentDictionary<string, DateTime > liveUdp = new();
+        public string LoadLiveUDP()
+        {
+            DateTime s = BLADE.TimeProvider.UtcNow;
+            string k = "UDP living :";
+            foreach (var a in liveUdp)
+            {
+                k += "\r\n" + a.Key + " | " + (s - a.Value).TotalMilliseconds.ToString("0.0") ;
+            } 
+            return k; 
+        }
         public async Task Start()
         {
             if (_udpTunSets.Length > 0)
@@ -2795,7 +2811,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
             while (Running)
             {
                 atmc++;
-                if (atmc > 51010) { atmc = 0; }
+                if (atmc > 51010) { atmc = 0; await Task.Delay(tk); }
                 try
                 {
                     if (udpWanClient.Available > 0)
@@ -2813,6 +2829,8 @@ namespace BLADE.TFS.HOMEGATE.COMM
                         }
                         else
                         {
+                            await HomeGateCenter.AddLogDEBUG("NewUDP", "Get ["+_curKey+"] to "+tunSet.LanAddress+" :"+tunSet.LanPort );
+                            // 还没有获准来源的包，先检查来源IP是否允许。
                             if (_temptrans.Reader.CanCount)
                             {
                                 if (_temptrans.Reader.Count < (_udpTunSets.Length * 256) && _transfers.Count < Center.Settings.MaxConnection)
@@ -2840,18 +2858,22 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             
                             //  出现大量洪水包则丢弃。
                         }
-                        if ((atmc % 2150) == 900) { await HomeGateCenter.AddLog("Clear UDP", "Clear Died trans: " + ClearDiedTrans()); }
+                      //  if ((atmc % 2150) == 900) { await HomeGateCenter.AddLog("Clear UDP", "Clear Died trans: " + ClearDiedTrans()); }
                     }
                     else
                     {
                         idleCount++;
                         if (idleCount > 3)
-                        { await Task.Delay(15+idleCount); }
+                        { 
+                            await Task.Delay(15+idleCount);
+                           
+                        }
 
                         if (idleCount > 20)
                         {
                             idleCount = 0;
                             await Task.Delay(10);
+                            liveUdp[wanip + " : " + tunSet.WanPort] = BLADE.TimeProvider.UtcNow;
                         }
                         if ((atmc % 2500) == 90) { await HomeGateCenter.AddLogDEBUG("Clear UDP", "Clear Died Trans: "+  ClearDiedTrans()); }
                     }
@@ -2910,6 +2932,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                         var ntr = new UdpTrans(tt.tunset, tt.wanClietn, tt.remote, tt.res.Buffer, _udpIdelBreakMilliseconds);
                         ntr.Break_TaskRun += takeBreakEvent;
                         _transfers[tt.curkey] = ntr;
+                        await HomeGateCenter.AddLogDEBUG("Udp New Trans ["+tt.curkey + "] "+tt.tunset.LanAddress+" :"+tt.tunset.LanPort, "UdpTrans.");
                     }
                 }
                 catch(ChannelClosedException)
