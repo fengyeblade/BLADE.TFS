@@ -2932,7 +2932,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                         var ntr = new UdpTrans(tt.tunset, tt.wanClietn, tt.remote, tt.res.Buffer, _udpIdelBreakMilliseconds);
                         ntr.Break_TaskRun += takeBreakEvent;
                         _transfers[tt.curkey] = ntr;
-                        await HomeGateCenter.AddLogDEBUG("Udp New Trans ["+tt.curkey + "] "+tt.tunset.LanAddress+" :"+tt.tunset.LanPort, "UdpTrans.");
+                        await HomeGateCenter.AddLogDEBUG("Udp New Trans ["+tt.curkey + " => "+tt.tunset.LanAddress+" :"+tt.tunset.LanPort+"]", "UdpTrans.");
                     }
                 }
                 catch(ChannelClosedException)
@@ -3216,6 +3216,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                         Task.Run(() => Break_TaskRun.Invoke(this, ""));
                     }
                 }
+                HomeGateCenter.AddLogTask("Disposed : [ "+this.RemoteIPEP.ToString()+" => "+this._tunSet.WanAddress+" :"+this._tunSet.WanPort+" =>"+this._tunSet.LanAddress+" :"+this._tunSet.LanPort+" ] "+msg, "UDP Disposed");
             }
             /// <summary>
             /// 断开并释放，尝试触发 Break_TaskRun 事件通知上层，参数是断开原因说明。 例如异常信息，或闲置超时等。
