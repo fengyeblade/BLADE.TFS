@@ -726,38 +726,55 @@ namespace BLADE.TFS.HOMEGATE.COMM
             IPEndPoint ipep = ((IPEndPoint)inc.Client.RemoteEndPoint);
             string nip = ipep.Address.ToString().ToLower().Trim();
             int nippt = ipep.Port;
-            bool b = true;  if (tun.TunSetting.UseRule) { b = Center.CheckIPAllow(tun.TunSetting.TunName, nip); }
+            bool b = true; 
+            if (tun.TunSetting.UseRule) { b = Center.CheckIPAllow(tun.TunSetting.TunName, nip); }
             if (b)
             {
                 await HomeGateCenter.AddLogDEBUG("CheckIP", "Welcome = " + nip + ":" + nippt);
-                try {
-                    TcpClient ntc = new TcpClient(tun.TunSetting.LanAddress, tun.TunSetting.LanPort);
+                try
+                {
+                    CancellationTokenSource hs = new CancellationTokenSource(810);
+                    IPAddress tfip = IPAddress.Parse(tun.TunSetting.LanAddress);
+                    TcpClient ntc = new TcpClient(tfip.AddressFamily);
                     ntc.NoDelay = true;
                     ntc.LingerState = new LingerOption(true, 1);
                     ntc.ReceiveTimeout = 33000;
                     ntc.SendTimeout = 33000;
                     ntc.ReceiveBufferSize = tun.TunSetting.MTUSize * 3;
                     ntc.SendBufferSize = tun.TunSetting.MTUSize * 3;
-                    TcpTrans tas = new TcpTrans(this, inc, ntc, tun.TunSetting);
-                    bool d = false;
-                    lock (_lk) { if (TransDic.ContainsKey(tas.ID)) { tas.Dispose(); } else { TransDic.Add(tas.ID, tas); d = true;  } }
-                    if (d) { await tas.StartWork();
-                        await HomeGateCenter.AddLogDEBUG( "TransDic" ,"Make a new TCPTrans: "+tas.GetTransInfo());
+                    try
+                    {
+                        await ntc.ConnectAsync(new IPEndPoint(tfip, tun.TunSetting.LanPort), hs.Token);
+                        TcpTrans tas = new TcpTrans(this, inc, ntc, tun.TunSetting);
+                        bool d = false;
+                        lock (_lk) { if (TransDic.ContainsKey(tas.ID)) { tas.Dispose(); } else { TransDic.Add(tas.ID, tas); d = true; } }
+                        if (d)
+                        {
+                            await tas.StartWork();
+                            await HomeGateCenter.AddLogDEBUG("TransDic", "Make a new TCPTrans: " + tas.GetTransInfo());
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        ntc.Dispose();
+                        inc.Dispose();
+                        await HomeGateCenter.AddLogDEBUG("OpenTun", "Connect " + nip + ":" + nippt + "  EX: TimeOut 800 ms");
                     }
                 }
                 catch (Exception ze)
                 {
                     inc.Dispose();
-                    await HomeGateCenter.AddLogDEBUG("OpenTun", "work Tun " + nip + ":" + nippt +"  EX: "+ze.Message);
+                    await HomeGateCenter.AddLogDEBUG("OpenTun", "work Tun " + nip + ":" + nippt + "  EX: " + ze.Message);
                 }
             }
-            else {
+            else
+            {
                 if (Center.DisConnectMsg.Length > 0)
-                {    try{ await inc.GetStream().WriteAsync(Center.DisConnectMsg); await inc.GetStream().FlushAsync(); } catch { } }
+                { try { await inc.GetStream().WriteAsync(Center.DisConnectMsg); await inc.GetStream().FlushAsync(); } catch { } }
                 inc.Dispose();
-                if(nip != tbdip) { tbdip = nip; await HomeGateCenter.AddLog("CheckIP", "Block " + nip + ":" + nippt );  }
-              //  await HomeGateCenter.AddLogDEBUG("CheckIP", "Block Income = " + nip + ":" + nippt);
-            } 
+                if (nip != tbdip) { tbdip = nip; await HomeGateCenter.AddLog("CheckIP", "Block " + nip + ":" + nippt); }
+                //  await HomeGateCenter.AddLogDEBUG("CheckIP", "Block Income = " + nip + ":" + nippt);
+            }
         }
         private int cjj = 0;
         private int cjj2 = 0;
@@ -1432,14 +1449,15 @@ namespace BLADE.TFS.HOMEGATE.COMM
         /// <param name="tunName"></param>
         /// <param name="inip"></param>
         /// <returns></returns>
-        public bool CheckIPAllow(string tunName, string inip)
+        public bool CheckIPAllow(string tunName, string inip,string cbk="")
         {
             if (IPGM == null) { return false; }
             var r = IPGM.CheckIP(inip, tunName);
-            if (BLADE.TimeProvider.UtcNow.Millisecond % 200 < 3)
+            if (cbk .Length>1 || BLADE.TimeProvider.UtcNow.Millisecond % 200 < 3 )
             {
-                AddLogTask("Checkdebug", $"IP {inip} for {tunName} is {r.wbg.ToString()} Debug:[{r.debug}]");
+                AddLogTask("Checkdebug", $"IP {inip} for {tunName} is {r.wbg.ToString()} Debug:[{r.debug}] "+cbk  );
             }
+
             if (r.wbg == WBG_CheckResult.WhitePass || r.wbg == WBG_CheckResult.BlackPass || r.wbg == WBG_CheckResult.GrayPass || r.wbg == WBG_CheckResult.NotFound)
             {  return true; }
              
@@ -2670,25 +2688,66 @@ namespace BLADE.TFS.HOMEGATE.COMM
     #region  UDP trans
     public class UDPTransManager :IDisposable
     {
-
-        private static UdpClient CreateUdp(IPEndPoint ipep)
+        private static UdpClient CreateUdpClient(
+    IPEndPoint remoteEndPoint,
+    IPEndPoint? localBindPoint = null)
         {
-            var udp = new UdpClient(ipep.AddressFamily);
+            // 确定地址族：优先用本地绑定点的，否则用远端的
+            AddressFamily family = localBindPoint?.AddressFamily
+                                  ?? remoteEndPoint.AddressFamily;
 
-            udp.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            // 一致性校验：如果同时指定了本地和远端，地址族必须一致
+            if (localBindPoint != null && remoteEndPoint.AddressFamily != family)
+            {
+                throw new ArgumentException(
+                    $"本地绑定端点({localBindPoint.AddressFamily}) " +
+                    $"与远端端点({remoteEndPoint.AddressFamily}) 地址族不匹配");
+            }
 
-            if (ipep.AddressFamily == AddressFamily.InterNetworkV6)
+            var udp = new UdpClient(family);
+
+            // 客户端侧通常不需要 ReuseAddress，但堡垒转发场景可能有多个会话
+            // 绑定到同一本地端口，所以保留（按需开启）
+            udp.Client.SetSocketOption(
+                SocketOptionLevel.Socket,
+                SocketOptionName.ReuseAddress,
+                true);
+
+            // IPv6 关闭双栈（与你侦听端保持一致）
+            if (family == AddressFamily.InterNetworkV6)
             {
                 udp.Client.DualMode = false;
             }
 
-            udp.Client.Bind(ipep);
+            // 如果需要绑定本地端口（比如固定源端口、NAT 穿透）
+            if (localBindPoint != null)
+            {
+                udp.Client.Bind(localBindPoint);
+            }
+
+            // UDP 的 Connect 只是设置默认远端，不是建立连接
+            udp.Connect(remoteEndPoint);
+
             return udp;
         }
-        //private static Socket CreateBoundUdpSocket(IPEndPoint ipep)
+        private static UdpClient CreateUdp(IPEndPoint localBindPoint)
+        {
+            var udp = new UdpClient(localBindPoint.AddressFamily);
+
+            udp.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+
+            if (localBindPoint.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                udp.Client.DualMode = false;
+            }
+
+            udp.Client.Bind(localBindPoint);
+            return udp;
+        }
+        //private static Socket CreateBoundUdpSocket(IPEndPoint localBindPoint)
         //{
         //    Socket sock;
-        //    if (ipep.AddressFamily == AddressFamily.InterNetworkV6)
+        //    if (localBindPoint.AddressFamily == AddressFamily.InterNetworkV6)
         //    {
         //        sock = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
         //    }
@@ -2704,7 +2763,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
         //    // 这里通常不做 Exclusive=true，否则你自己重建时反而容易自锁（除非你完全清楚自己在做独占服务）。
         //    // sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ExclusiveAddressUse, false);
 
-        //    sock.Bind(ipep);
+        //    sock.Bind(localBindPoint);
         //    return sock;
         //}
 
@@ -2926,18 +2985,20 @@ namespace BLADE.TFS.HOMEGATE.COMM
                         {
                             if (!CheckIP(tt.tunset.TunName, tt.remote.Address.ToString()))
                             {
+                                await HomeGateCenter.AddLogDEBUG("UdpTrans.", "Drop a Udp NewTrans [" + tt.curkey + " => " + tt.tunset.LanAddress + " :" + tt.tunset.LanPort + "] by CheckIP=Fail "+tt.remote.Address.ToString());
+                                _dropWanCount++;
                                 continue;
                             }
                         }
                         var ntr = new UdpTrans(tt.tunset, tt.wanClietn, tt.remote, tt.res.Buffer, _udpIdelBreakMilliseconds);
                         ntr.Break_TaskRun += takeBreakEvent;
                         _transfers[tt.curkey] = ntr;
-                        await HomeGateCenter.AddLogDEBUG("Udp New Trans ["+tt.curkey + " => "+tt.tunset.LanAddress+" :"+tt.tunset.LanPort+"]", "UdpTrans.");
+                        await HomeGateCenter.AddLogDEBUG("UdpTrans.","Udp New Trans [" +tt.curkey + " => "+tt.tunset.LanAddress+" :"+tt.tunset.LanPort+"]");
                     }
                 }
                 catch(ChannelClosedException)
                 { }
-                catch (Exception ) { }
+                catch (Exception ou) { await HomeGateCenter.AddLogDEBUG("UdpTrans.", "ERROR: " + ou.ToString()); }
                 
             }
 
@@ -2965,7 +3026,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
         private bool CheckIP(string tunname, string address)
         {
             if (CheckIP_func != null) {return CheckIP_func(tunname, address); }
-            return Center.CheckIPAllow(tunname, address);
+            return Center.CheckIPAllow(tunname, address,"Udp");
         }
 
         public void Dispose()
@@ -3058,10 +3119,12 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 RemoteIPEP = remoteIPEP;
                 _WanSide = wanside;
                 UdpIdelBreakMilliseconds = udpIdelBreakMilliseconds;
-                _LanSide = new UdpClient();
+                //  _LanSide = new UdpClient(_tunSet.LanAddress, _tunSet.LanPort);
+                _LanSide = UDPTransManager.CreateUdpClient(new IPEndPoint(IPAddress.Parse(_tunSet.LanAddress), _tunSet.LanPort));
+
                 _lastActivity = BLADE.TimeProvider.UtcNow;
-                Running = true; 
-                _LanSide.Connect(_tunSet.LanAddress, _tunSet.LanPort);
+                Running = true;
+
                 try
                 {
                     LansideIPEP = ((IPEndPoint)_LanSide.Client.LocalEndPoint).ToString() + "=" + ((IPEndPoint)_LanSide.Client.RemoteEndPoint).ToString();
