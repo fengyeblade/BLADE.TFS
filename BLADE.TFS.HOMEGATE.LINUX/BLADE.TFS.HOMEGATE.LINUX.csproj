@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-	  <AssemblyVersion>1.27.2026.0</AssemblyVersion>
+	  <AssemblyVersion>1.27.2026.2</AssemblyVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-BLADE.TFS.HOMEGATE.LINUX-381e5634-8983-4859-b2b0-c4f8c3eb17c7</UserSecretsId>
