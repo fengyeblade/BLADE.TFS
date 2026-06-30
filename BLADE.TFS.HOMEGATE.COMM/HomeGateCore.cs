@@ -731,9 +731,9 @@ namespace BLADE.TFS.HOMEGATE.COMM
             if (b)
             {
                 await HomeGateCenter.AddLogDEBUG("CheckIP", "Welcome = " + nip + ":" + nippt);
+                CancellationTokenSource hs = new CancellationTokenSource(810);
                 try
-                {
-                    CancellationTokenSource hs = new CancellationTokenSource(810);
+                { 
                     IPAddress tfip = IPAddress.Parse(tun.TunSetting.LanAddress);
                     TcpClient ntc = new TcpClient(tfip.AddressFamily);
                     ntc.NoDelay = true;
@@ -756,15 +756,21 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     }
                     catch (OperationCanceledException)
                     {
+                        
                         ntc.Dispose();
                         inc.Dispose();
                         await HomeGateCenter.AddLogDEBUG("OpenTun", "Connect " + nip + ":" + nippt + "  EX: TimeOut 800 ms");
                     }
+                   
                 }
                 catch (Exception ze)
                 {
                     inc.Dispose();
                     await HomeGateCenter.AddLogDEBUG("OpenTun", "work Tun " + nip + ":" + nippt + "  EX: " + ze.Message);
+                }
+                finally
+                {
+                    hs.Dispose();
                 }
             }
             else
@@ -2688,9 +2694,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
     #region  UDP trans
     public class UDPTransManager :IDisposable
     {
-        private static UdpClient CreateUdpClient(
-    IPEndPoint remoteEndPoint,
-    IPEndPoint? localBindPoint = null)
+        private static UdpClient CreateUdpClient(  IPEndPoint remoteEndPoint,   IPEndPoint? localBindPoint = null)
         {
             // 确定地址族：优先用本地绑定点的，否则用远端的
             AddressFamily family = localBindPoint?.AddressFamily
@@ -2866,7 +2870,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
             IPEndPoint _curRemoteEndPoint;
             string _curKey = "";
             int idleCount = 0;
-           
+            int cltc = 0;
             while (Running)
             {
                 atmc++;
@@ -2934,7 +2938,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                             await Task.Delay(10);
                             liveUdp[wanip + " : " + tunSet.WanPort] = BLADE.TimeProvider.UtcNow;
                         }
-                        if ((atmc % 2500) == 90) { await HomeGateCenter.AddLogDEBUG("Clear UDP", "Clear Died Trans: "+  ClearDiedTrans()); }
+                        if ((atmc % 2500) == 90 ) { cltc = ClearDiedTrans();if (cltc > 0) { await HomeGateCenter.AddLogDEBUG("Clear UDP", "Clear Died Trans: " + cltc); } }
                     }
                 }
                 catch (Exception ex)
