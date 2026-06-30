@@ -209,7 +209,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
     public class HomeGateCore : IDisposable 
     { 
         //protected static BLADE.TOOLS.HOTDIC.HotStringDictionary<string> routingTab = new TOOLS.HOTDIC.HotStringDictionary<string>(32, false, 16, true);
-        protected static ConcurrentDictionary<string, string> routingTab = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        protected static ConcurrentDictionary<string, (string rcipep , DateTime live)> routingTab = new ConcurrentDictionary<string, (string rcipep , DateTime live)>(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// 存入 反向外侧地址查询。
         /// 注意参数中 port2port 是本机转发服务的本地端口=远程端口 的格式字符串， 例如 "8080=80" 
@@ -227,9 +227,32 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 return;
             }
             string key = (tcp ? "TCP_" : "UDP_") + port2port;
-            routingTab.AddOrUpdate(key, RealClientIPEP, (k, v) => RealClientIPEP);
+            routingTab.AddOrUpdate(key, (RealClientIPEP, BLADE.TimeProvider.UtcNow), (k, v) => (RealClientIPEP, BLADE.TimeProvider.UtcNow));
         }
+        public static void ClearBackRoutingTab(ushort MINS=480)
+        {
+            List<string> sk = new List<string>();
+            foreach(var i in routingTab)
+            {
+                try
+                {
+                    if ((BLADE.TimeProvider.UtcNow - i.Value.live).TotalMinutes > MINS)
+                    {
+                        sk.Add(i.Key);
+                    }
+                }
+                catch { }
+            }
+            foreach (var i in sk)
+            {
+                try
+                {
+                    routingTab.TryRemove(i, out var _);
+                }
+                catch { }
+            }
 
+        }
         /// <summary>
         /// 查询 反向外侧地址。 参数中 port2port 是本机转发服务的本地端口=远程端口 的格式字符串， 例如 "8080=80"
         /// 对于查询者（实际业务主机要获得真实用户IP）则需要对应提供 它自己的 远端端口=本地端口 来查询。字符串值还是  "8080=80" ，因为它看来 8080 是远端端口。
@@ -247,7 +270,8 @@ namespace BLADE.TFS.HOMEGATE.COMM
             string key = (tcp ? "TCP_" : "UDP_") + port2port;
             if (routingTab.TryGetValue(key, out var value))
             {
-                return value;
+                value.live = BLADE.TimeProvider.UtcNow;
+                return value.rcipep;
             }
             return "";
         }
@@ -972,8 +996,9 @@ namespace BLADE.TFS.HOMEGATE.COMM
                     }
                 }
             }
+            ClearBackRoutingTab(360);
 
-           
+
         }
     }
 
@@ -3010,7 +3035,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
         private async void takeBreakEvent(object? sender, string e)
         {
             if (sender != null)
-            {   _transfers.TryRemove(((UdpTrans)sender).RoutingKey, out var _);  }
+            {  try{  _transfers.TryRemove(((UdpTrans)sender).RoutingKey, out var _);  }catch{} }
         }
         private async Task rebuildListenWAN(UdpTunSet tunSet,IPAddress rewan)
         {
@@ -3109,19 +3134,25 @@ namespace BLADE.TFS.HOMEGATE.COMM
             private readonly IPEndPoint RemoteIPEP;
             private readonly UdpClient _WanSide;
             private readonly UdpClient _LanSide;
+            private IPEndPoint? _wanLocalPoint;
             private DateTime _lastActivity;
             private byte idleCount = 0;
             private string LansideIPEP { get; set; } = "";
             /// <summary>
             /// 路由Key，用于上层查找对应的转发路径。
             /// </summary>
-            public string RoutingKey { get { return $"{RemoteIPEP}#{_WanSide.Client.LocalEndPoint}"; } }
+            public string RoutingKey { get { return $"{RemoteIPEP}#{_wanLocalPoint?.ToString()}"; } }
             public UdpTrans(UdpTunSet tunSet, UdpClient wanside, IPEndPoint remoteIPEP, byte[] fristData, int udpIdelBreakMilliseconds = 32000)
             {
 
                 _tunSet = tunSet;
                 RemoteIPEP = remoteIPEP;
                 _WanSide = wanside;
+                try
+                {
+                    _wanLocalPoint = (IPEndPoint)_WanSide.Client.LocalEndPoint;
+                }
+                catch { }
                 UdpIdelBreakMilliseconds = udpIdelBreakMilliseconds;
                 //  _LanSide = new UdpClient(_tunSet.LanAddress, _tunSet.LanPort);
                 _LanSide = UDPTransManager.CreateUdpClient(new IPEndPoint(IPAddress.Parse(_tunSet.LanAddress), _tunSet.LanPort));
