@@ -352,7 +352,9 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 try { _= HomeGateCenter.AddLog("HomeGateCore", "Disposed  [" + mm + "]" ); } catch { }
 
                 Center.Dispose();
+             
             }
+            Thread.Sleep(300);
         }
 
         /// <summary>
@@ -845,6 +847,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
             await Task.Delay(30);
 
             Dispose();
+            await Task.Delay(500);
         }
         private DateTime _lastflushdnsred = BLADE.TimeProvider.UtcNow.AddMinutes(-30);
 
