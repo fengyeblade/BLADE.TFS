@@ -639,14 +639,19 @@ namespace BLADE.TFS.HOMEGATE.COMM
               sb.AppendLine("Cur UdpTrans: "+ UM.TransCount);
                 var a = UM.GetTransStatus();
                 foreach (var u in a) {
-                sb.AppendLine("UT: " + u);
+                    sb.AppendLine("UT: " + u);
                 }
             }
             if (routingTab.Count > 0)
             {
                 sb.AppendLine("Routing Table Count : " + routingTab.Count);
-                foreach (var r in routingTab.Keys)
-                { sb.AppendLine("RT:[ " + r+" ]"); }
+                var rtt = routingTab.Keys.ToArray();
+                foreach (var r in rtt)
+                {
+                    if (routingTab.TryGetValue(r, out var rt))
+                    { sb.AppendLine("Route: Wan(" + rt.rcipep.ToString() + ") " + "Lan( " + r + " ) @Utc( "+rt.live.ToString("HH:mm:ss")+ " )"); }
+                    else { sb.AppendLine("Route: Lan( " + r + " )"); }
+                }
             }
             return sb.ToString();
         }
