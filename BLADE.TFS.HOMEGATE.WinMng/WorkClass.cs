@@ -152,6 +152,77 @@ namespace BLADE.TFS.HOMEGATE.WinMng
                 MainForm.listBox2.Items.Add(ii.ToString());
             }
             MainForm.listBox2.EndUpdate();
+            MainForm.ClearPreFixList();
+        }
+
+        public static async ValueTask<(bool suc, string msg)> DeleteSelectItems(CurIPFM ipfm, long[] ids)
+        {
+            bool suc = false; string msg = "";
+            if (ids.Length < 1) { msg = "No items selected."; return (suc, msg); }
+            // Implement the logic to delete selected items
+            if (AppCenter.IDB != null)
+            {
+                int cz = 0;
+                if (ipfm == CurIPFM.DOM)
+                {
+                    foreach (var id in ids)
+                    { cz += await AppCenter.IDB.Delete_WBG_DOM(id); }
+                }
+                else if (ipfm == CurIPFM.IPV4)
+                {
+                    cz = await AppCenter.IDB.Delete_WBG_V4(ids);
+                }
+                else if (ipfm == CurIPFM.IPV6)
+                {
+                    cz = await AppCenter.IDB.Delete_WBG_V6(ids);
+                }
+                else { }
+                suc = true;
+                msg = $"Deleted {ipfm.ToString()} : {cz}  items.";
+            }
+            else
+            {
+                msg = "Database not initialized.";
+            }
+            return (suc, msg);
+
+        }
+
+        public static WBG_V4 MakeWBGV4(string cmt,string addr,byte hd, byte msk,string mth, NameListType wbgType)
+        {
+            WBG_V4 w = new WBG_V4();
+            w.COMMENT = cmt;
+            w.IPADDRESS = addr;
+            w.Mask = msk;
+            w.WBGTYPE = (byte)wbgType;
+            w.MakeUTC = BLADE.TimeProvider.UtcNow;
+            w.Match = mth.Trim();
+            w.IPHEAD = hd;
+            return w;
+        }
+        public static WBG_V6 MakeWBGV6(string cmt, string addr, string hd, byte msk, string mth, NameListType wbgType)
+        {
+            WBG_V6 w = new WBG_V6();
+            w.COMMENT = cmt;
+            w.IPADDRESS = addr;
+            w.Mask = msk;
+            w.WBGTYPE = (byte)wbgType;
+            w.MakeUTC = BLADE.TimeProvider.UtcNow;
+            w.Match = mth.Trim();
+            w.IPHEAD = hd;
+            return w;
+        }
+        public static WBG_DOM MakeWBGDOM(string cmt, string dom,byte nettype,byte DoR, string mth, NameListType wbgType)
+        {
+            WBG_DOM w = new WBG_DOM();
+            w.COMMENT = cmt;
+            w.DOMAIN = dom;
+            w.WBGTYPE = (byte)wbgType;
+            w.MakeUTC = BLADE.TimeProvider.UtcNow;
+            w.Match = mth.Trim();
+            w.NETTYPE = nettype;
+            w.DOMTYPE = DoR;
+            return w;
         }
     }
 
@@ -200,7 +271,7 @@ namespace BLADE.TFS.HOMEGATE.WinMng
             wb.HD = i.IPHEAD.ToString();
             wb.Mask = i.Mask;
             wb.IPADDRESS = i.IPADDRESS;
-            if (wb.IPADDRESS.IndexOf("/") < 0)
+            if (wb.Mask>0 && wb.IPADDRESS.IndexOf("/") < 0)
             { wb.IPADDRESS += "/" + wb.Mask; }
             wb.WBGTYPE = AppCenter.WBGNAME(i.WBGTYPE);
             wb.COMMENT = i.COMMENT.Trim();
@@ -222,7 +293,7 @@ namespace BLADE.TFS.HOMEGATE.WinMng
             wb.HD = i.IPHEAD;
             wb.Mask = i.Mask;
             wb.IPADDRESS = i.IPADDRESS;
-            if (wb.IPADDRESS.IndexOf("/") < 0)
+            if (wb.Mask > 0 && wb.IPADDRESS.IndexOf("/") < 0)
             { wb.IPADDRESS += "/" + wb.Mask; }
             wb.WBGTYPE = AppCenter.WBGNAME(i.WBGTYPE);
             wb.COMMENT = i.COMMENT.Trim();
@@ -261,4 +332,4 @@ namespace BLADE.TFS.HOMEGATE.WinMng
         }
     }
 
-}
+}}

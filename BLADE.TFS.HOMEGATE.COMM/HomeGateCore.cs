@@ -756,7 +756,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
             if (tun.TunSetting.UseRule) { b = Center.CheckIPAllow(tun.TunSetting.TunName, nip); }
             if (b)
             {
-                await HomeGateCenter.AddLogDEBUG("CheckIP", "Welcome = " + nip + ":" + nippt);
+                await HomeGateCenter.AddLogDEBUG("Check-IP", "Welcome [" + nip + "] :" + nippt);
                 CancellationTokenSource hs = new CancellationTokenSource(810);
                 try
                 { 
@@ -804,7 +804,7 @@ namespace BLADE.TFS.HOMEGATE.COMM
                 if (Center.DisConnectMsg.Length > 0)
                 { try { await inc.GetStream().WriteAsync(Center.DisConnectMsg); await inc.GetStream().FlushAsync(); } catch { } }
                 inc.Dispose();
-                if (nip != tbdip) { tbdip = nip; await HomeGateCenter.AddLog("CheckIP", "Block " + nip + ":" + nippt); }
+                if (nip != tbdip) { tbdip = nip; await HomeGateCenter.AddLog("Check-IP", "Block [" + nip + "] :" + nippt); }
                 //  await HomeGateCenter.AddLogDEBUG("CheckIP", "Block Income = " + nip + ":" + nippt);
             }
         }

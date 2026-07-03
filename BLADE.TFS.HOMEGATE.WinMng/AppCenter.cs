@@ -30,13 +30,56 @@ namespace BLADE.TFS.HOMEGATE.WinMng
             SELECTED = items;
             WorkClass.reshowSelected();
         }
-         
+        public static byte[] mkary = new byte[] {80,64,54,48,32,24,20,16,8 };
+        public static List<(string pfbody,byte mk)> ComSelectedPreFix( )
+        { 
+            List<(string pfbody, byte mk)> result = new List<(string pfbody, byte mk)>();
+            List < (byte[] oip, byte omk)> tl = new List<(byte[] oip, byte omk)>();
+            foreach (var item in SELECTED)
+            {
+                try
+                {
+                    var t = IPTools.Expand(item.AddressFULL);
+                    tl.Add((t.bin, t.pflen));
+                }
+                catch { }
+            }
+            if(tl.Count > 0) { result= IpMaskCalculator.ComputePreFix(tl, mkary); }
+            return result;
+        }
 
         public static   Interface_IPGATE_DB? IDB = null;
 
         public static NameListType WBGNAME(byte wbg)
         {
             try { return (NameListType)wbg; } catch { return NameListType.ALL; }
+        }
+        public static async ValueTask<bool> InsertIPV4(WBG_V4 w)
+        {
+            if (IDB != null)
+            { 
+               var k = await IDB.Save_WBG_V4(w);
+                return (k > 0);
+            }
+            return false;
+        }
+        public static async ValueTask<bool> InsertIPV6(WBG_V6 w)
+        {
+            if (IDB != null)
+            { 
+                var k = await IDB.Save_WBG_V6(w);
+                return (k > 0);
+            }
+            return false;
+        }
+        public static async ValueTask<bool> InsertDOM(WBG_DOM w)
+        {
+            if (IDB != null)
+            { 
+                var k = await IDB.Save_WBG_DOM(w);
+                return (k > 0);
+            }
+            return false;
         }
     }
 
@@ -49,9 +92,9 @@ namespace BLADE.TFS.HOMEGATE.WinMng
         {
             ID = id;
             AddressFULL = address;
-            if (AddressFULL.IndexOf("/") < 0)
-            { 
-            AddressFULL = AddressFULL + "/" + msk.ToString();
+            if (msk > 0 && AddressFULL.IndexOf("/") < 0)
+            {
+                AddressFULL = AddressFULL + "/" + msk.ToString();
             }
         }
 
