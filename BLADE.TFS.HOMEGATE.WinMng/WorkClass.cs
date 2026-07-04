@@ -124,11 +124,22 @@ namespace BLADE.TFS.HOMEGATE.WinMng
         public static void BindDataGrid(  List<WBGshow>? data )
         { if (MainForm.dataGridView1.InvokeRequired)
             {   
-               MainForm.dataGridView1.Invoke(new Action(() => { MainForm.dataGridView1.DataSource = data; }));
+               MainForm.dataGridView1.Invoke(new Action(() => { 
+                   MainForm.dataGridView1.DataSource = data;
+                   MainForm.dataGridView1.ClearSelection(); 
+                   MainForm.dataGridView1.CurrentCell = null;
+                   MainForm.label9.Text = AppCenter.CWBG.ToString();
+                   MainForm.label10.Text = AppCenter.CIPFM.ToString();
+               }));
+              
             }
             else
             {
                 MainForm.dataGridView1.DataSource = data;
+                MainForm.dataGridView1.ClearSelection();
+                MainForm.dataGridView1.CurrentCell = null;
+                MainForm.label9.Text = AppCenter.CWBG.ToString();
+                MainForm.label10.Text = AppCenter.CIPFM.ToString();
             }
         }
 
@@ -332,4 +343,4 @@ namespace BLADE.TFS.HOMEGATE.WinMng
         }
     }
 
-}}
+}

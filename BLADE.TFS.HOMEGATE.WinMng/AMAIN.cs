@@ -103,6 +103,7 @@ namespace BLADE.TFS.HOMEGATE.WinMng
                         }
                     }
                 }
+                else { AppCenter.DBOPENED = true; }
                 AddLog("Open DB " + j.suc + "  " + j.msg);
             }
             else
@@ -201,8 +202,9 @@ namespace BLADE.TFS.HOMEGATE.WinMng
 
                 // 原始 backcolor (0,240,250) 问题 backcolor(redlevel,240,250-redlevel)
                 // 原始 选中背景 (240,150,210)  
-                rowStyle.BackColor = Color.FromArgb(item.RedLevel, 240, 250 - item.RedLevel);
-                rowStyle.SelectionBackColor = Color.FromArgb(240, 150, 210 - item.RedLevel);
+                if (item.RedLevel > 0) { rowStyle.BackColor = Color.FromArgb((item.RedLevel + 30), 240, 250 - item.RedLevel); }
+                else { rowStyle.BackColor = Color.FromArgb(0, 220, 250); }
+                rowStyle.SelectionBackColor = Color.FromArgb(240, 180, 210 - item.RedLevel);
 
             }
         }
@@ -345,6 +347,7 @@ namespace BLADE.TFS.HOMEGATE.WinMng
         private void button9_Click(object sender, EventArgs e)
         {
             dataGridView1.ClearSelection();
+            dataGridView1.CurrentCell = null;
             AppCenter.UpdateSELECTED(new List<selectedItem>());
             AddLog("Clear Selection");
         }
