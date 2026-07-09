@@ -147,7 +147,7 @@ namespace BLADE.TFS.HOMEGATE.WinMng
                 else
                 {
                     var j = WorkClass.FormatAndSortList(ls);
-                    AddLog(j.info);
+                    AddLog("Loaded IPV4 WhiteList: " + ls.Count + "  " + j.info);
                     AppCenter.UpdateWorkList(NameListType.White, CurIPFM.IPV4, j.lst);
                 }
             }
@@ -165,7 +165,7 @@ namespace BLADE.TFS.HOMEGATE.WinMng
                 else
                 {
                     var j = WorkClass.FormatAndSortList(ls);
-                    AddLog(j.info);
+                    AddLog("Loaded IPV4 GrayList: "+ls.Count+ "  " + j.info);
                     AppCenter.UpdateWorkList(NameListType.Gray, CurIPFM.IPV4, j.lst);
                 }
             }
@@ -183,7 +183,7 @@ namespace BLADE.TFS.HOMEGATE.WinMng
                 else
                 {
                     var j = WorkClass.FormatAndSortList(ls);
-                    AddLog(j.info);
+                    AddLog("Loaded IPV6 GrayList: " + ls.Count + "  " + j.info);
                     AppCenter.UpdateWorkList(NameListType.Gray, CurIPFM.IPV6, j.lst);
                 }
             }
@@ -231,7 +231,7 @@ namespace BLADE.TFS.HOMEGATE.WinMng
                 else
                 {
                     var j = WorkClass.FormatAndSortList(ls);
-                    AddLog(j.info);
+                    AddLog("Loaded IPV6 WhiteList: " + ls.Count + "  " + j.info);
                     AppCenter.UpdateWorkList(NameListType.White, CurIPFM.IPV6, j.lst);
                 }
             }
@@ -259,7 +259,7 @@ namespace BLADE.TFS.HOMEGATE.WinMng
                 else
                 {
                     var j = WorkClass.FormatAndSortList(ls);
-                    AddLog(j.info);
+                    AddLog("Loaded DomainList: " + ls.Count + "  " + j.info);
                     AppCenter.UpdateWorkList(NameListType.ALL, CurIPFM.DOM, j.lst);
                 }
             }
@@ -288,7 +288,7 @@ namespace BLADE.TFS.HOMEGATE.WinMng
                 else
                 {
                     var j = WorkClass.FormatAndSortList(ls);
-                    AddLog(j.info);
+                    AddLog("Loaded IPV6 BlackList: " + ls.Count + "  " + j.info);
                     AppCenter.UpdateWorkList(NameListType.Black, CurIPFM.IPV6, j.lst);
                 }
             }
@@ -306,7 +306,7 @@ namespace BLADE.TFS.HOMEGATE.WinMng
                 else
                 {
                     var j = WorkClass.FormatAndSortList(ls);
-                    AddLog(j.info);
+                    AddLog("Loaded IPV4 BlackList: " + ls.Count + "  " + j.info);
                     AppCenter.UpdateWorkList(NameListType.Black, CurIPFM.IPV4, j.lst);
                 }
             }
@@ -586,13 +586,19 @@ namespace BLADE.TFS.HOMEGATE.WinMng
                 dataGridView1.Invoke(new Action(() =>
                 {
                     if (dataGridView1.Rows.Count > 0)
+                    {
                         dataGridView1.FirstDisplayedScrollingRowIndex = dataGridView1.Rows.Count - 1;
+                        AppCenter.AutoSizeColumnsWithLimit(dataGridView1, 200);
+                    }
                 }));
             }
             else
             {
                 if (dataGridView1.Rows.Count > 0)
+                {
                     dataGridView1.FirstDisplayedScrollingRowIndex = dataGridView1.Rows.Count - 1;
+                    AppCenter.AutoSizeColumnsWithLimit(dataGridView1, 200);
+                }
             }
         }
 

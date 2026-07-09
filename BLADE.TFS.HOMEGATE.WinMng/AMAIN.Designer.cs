@@ -28,7 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AMAIN));
             richTextBox1 = new RichTextBox();
             label1 = new Label();
             label2 = new Label();
@@ -109,7 +110,7 @@
             richTextBox1.Margin = new Padding(3, 4, 3, 4);
             richTextBox1.Name = "richTextBox1";
             richTextBox1.ScrollBars = RichTextBoxScrollBars.Vertical;
-            richTextBox1.Size = new Size(464, 142);
+            richTextBox1.Size = new Size(464, 116);
             richTextBox1.TabIndex = 0;
             richTextBox1.Text = "show text";
             // 
@@ -141,11 +142,11 @@
             tabControl1.Controls.Add(tabPage2);
             tabControl1.Controls.Add(tabPage3);
             tabControl1.Controls.Add(tabPage7);
-            tabControl1.Location = new Point(15, 231);
+            tabControl1.Location = new Point(15, 188);
             tabControl1.Margin = new Padding(3, 4, 3, 4);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(1173, 579);
+            tabControl1.Size = new Size(1173, 622);
             tabControl1.TabIndex = 3;
             // 
             // tabPage1
@@ -188,7 +189,7 @@
             tabPage1.Margin = new Padding(3, 4, 3, 4);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3, 4, 3, 4);
-            tabPage1.Size = new Size(1165, 546);
+            tabPage1.Size = new Size(1165, 589);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "★Address List MNG";
             // 
@@ -196,7 +197,7 @@
             // 
             label11.AutoSize = true;
             label11.Font = new Font("Microsoft YaHei UI", 9F);
-            label11.Location = new Point(462, 510);
+            label11.Location = new Point(456, 560);
             label11.Name = "label11";
             label11.Size = new Size(104, 20);
             label11.TabIndex = 46;
@@ -207,7 +208,7 @@
             textBox7.BackColor = Color.FromArgb(162, 245, 245);
             textBox7.BorderStyle = BorderStyle.FixedSingle;
             textBox7.Font = new Font("Microsoft YaHei UI", 8F);
-            textBox7.Location = new Point(572, 507);
+            textBox7.Location = new Point(566, 557);
             textBox7.Margin = new Padding(3, 4, 3, 4);
             textBox7.MaxLength = 60;
             textBox7.Name = "textBox7";
@@ -532,7 +533,7 @@
             button13.FlatStyle = FlatStyle.Flat;
             button13.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Bold);
             button13.ForeColor = Color.FromArgb(150, 90, 200);
-            button13.Location = new Point(887, 500);
+            button13.Location = new Point(887, 549);
             button13.Margin = new Padding(3, 4, 3, 4);
             button13.Name = "button13";
             button13.Size = new Size(266, 32);
@@ -547,7 +548,7 @@
             panel1.Location = new Point(870, 15);
             panel1.Margin = new Padding(3, 4, 3, 4);
             panel1.Name = "panel1";
-            panel1.Size = new Size(6, 516);
+            panel1.Size = new Size(6, 566);
             panel1.TabIndex = 28;
             // 
             // button12
@@ -586,7 +587,7 @@
             button4.FlatStyle = FlatStyle.Flat;
             button4.Font = new Font("Microsoft YaHei UI", 8F, FontStyle.Bold);
             button4.ForeColor = Color.FromArgb(90, 0, 50);
-            button4.Location = new Point(117, 505);
+            button4.Location = new Point(117, 555);
             button4.Margin = new Padding(3, 4, 3, 4);
             button4.Name = "button4";
             button4.Size = new Size(104, 27);
@@ -618,7 +619,7 @@
             listBox2.ForeColor = Color.DarkBlue;
             listBox2.FormattingEnabled = true;
             listBox2.Items.AddRange(new object[] { "12345 | 240C:3344:2BC1:00BD:0100:3456:2211:0001/128", "12346 | 240C:3344:2BC1:00BD:01AD:3456:2211:5501/128", "1255 | 192.168.125.11/32", "34510 | 221.1.254.0/24", "12325 | 240C:F144:2BC1:00BD:0100:3456:2211:0001/128", "12315 | 240C:B021:2BC1:00BD:FF31:3456:2211:3801/128" });
-            listBox2.Location = new Point(6, 411);
+            listBox2.Location = new Point(6, 461);
             listBox2.Margin = new Padding(3, 4, 3, 4);
             listBox2.Name = "listBox2";
             listBox2.Size = new Size(394, 87);
@@ -645,7 +646,7 @@
             button9.FlatStyle = FlatStyle.Flat;
             button9.Font = new Font("Microsoft YaHei UI", 8F, FontStyle.Bold);
             button9.ForeColor = Color.Teal;
-            button9.Location = new Point(6, 505);
+            button9.Location = new Point(6, 555);
             button9.Margin = new Padding(3, 4, 3, 4);
             button9.Name = "button9";
             button9.Size = new Size(105, 27);
@@ -677,7 +678,7 @@
             listBox1.ForeColor = Color.Blue;
             listBox1.FormattingEnabled = true;
             listBox1.Items.AddRange(new object[] { "255.255.255.127/25", "199.199.199.0/24", "2408:553A:4488:1234:0560:BACK:0000:A3B1/128", "2408:553A:4488:1234::/64", "123.21.43.0/24", "240.240.0.0/16" });
-            listBox1.Location = new Point(417, 411);
+            listBox1.Location = new Point(411, 461);
             listBox1.Margin = new Padding(3, 4, 3, 4);
             listBox1.Name = "listBox1";
             listBox1.Size = new Size(319, 87);
@@ -705,7 +706,7 @@
             button7.FlatStyle = FlatStyle.Flat;
             button7.Font = new Font("Microsoft YaHei UI", 8F, FontStyle.Bold);
             button7.ForeColor = Color.FromArgb(80, 30, 50);
-            button7.Location = new Point(742, 476);
+            button7.Location = new Point(742, 526);
             button7.Margin = new Padding(3, 4, 3, 4);
             button7.Name = "button7";
             button7.Size = new Size(118, 55);
@@ -725,13 +726,13 @@
             dataGridView1.ReadOnly = true;
             dataGridView1.RowHeadersVisible = false;
             dataGridView1.RowHeadersWidth = 51;
-            dataGridViewCellStyle2.BackColor = Color.FromArgb(0, 240, 250);
-            dataGridViewCellStyle2.ForeColor = Color.FromArgb(0, 0, 150);
-            dataGridViewCellStyle2.SelectionBackColor = Color.FromArgb(240, 150, 210);
-            dataGridViewCellStyle2.SelectionForeColor = Color.FromArgb(0, 0, 150);
-            dataGridView1.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.BackColor = Color.FromArgb(0, 240, 250);
+            dataGridViewCellStyle1.ForeColor = Color.FromArgb(0, 0, 150);
+            dataGridViewCellStyle1.SelectionBackColor = Color.FromArgb(240, 150, 210);
+            dataGridViewCellStyle1.SelectionForeColor = Color.FromArgb(0, 0, 150);
+            dataGridView1.RowsDefaultCellStyle = dataGridViewCellStyle1;
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridView1.Size = new Size(854, 313);
+            dataGridView1.Size = new Size(854, 366);
             dataGridView1.TabIndex = 0;
             dataGridView1.DataBindingComplete += dataGridView1_DataBindingComplete;
             dataGridView1.RowPrePaint += dataGridView1_RowPrePaint;
@@ -743,7 +744,7 @@
             button6.FlatStyle = FlatStyle.Flat;
             button6.Font = new Font("Microsoft YaHei UI", 8F, FontStyle.Bold);
             button6.ForeColor = Color.FromArgb(30, 80, 50);
-            button6.Location = new Point(742, 411);
+            button6.Location = new Point(742, 461);
             button6.Margin = new Padding(3, 4, 3, 4);
             button6.Name = "button6";
             button6.Size = new Size(118, 55);
@@ -769,7 +770,7 @@
             button5.FlatStyle = FlatStyle.Flat;
             button5.Font = new Font("Microsoft YaHei UI", 8F, FontStyle.Bold);
             button5.ForeColor = Color.FromArgb(50, 50, 180);
-            button5.Location = new Point(227, 504);
+            button5.Location = new Point(227, 554);
             button5.Margin = new Padding(3, 4, 3, 4);
             button5.Name = "button5";
             button5.Size = new Size(173, 27);
@@ -807,7 +808,7 @@
             tabPage2.Margin = new Padding(3, 4, 3, 4);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3, 4, 3, 4);
-            tabPage2.Size = new Size(1165, 546);
+            tabPage2.Size = new Size(1165, 589);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "★HomeGate CFG";
             // 
@@ -818,7 +819,7 @@
             tabPage3.Location = new Point(4, 29);
             tabPage3.Margin = new Padding(3, 4, 3, 4);
             tabPage3.Name = "tabPage3";
-            tabPage3.Size = new Size(1165, 546);
+            tabPage3.Size = new Size(1165, 589);
             tabPage3.TabIndex = 2;
             tabPage3.Text = "★IPGate CFG";
             // 
@@ -829,7 +830,7 @@
             tabPage7.Location = new Point(4, 29);
             tabPage7.Margin = new Padding(3, 4, 3, 4);
             tabPage7.Name = "tabPage7";
-            tabPage7.Size = new Size(1165, 546);
+            tabPage7.Size = new Size(1165, 589);
             tabPage7.TabIndex = 6;
             tabPage7.Text = "★RRCore CFG";
             // 
@@ -942,7 +943,7 @@
             groupBox2.Margin = new Padding(3, 4, 3, 4);
             groupBox2.Name = "groupBox2";
             groupBox2.Padding = new Padding(3, 4, 3, 4);
-            groupBox2.Size = new Size(480, 196);
+            groupBox2.Size = new Size(480, 168);
             groupBox2.TabIndex = 12;
             groupBox2.TabStop = false;
             // 
@@ -957,6 +958,7 @@
             Controls.Add(tabControl1);
             ForeColor = Color.FromArgb(0, 54, 64);
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Margin = new Padding(3, 4, 3, 4);
             MaximizeBox = false;
             MinimizeBox = false;

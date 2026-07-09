@@ -81,6 +81,45 @@ namespace BLADE.TFS.HOMEGATE.WinMng
             }
             return false;
         }
+
+        /// <summary>
+        /// 数据绑定后自动调整列宽，带最大宽度限制，用户后续可手动自由调整
+        /// </summary>
+        /// <param name="dgv">目标DataGridView</param>
+        /// <param name="defaultMaxWidth">所有列的默认最大宽度</param>
+        /// <param name="columnMaxWidths">指定列的单独最大宽度，key为列名/DataPropertyName</param>
+        /// <param name="sizeMode">计算模式：AllCells全量计算/DisplayedCells仅计算可见行（大数据量用）</param>
+        public static void AutoSizeColumnsWithLimit(DataGridView dgv,   int defaultMaxWidth = 210,   Dictionary<string, int> columnMaxWidths = null,   DataGridViewAutoSizeColumnMode sizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells)
+        {
+            // 挂起布局，批量调整避免闪烁
+            dgv.SuspendLayout();
+
+            foreach (DataGridViewColumn col in dgv.Columns)
+            {
+                // 跳过隐藏列
+                if (!col.Visible) continue;
+
+                // 1. 计算该列内容自适应的理想宽度（包含列标题+所有单元格）
+                int idealWidth = col.GetPreferredWidth(sizeMode, true);
+
+                // 2. 确定该列的最大初始宽度
+                int maxWidth = defaultMaxWidth;
+                if (columnMaxWidths != null)
+                {
+                    // 支持按列名匹配，也可以换成 col.DataPropertyName 匹配数据源字段
+                    if (columnMaxWidths.ContainsKey(col.Name))
+                        maxWidth = columnMaxWidths[col.Name];
+                }
+
+                // 3. 最终宽度：取「内容理想宽度」和「最大限制宽度」的较小值
+                col.Width = Math.Min(idealWidth, maxWidth);
+
+                // 可选：设置最小宽度，避免列太窄看不清
+                col.MinimumWidth = 50;
+            }
+
+            dgv.ResumeLayout();
+        }
     }
 
     public class selectedItem
