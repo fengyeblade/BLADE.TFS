@@ -265,6 +265,7 @@ namespace BLADE.TFS.HOMEGATE.WinMng
             wb.HD = "DNS"; if (i.DOMTYPE == 20) { wb.HD = "RED"; } else if(i.DOMTYPE==30){ wb.HD = "RXG"; }
             wb.Mask = 5; if (i.NETTYPE == 4) { wb.Mask = 4; } else if (i.NETTYPE == 6) { wb.Mask = 6; }
             wb.IPADDRESS = i.DOMAIN;
+            wb.WBGTYPE= AppCenter.WBGNAME(i.WBGTYPE);
             wb.COMMENT = i.COMMENT;
             wb.CUTC = i.MakeUTC.ToString(WorkClass.utcfm);
             wb.Match = i.Match.Trim();

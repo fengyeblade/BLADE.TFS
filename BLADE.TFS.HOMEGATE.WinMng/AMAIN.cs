@@ -26,7 +26,7 @@ namespace BLADE.TFS.HOMEGATE.WinMng
             WorkClass.MainForm = this;
         }
 
-        private void AMAIN_Load(object sender, EventArgs e)
+        private async  void AMAIN_Load(object sender, EventArgs e)
         {
             _timer = new(timeCall, null, 700, 700);
             richTextBox1.Text = "";
@@ -34,9 +34,71 @@ namespace BLADE.TFS.HOMEGATE.WinMng
             // dataGridView1.Get_DG_Extend().WBG = CurWBG.White;
             //dataGridView1.Get_DG_Extend().IPFM = CurIPFM.NONE;
             //dataGridView1.Get_DG_Extend().Loaded = false;
+
+
+            if (await TryGet_ipgatesafe_cfg())
+            { logtext += "find ipgatesafe_cfg , loaded dbstr."; }
+            else { 
+               if(await TryGet_luoDBstr())
+               {
+                    logtext += "find sqldbstr.cfg , loaded dbstr.";
+               }
+            }
             textBox2.Text = AppCenter.DBTYPE.Trim();
             textBox1.Text = AppCenter.DBCONNSTR.Trim();
             listBox1.Items.Clear();
+        }
+        protected async ValueTask<bool> TryGet_luoDBstr()
+        {
+            string a = Path.Combine(Application.StartupPath, "sqldbstr.cfg");
+            ;
+            if (File.Exists(a))
+            {
+                try
+                {
+                    
+                    using (var sss = File.OpenText(a))
+                    {
+                        string jjj = await sss.ReadToEndAsync();
+                        if (jjj != null && jjj.Length > 10)
+                        {
+                            AppCenter.DBCONNSTR = jjj;
+                            AppCenter.DBTYPE = "SQLSERVER";
+                            return true;
+                        }
+                    }
+                  
+                }
+                catch { }
+            }
+
+            return false;
+        }
+
+        protected async ValueTask<bool> TryGet_ipgatesafe_cfg()
+        { 
+           string a = Path.Combine(Application.StartupPath, "Configs");
+            a= Path.Combine(a, "ipgatesafe.cfg");
+            if (File.Exists(a))
+            {
+                try {
+                    IpGateSettingsMOD? mm;
+                    using (var sss = File.OpenText(a))
+                    {
+                          string jjj = await sss.ReadToEndAsync();
+                        mm = BLADE.TOOLS.BASE.Json.JsonOptions.Deserialize<IpGateSettingsMOD>(jjj);
+                    }
+                    if(mm != null)
+                    {
+                        AppCenter.DBCONNSTR = mm.DBM.ConnectionString;
+                        AppCenter.DBTYPE = mm.DBM.DBType;
+                        return true;
+                    }
+                }
+                catch { }
+            }
+
+            return false;
         }
 
         protected void timeCall(object? state)
